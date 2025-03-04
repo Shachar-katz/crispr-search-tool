@@ -20,6 +20,6 @@
 #include "fileReadClass.hpp"
 using namespace std;
 
-void step_1(string inputFile, string inputFileType, string outputFile, int seedK, int minK);
+void step_1(string inputFile, string inputFileType, string outputFile, int seedK, int minK, int legitimateSpacer);
 
 #endif /* Step_1_hpp */

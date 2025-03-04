@@ -4,7 +4,7 @@
 
 // step one functions bellow:
 
-void findKmersInFile(MultiFormatFileReader& fileReader, unordered_map<string,int>& globalKmerMap, int seedK, int minK){
+void findKmersInFile(MultiFormatFileReader& fileReader, unordered_map<string,int>& globalKmerMap, int seedK, int minK, int legitimateSpacer){
     // line variable temporerally holds the reads
     string line;
     int progressCounter = 0;
@@ -28,7 +28,7 @@ void findKmersInFile(MultiFormatFileReader& fileReader, unordered_map<string,int
         // we check if it can be expanded to a Kmer and if so that Kmer is added to the set of unique Kmers
         for (const auto& [Smer, idxs] : singleLineMapSeedKToIdx){
             if (singleLineMapSeedKToIdx[Smer].size() > 1){
-                expandSeedToKmer(line, Smer, idxs, minK, uniqueKmersInLine);
+                expandSeedToKmer(line, Smer, idxs, minK, uniqueKmersInLine, legitimateSpacer);
             }
         }
         // for every unique Kmer found on the line:
@@ -80,13 +80,13 @@ void findSeedPattern(string line, unordered_map<string,vector<int>>& singleLineM
 
 // this function recives start and end location of 2 Kmers in expansion and 
 // varifies that they are not overlapping
-bool notOverlapping(int idxStartPotential, int idxStartCompare, int idxEndPotential, int idxEndCompare)
+bool notOverlapping(int idxStartPotential, int idxStartCompare, int idxEndPotential, int idxEndCompare, int legitimateSpacer)
 {
-    return (idxEndPotential < idxStartCompare) || (idxEndCompare < idxStartPotential);
+    return ((idxEndPotential + legitimateSpacer) < idxStartCompare) || ((idxEndCompare + legitimateSpacer) < idxStartPotential);
 }
 
 // this function populates the unique Kmer set
-void expandSeedToKmer(const string& line, string Smer, vector<int> SmerIdxVect , int minK, set<string>& uniqueKmersInLine){
+void expandSeedToKmer(const string& line, string Smer, vector<int> SmerIdxVect , int minK, set<string>& uniqueKmersInLine,int legitimateSpacer){
     // Track unique K-mers for this particular Smer on this particular line
     set<string> UniqueKmersFromSmer; 
     // we iterate over the index vector of the appearences of this Smer, each index gets a turn to be the potential Kmer.
@@ -110,7 +110,7 @@ void expandSeedToKmer(const string& line, string Smer, vector<int> SmerIdxVect ,
             bool equalAtStart = true;
             bool equalAtEnd = true;
             // while the 2 locations are equal at the start or end and the indecies are not overlapping:
-            while((equalAtStart || equalAtEnd) && notOverlapping(idxStartPotential,idxStartCompare,idxEndPotential,idxEndCompare)){
+            while((equalAtStart || equalAtEnd) && notOverlapping(idxStartPotential,idxStartCompare,idxEndPotential,idxEndCompare,legitimateSpacer)){
                 // as long as the indecies would valid at the start if we decremented and they are still equal at the start:
                 if (equalAtStart && idxStartPotential > 0 && idxStartCompare > 0){
                     // if the "next" nucleotid is equal on both occurances we decrement the position and continue expending
@@ -127,7 +127,7 @@ void expandSeedToKmer(const string& line, string Smer, vector<int> SmerIdxVect ,
                     equalAtStart = false;
                 }
                 // after one end expansion if they overlapp we want to stop
-                if(!notOverlapping(idxStartPotential,idxStartCompare,idxEndPotential,idxEndCompare)) {break;}
+                if(!notOverlapping(idxStartPotential,idxStartCompare,idxEndPotential,idxEndCompare,legitimateSpacer)) {break;}
                 // as long as the indecies would be valid at the end if we incremented and they are still equal at the end:
                 if (equalAtEnd && (idxEndPotential + 1) < line.length() && (idxEndCompare + 1) < line.length()){
                     // if the "next" nucleotid is equal on both occurances we increment the position and continue expending

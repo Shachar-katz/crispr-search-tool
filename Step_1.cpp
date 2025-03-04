@@ -6,14 +6,14 @@
 //
 
 #include "Step_1.hpp"
-void step_1(string inputFile, string inputFileType, string outputFile, int seedK, int minK){
+void step_1(string inputFile, string inputFileType, string outputFile, int seedK, int minK, int legitimateSpacer){
     
     unordered_map<string,int> globalKmerMap;
     
     MultiFormatFileReader fileReader(inputFile, inputFileType);
     
     cout << "finding Kmers in file" << endl;
-    findKmersInFile(fileReader, globalKmerMap, seedK, minK);
+    findKmersInFile(fileReader, globalKmerMap, seedK, minK, legitimateSpacer);
     
     cout << "Number of Kmers found: " << globalKmerMap.size() << endl;
     

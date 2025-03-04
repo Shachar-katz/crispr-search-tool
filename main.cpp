@@ -24,30 +24,32 @@ int main(int argc, const char * argv[]) {
     switch(step){
         case 1:{
             string inputFileType = argv[2];
-            if (argc < 7){
+            if (argc < 8){
                 cerr << "Error: missing args for step 1" << endl;
                 cerr << "enter arguments in this order: \nexecutable, step, input_file_type, input_file_name/s, output_file_name, minimum_k, seed_k " << endl;
                 return 1;
             }
-            if(argc == 8 && inputFileType == "fastq_dual"){
+            if(argc == 9 && inputFileType == "fastq_dual"){
                 string inputFileR1 = argv[3];
                 string inputFileR2 = argv[4];
                 string outputFile = argv[5];
                 int minK = atoi(argv[6]);
                 int seedK = atoi(argv[7]);
+                int legitimateSpacer = atoi(argv[8]);
                 string outputFileR1 = "/Users/sarahkatz/Documents/repeat-search/repeatesSearchProjectAltK/" + outputFile + "_R1";
                 string outputFileR2 = "/Users/sarahkatz/Documents/repeat-search/repeatesSearchProjectAltK/" + outputFile + "_R2";
-                step_1(inputFileR1, inputFileType, outputFileR1, seedK, minK);
-                step_1(inputFileR1, inputFileType, outputFileR2, seedK, minK);
+                step_1(inputFileR1, inputFileType, outputFileR1, seedK, minK, legitimateSpacer);
+                step_1(inputFileR1, inputFileType, outputFileR2, seedK, minK, legitimateSpacer);
             }
             else{
                 string inputFile = argv[3];
                 string outputFile = argv[4];
                 int minK = atoi(argv[5]);
                 int seedK = atoi(argv[6]);
+                int legitimateSpacer = atoi(argv[7]);
                 outputFile = "/Users/sarahkatz/Documents/repeat-search/repeatesSearchProjectAltK/" + outputFile;
                 cout << "repeat finder initilized" << endl;
-                step_1(inputFile, inputFileType, outputFile, seedK, minK);
+                step_1(inputFile, inputFileType, outputFile, seedK, minK, legitimateSpacer);
             }
             break;
         }
