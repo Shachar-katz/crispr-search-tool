@@ -12,6 +12,9 @@ DynamicBins::DynamicBins() : nextBinNumber(1) {}
 
     // adds a key with an auto-generated bin number
 void DynamicBins::addAutoSingle(const string &Kmer) {
+    if(this->getBin(Kmer) != -1){
+        return;
+    }
     int binNumber = nextBinNumber++;
     bins[Kmer] = binNumber;
     existingBinNums.insert(binNumber);
@@ -90,4 +93,8 @@ unordered_map<int,vector<string>> DynamicBins::getReBins(){
     // gets len of bins structure
 int DynamicBins::getLen(){
     return bins.size();
+}
+
+int DynamicBins::getNumBins(){
+    return this->existingBinNums.size();
 }

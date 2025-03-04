@@ -178,6 +178,9 @@ string kmerCompetition(const unordered_map<string,int>& Kmap, string currentRep,
         if (abundanceCurrent < abundanceAudition) {
             return auditioningKmer;
         }
+        else if(abundanceCurrent == abundanceAudition){
+            return tieBreaker(currentRep,auditioningKmer);
+        }
         return currentRep;
     }
     catch (const out_of_range& ex) {
@@ -194,6 +197,17 @@ string kmerCompetition(const unordered_map<string,int>& Kmap, string currentRep,
         }
         return "";
     }
+}
+
+// this function cannonicly picks a Kmer rep if their abundance is equal
+string tieBreaker(string currentRep, string auditioningKmer){
+    string cannonizedCurrRep = pickKey(currentRep);
+    string cannonizedAuditioning = pickKey(auditioningKmer);
+
+    if (cannonizedCurrRep > cannonizedAuditioning){
+        return currentRep;
+    }
+    return auditioningKmer;
 }
 
 // this function iterates over the reverse bins and assigns exactly one representative for each bin (the one with the highest abundance).

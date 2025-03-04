@@ -40,6 +40,8 @@ void makePotentialRelationsSet(const unordered_map<string,vector<string>>& Smap,
 void chooseShortestK (const pair<string, string>& Kpair, string& shortestK, string& otherK);
 void binRelatives(const string& shortestK, const string& otherK, DynamicBins& bins);
 void verifyRelation(const unordered_map<string,vector<string>>& Smap, const set<pair<string,string>>& potentialRelationSet, int seedK, DynamicBins& bins, int alpha = 1);
+string kmerCompetition(const unordered_map<string,int>& Kmap, string currentRep, string auditioningKmer);
+string tieBreaker(string currentRep, string auditioningKmer);
 void binSingles(const unordered_map<string,vector<string>>& Smap, DynamicBins& bins);
 void selectReps(unordered_map<int, string>& provisionalRepList, const unordered_map<int,vector<string>>& reverseBins, const unordered_map<string,int>& Kmap);
 unordered_map<int, string> reCannonization(const unordered_map<int, string>& provisionalRepList, const DynamicBins& bins);

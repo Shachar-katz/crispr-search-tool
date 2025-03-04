@@ -58,7 +58,7 @@ bool skipThisLine(const string& read){
     }
     int countOfMostFrequentNuc = max({A, T, C, G});
     double ratio = (double)countOfMostFrequentNuc / (double)read.size();
-    if (ratio >= 0.8) {
+    if (ratio >= 0.5) {
         // Skip expansions for this line
         return true; 
     }

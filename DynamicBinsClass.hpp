@@ -34,6 +34,7 @@ public:
     unordered_map<int,vector<string>> getReBins();
     void iterReBins(const unordered_map<string,int>& Kmap, function<void(const vector<string>&, int, const unordered_map<string,int>&)> func) const;
     int getLen();
+    int getNumBins();
 
 private:
     unordered_map<string, int> bins;
