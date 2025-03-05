@@ -37,21 +37,8 @@ void cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha)
     bins.reverseBin();
 
     unordered_map<int,vector<string>> reverseBins = bins.getReBins();
-    // set<int> usedBinNums = bins.getAssignedBinNumbers();
-    //db
-    // cout << "printing bin 126" << endl;
-    // for (string Kmer : reverseBins.at(126)){
-    //     cout << Kmer << " ";
-    // }
-    // cout << endl;
-    
-    // cout << "printing bin 111" << endl;
-    // for (string Kmer : reverseBins.at(111)){
-    //     cout << Kmer << " ";
-    // }
-    // cout << endl;
-    
     unordered_map<int,string> provisionalReps;
+    
     selectReps(provisionalReps, reverseBins, Kmap);
     cout << "size of choosen reps before cannonization: " << provisionalReps.size() << endl; // debugg
     unordered_map<int,string> finalReps = reCannonization(provisionalReps, bins);
