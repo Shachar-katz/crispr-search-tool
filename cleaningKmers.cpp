@@ -31,12 +31,25 @@ void cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha)
     
     makePotentialRelationsSet(Smap, potentialRelationSet);
     verifyRelation(Smap, potentialRelationSet, seedK, bins, alpha);
+    cout << "size of bins before binning singles: " << bins.getLen() << endl; // debugg
     binSingles(Smap, bins);
     cout << "size of bins: " << bins.getLen() << endl; // debugg
     bins.reverseBin();
 
     unordered_map<int,vector<string>> reverseBins = bins.getReBins();
     // set<int> usedBinNums = bins.getAssignedBinNumbers();
+    //db
+    // cout << "printing bin 126" << endl;
+    // for (string Kmer : reverseBins.at(126)){
+    //     cout << Kmer << " ";
+    // }
+    // cout << endl;
+    
+    // cout << "printing bin 111" << endl;
+    // for (string Kmer : reverseBins.at(111)){
+    //     cout << Kmer << " ";
+    // }
+    // cout << endl;
     
     unordered_map<int,string> provisionalReps;
     selectReps(provisionalReps, reverseBins, Kmap);

@@ -52,16 +52,5 @@ void buildSmap(ifstream& InCatalog, unordered_map<string,Kmap_t>& Smap, int seed
 void findKmersInFileWithSmap(MultiFormatFileReader& fileReader, unordered_map<string,data_t>& globalKmerMap, unordered_map<string,Kmap_t>& Smap, int seedK);
 void expandSeedToKmerWithSmap(const string& line, const string& Smer, int& idx , unordered_map<string,data_t>& globalKmerMap, unordered_map<string,Kmap_t>& Smap);
 
-// global functions:
-string reverseComplement(string seq);
-string pickKey(string seq);
-template <typename T>
-void writeUnorderedMapToFile(const unordered_map<string, T>& map, ofstream& outFS) {
-    for (const auto& [key, data] : map) {
-        outFS << setw(20) << key << '\t' << data << '\n';
-
-    }
-}
-
 
 #endif /* functions_hpp */

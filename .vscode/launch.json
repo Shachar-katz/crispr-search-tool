@@ -2,6 +2,61 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Run repeat finder step 1",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "/Users/sarahkatz/Documents/crispr-search-tool/altKmain",
+      "args": [
+        "1",
+        "fastq_single",
+        "/Users/sarahkatz/AAK_samples/SRR24705341_1_100K_reads_sample.fastq",
+        "output_step_1_AAK_R1_5341_100K_V1.txt",
+        "20",
+        "10",
+        "0"
+      ],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "MIMode": "lldb"
+    },
+    {
+      "name": "Run repeat finder step 2",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "/Users/sarahkatz/Documents/crispr-search-tool/altKmain",
+      "args": [
+        "2",
+        "/Users/sarahkatz/Documents/crispr-search-tool/output_step_1_AAK_R1_5341_100K_V1.txt",
+        "output_step_2_AAK_R1_5341_100K_V10_db",
+        "8",
+        "1"
+      ],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "MIMode": "lldb"
+    },
+    {
+      "name": "Run repeat finder step 3",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "Users/sarahkatz/Documents/crispr-search-tool/altKmain",
+      "args": [
+        "3",
+        "/Users/sarahkatz/Documents/repeat-search/repeatesSearchProjectAltK/test_read_file_altK4.txt",
+        "txt",
+        "Users/sarahkatz/Documents/crispr-search-tool/output_step_2_AAK_R1_5341_100K_V1.txt",
+        "output_step_3_altk4_1",
+        "20",
+        "8"
+      ],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "MIMode": "lldb"
+    },
+    {
       "name": "C/C++ Runner: Debug Session",
       "type": "lldb",
       "request": "launch",

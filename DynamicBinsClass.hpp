@@ -16,6 +16,7 @@
 #include <iostream>
 #include <algorithm>
 #include "classData.hpp"
+#include "globalFunctions.h"
 
 using namespace std;
 
@@ -31,8 +32,9 @@ public:
     void print() const;
     unordered_map<string, int> getBinsStructure() const;
     void reverseBin();
+    void normlizeReverseBin();
     unordered_map<int,vector<string>> getReBins();
-    void iterReBins(const unordered_map<string,int>& Kmap, function<void(const vector<string>&, int, const unordered_map<string,int>&)> func) const;
+    // void iterReBins(const unordered_map<string,int>& Kmap, function<void(const vector<string>&, int, const unordered_map<string,int>&)> func) const;
     int getLen();
     int getNumBins();
 

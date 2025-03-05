@@ -56,9 +56,10 @@ void makePotentialRelationsSet(const unordered_map<string,vector<string>>& Smap,
         if (KVect.size() > 1){
             vector<string> copyKVect = KVect;
             // we sort the Kmers from small to large
-            sort(copyKVect.begin(), copyKVect.end(), [](const string &K, const string &otherK) {
-                return K.length() < otherK.length();
+            sort(copyKVect.begin(), copyKVect.end(), [](const string &a, const string &b) {
+                return (a.length() == b.length()) ? pickKey(a) < pickKey(b) : a.length() < b.length();
             });
+
             // for the sorted vector of Kmers we put every Kmer in a pair with all the others to signify they may be subsets of one another
             for (int i = 0; i < copyKVect.size(); i++){
                 for (int j = 0; j < copyKVect.size(); j++) {
@@ -72,12 +73,18 @@ void makePotentialRelationsSet(const unordered_map<string,vector<string>>& Smap,
     cout << "after initilizing potential relations set's length: " << potentialRelationSet.size() << endl; //debugging
 }
 
-// this is a simple function that gets a pair of strings and 2 empty variables and assigns them them to the variables by length (shortest, and the other one)
+// this is a simple function that gets a pair of strings and 2 empty variables and assigns them them to the variables by length (shortest, and the other one) or if equal chooses order based on cannonic form 
 void chooseShortestK (const pair<string, string>& Kpair, string& shortestK, string& otherK){
     if (Kpair.first.length() < Kpair.second.length()) {
         shortestK = Kpair.first;
         otherK = Kpair.second;
-    } else {
+    } else if (Kpair.first.length() > Kpair.second.length()){
+        shortestK = Kpair.second;
+        otherK = Kpair.first;
+    } else if (pickKey(Kpair.first) < pickKey(Kpair.second)){
+        shortestK = Kpair.first;
+        otherK = Kpair.second;
+    } else{
         shortestK = Kpair.second;
         otherK = Kpair.first;
     }
@@ -144,11 +151,14 @@ void verifyRelation(const unordered_map<string,vector<string>>& Smap, const set<
                 cout << "failed to find " << currentSmer << "in Smap" << endl;
             }
         }
-        // if after the check they are still related, we bin them together using the binning function, otherwise we bin them seperately.
+        // if after the check they are still related, we bin them together using the binning function, as well as their RC's, otherwise we bin them seperately.
         if (isRelated){
             binRelatives(shortestK, otherK, bins);
+            string RCShortestK = reverseComplement(shortestK);
+            string RCOtherK = reverseComplement(otherK);
+            binRelatives(RCShortestK, RCOtherK, bins); // viable_change
         }
-        else{
+        else{ // maybe need to add RC's here too?
             bins.addAutoSingle(shortestK);
             bins.addAutoSingle(otherK);
         }
@@ -213,11 +223,17 @@ string tieBreaker(string currentRep, string auditioningKmer){
 // this function iterates over the reverse bins and assigns exactly one representative for each bin (the one with the highest abundance).
 // the end result is a list of representatives and bin numbers in the repList structure
 void selectReps(unordered_map<int, string>& provisionalRepList, const unordered_map<int,vector<string>>& reverseBins, const unordered_map<string,int>& Kmap){
-    cout << "begining selecting final reps" << endl;
+    cout << "begining selecting reps" << endl;
     // we iterate over the reverse bins structure that points from bin number to a vector of Kmers in that bin.
     for (const auto& [binNum, KVect] : reverseBins){
+        vector <string> sortedKVect = KVect;
+        // we sort the Kmers in the vector from small to large
+        sort(sortedKVect.begin(), sortedKVect.end(),[](const std::string &a, const std::string &b) {
+                return (a.length() < b.length()) || (a.length() == b.length() && pickKey(a) < pickKey(b));
+            }
+        );
         // for every Kmer:
-        for (const auto& auditioningKmer : KVect){
+        for (const auto& auditioningKmer : sortedKVect){
             // if that bin doesn't have a representative yet (aka index 0 of our current vector) we assign the Kmer as the representative of this bin and continue
             if (provisionalRepList.count(binNum) == 0){
                 provisionalRepList[binNum] = auditioningKmer;
@@ -236,27 +252,29 @@ void selectReps(unordered_map<int, string>& provisionalRepList, const unordered_
 }
 
 unordered_map<int, string> reCannonization(const unordered_map<int, string>& provisionalRepList, const DynamicBins& bins) {
-    // the idea is: 
-    // 1) flip reps list ( Kmer -> binNum )
-    // 2) iterate over that, for every Kmer create a temp var cannonized = pickkey(Kmer)
-    // 3) check if Kmer != cannonized && cannonized is another key in reverse rep list:
-    // 4) find canonized's binNum, and update that in the new reps list 
+    
     unordered_map<string, int> reverseRepList;
     unordered_map<int, string> finalRepList;
+    // 1) flip reps list ( Kmer -> binNum )
     for(auto& [binNum, repKmer] : provisionalRepList){
         reverseRepList[repKmer] = binNum;
     }
+    // 2) iterate over the reverse list, for every Kmer create a temp var cannonized = pickkey(Kmer)
     for(auto& [repKmer, binNum] : reverseRepList){
         string cannonized = pickKey(repKmer);
-        if (repKmer != cannonized && (reverseRepList.count(cannonized) != 0 || bins.getBin(cannonized) != -1)){
-            int bin = bins.getBin(cannonized);
+        // 3) check if Kmer != cannonized && cannonized is another key in reverse rep list:
+        if (repKmer != cannonized && (reverseRepList.count(cannonized) != 0)){
+            // 4) if so find canonized's binNum, and update that in the new reps list 
+            int bin = reverseRepList.at(cannonized);
             finalRepList[bin] = cannonized;
         }
+        // 3) otherwise check if the rep is its own cannonized form 
         else if(repKmer == cannonized){
+            // 4) if so add it to final reps list
             finalRepList[binNum] = cannonized;
         }
         else{
-            cout << "failed to cannonize the Kmer: " << repKmer << "- it's pick Key returned: " << cannonized << endl;
+            cerr << "failed to cannonize the Kmer: " << repKmer << endl;
         }
     }
     return finalRepList;

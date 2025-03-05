@@ -1,10 +1,4 @@
 #include "DynamicBinsClass.hpp"
-#include <iostream>
-#include <unordered_map>
-#include <string>
-#include <vector>
-#include <set>
-#include <algorithm>
 
 using namespace std;
 
@@ -43,6 +37,9 @@ int DynamicBins::getBin(const string &Kmer) const {
 
     // mergers bins to the smaller bin 
 void DynamicBins::merge(int binA, int binB) {
+    if(binA == binB){
+        return;
+    } // viable_change
     int mergedBin = std::min(binA, binB);
     int removedBin = std::max(binA, binB);
     
@@ -71,24 +68,20 @@ void DynamicBins::reverseBin(){
         auto& KVect = reBins[binNum];
         KVect.emplace_back(Kmer);
     }
+    normlizeReverseBin();
+}
+void DynamicBins::normlizeReverseBin(){
+    for (auto& [binNum, KVect] : reBins) {
+        sort(KVect.begin(), KVect.end(),[](const std::string &a, const std::string &b) {
+                return (a.length() < b.length()) || (a.length() == b.length() && pickKey(a) < pickKey(b));
+            }
+        );
+    }
 }
 
 unordered_map<int,vector<string>> DynamicBins::getReBins(){
     return reBins;
 }
-
-//     // iterates over the bins the reversal - NOT NEEDED 
-// void DynamicBins::iterReBins(const unordered_map<string,int>& Kmap, function<void(const vector<string>&, int, const unordered_map<string,int>&)> func) const {
-//     for (const auto& [binNum, KVect] : reBins) {
-//         try {
-//             func(KVect, binNum, Kmap);
-//         } catch (out_of_range) {
-//             cerr << "here is caught for key:" << Kmer << endl;
-//             throw -1;
-//         }
-        
-//     }
-// }
 
     // gets len of bins structure
 int DynamicBins::getLen(){

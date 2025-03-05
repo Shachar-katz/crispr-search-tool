@@ -4,9 +4,8 @@
 //  Created by Shachar Katz on 10/23/24.
 //
 
-#include "functions.hpp"
-#include "classData.hpp"
-#include "fileReadClass.hpp"
+// #include "functions.hpp"
+#include "globalFunctions.h"
 
 
 // global functions bellow:

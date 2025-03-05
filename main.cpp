@@ -26,7 +26,7 @@ int main(int argc, const char * argv[]) {
             string inputFileType = argv[2];
             if (argc < 8){
                 cerr << "Error: missing args for step 1" << endl;
-                cerr << "enter arguments in this order: \nexecutable, step, input_file_type, input_file_name/s, output_file_name, minimum_k, seed_k " << endl;
+                cerr << "enter arguments in this order: \nexecutable, step, input_file_type, input_file_name/s, output_file_name, minimum_k, seed_k, legitimate_spacer_length " << endl;
                 return 1;
             }
             if(argc == 9 && inputFileType == "fastq_dual"){
@@ -36,8 +36,8 @@ int main(int argc, const char * argv[]) {
                 int minK = atoi(argv[6]);
                 int seedK = atoi(argv[7]);
                 int legitimateSpacer = atoi(argv[8]);
-                string outputFileR1 = "/Users/sarahkatz/Documents/repeat-search/repeatesSearchProjectAltK/" + outputFile + "_R1";
-                string outputFileR2 = "/Users/sarahkatz/Documents/repeat-search/repeatesSearchProjectAltK/" + outputFile + "_R2";
+                string outputFileR1 = "/Users/sarahkatz/Documents/crispr-search-tool/" + outputFile + "_R1";
+                string outputFileR2 = "/Users/sarahkatz/Documents/crispr-search-tool/" + outputFile + "_R2";
                 step_1(inputFileR1, inputFileType, outputFileR1, seedK, minK, legitimateSpacer);
                 step_1(inputFileR1, inputFileType, outputFileR2, seedK, minK, legitimateSpacer);
             }
@@ -47,7 +47,7 @@ int main(int argc, const char * argv[]) {
                 int minK = atoi(argv[5]);
                 int seedK = atoi(argv[6]);
                 int legitimateSpacer = atoi(argv[7]);
-                outputFile = "/Users/sarahkatz/Documents/repeat-search/repeatesSearchProjectAltK/" + outputFile;
+                outputFile = "/Users/sarahkatz/Documents/crispr-search-tool/" + outputFile;
                 cout << "repeat finder initilized" << endl;
                 step_1(inputFile, inputFileType, outputFile, seedK, minK, legitimateSpacer);
             }
@@ -79,8 +79,8 @@ int main(int argc, const char * argv[]) {
                 string inputFileCatalog3 = argv[5];
                 string outputFile3 = argv[6];
                 int seedK3 = atoi(argv[7]);
-                string outputFileR1 = "/Users/sarahkatz/Documents/repeat-search/repeatesSearchProjectAltK/" + outputFile3 + "_R1";
-                string outputFileR2 = "/Users/sarahkatz/Documents/repeat-search/repeatesSearchProjectAltK/" + outputFile3 + "_R2";
+                string outputFileR1 = "/Users/sarahkatz/Documents/crispr-search-tool/" + outputFile3 + "_R1";
+                string outputFileR2 = "/Users/sarahkatz/Documents/crispr-search-tool/" + outputFile3 + "_R2";
                 step_3(inputFile3R1, inputFileType3, inputFileCatalog3, outputFileR1, seedK3);
                 step_3(inputFile3R2, inputFileType3, inputFileCatalog3, outputFileR2, seedK3);
             }
@@ -89,7 +89,7 @@ int main(int argc, const char * argv[]) {
                 string inputFileCatalog3 = argv[4];
                 string outputFile3 = argv[5];
                 int seedK3 = atoi(argv[6]);
-                outputFile3 = "/Users/sarahkatz/Documents/repeat-search/repeatesSearchProjectAltK/" + outputFile3;
+                outputFile3 = "/Users/sarahkatz/Documents/crispr-search-tool/" + outputFile3;
                 step_3(inputFile3, inputFileType3, inputFileCatalog3, outputFile3, seedK3);
             }
             break;
