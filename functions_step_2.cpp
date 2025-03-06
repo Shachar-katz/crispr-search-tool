@@ -6,7 +6,7 @@
 // this function populates 2 maps: 
 // 1) Smap: maps from Smer to a vector of Kmers
 // 2) Kmap: maps from Kmer to abundance data that is recived in the file
-void catalogToSAndKMaps(ifstream& InCatalog, unordered_map<string,vector<string>>& Smap, unordered_map<string,int>& Kmap, int seedK) {
+void catalogToSAndKMaps(ifstream& InCatalog, unordered_map<string,vector<string>>& Smap, unordered_map<string,data_t>& Kmap, int seedK) {
     cout << "initializing converting catalog to an Smap and Kmap" << endl; 
     string line;
     string Kmer;
@@ -22,9 +22,13 @@ void catalogToSAndKMaps(ifstream& InCatalog, unordered_map<string,vector<string>
         if (iss >> Kmer >> abundance) {
             // we generate a reverse complement for the Kmer
             string reverseComp = reverseComplement(Kmer);
-            // we place the Kmer and reverse complement in a map mapping from Kmer to abundance
-            Kmap[Kmer] = abundance;
-            Kmap[reverseComp] = abundance;
+            // we place the Kmer and reverse complement in a map mapping from Kmer to abundance, palindrom score, and length
+            Kmap[Kmer].numLines = abundance;
+            Kmap[Kmer].palindromicScore = palindromicScore(Kmer);
+            Kmap[Kmer].KLen = Kmer.length();
+            Kmap[reverseComp].numLines = abundance;
+            Kmap[reverseComp].palindromicScore = palindromicScore(reverseComp);
+            Kmap[reverseComp].KLen = reverseComp.length();
             // for the length of the Kmer - the length of an Smer we extract Smers of the Kmer and its reverse complement and place them in our Smap (maps from Smer to vector of Kmers)
             for (int j = 0; j <= (Kmer.size() - seedK) ; j++){
                 string Smer = Kmer.substr(j,seedK);
@@ -179,11 +183,11 @@ void binSingles(const unordered_map<string,vector<string>>& Smap, DynamicBins& b
 }
 
 // this function takes in 2 Kmers and the Kmap and returns the one that is of higher abundance in the Kmap
-string kmerCompetition(const unordered_map<string,int>& Kmap, string currentRep, string auditioningKmer){
+string kmerCompetition(const unordered_map<string,data_t>& Kmap, string currentRep, string auditioningKmer){
     try {
         // we search for the abundance of both the current leader Kmer and the auditioning leader Kmer and return the one of higher abundance
-        int abundanceCurrent = Kmap.at(currentRep);
-        int abundanceAudition = Kmap.at(auditioningKmer);
+        int abundanceCurrent = Kmap.at(currentRep).numLines;
+        int abundanceAudition = Kmap.at(auditioningKmer).numLines;
 
         if (abundanceCurrent < abundanceAudition) {
             return auditioningKmer;
@@ -222,7 +226,7 @@ string tieBreaker(string currentRep, string auditioningKmer){
 
 // this function iterates over the reverse bins and assigns exactly one representative for each bin (the one with the highest abundance).
 // the end result is a list of representatives and bin numbers in the repList structure
-void selectReps(unordered_map<int, string>& provisionalRepList, const unordered_map<int,vector<string>>& reverseBins, const unordered_map<string,int>& Kmap){
+void selectReps(unordered_map<int, string>& provisionalRepList, const unordered_map<int,vector<string>>& reverseBins, const unordered_map<string,data_t>& Kmap){
     cout << "begining selecting reps" << endl;
     // we iterate over the reverse bins structure that points from bin number to a vector of Kmers in that bin.
     for (const auto& [binNum, KVect] : reverseBins){
@@ -281,17 +285,22 @@ unordered_map<int, string> reCannonization(const unordered_map<int, string>& pro
 }
 
 // this function iterates over all of the structures needed to collect all the data and format it in an output map
-void creatingOutputMap(unordered_map<string,data_t>& outputMap, unordered_map<string,string>& binsOutputMap, const unordered_map<int,string>& choosenReps, const unordered_map<int,vector<string>>& reverseBins, const unordered_map<string,int>& Kmap){
+void creatingOutputMap(unordered_map<string,data_t>& outputMap, unordered_map<string,data_t>& binsOutputMap, const unordered_map<int,string>& choosenReps, const unordered_map<int,vector<string>>& reverseBins, const unordered_map<string,data_t>& Kmap){
     int newBinNum = 1;
     for(const auto& [binNum, repKmer] : choosenReps){
         // filling up normal output
         auto& data = outputMap[repKmer];
         data.binNum = "K_" + to_string(newBinNum);
-        data.numLines = Kmap.at(repKmer); 
+        data.numLines = Kmap.at(repKmer).numLines; 
+        data.palindromicScore = Kmap.at(repKmer).palindromicScore;
+        data.KLen = Kmap.at(repKmer).KLen;
         // filling up subKmers output
         auto& subKmersVect = reverseBins.at(binNum); 
         for (string subKmer : subKmersVect){
-            binsOutputMap[subKmer] = "K_" + to_string(newBinNum);
+            auto& dataBins = binsOutputMap[subKmer];
+            dataBins.binNum = "K_" + to_string(newBinNum);
+            dataBins.palindromicScore = Kmap.at(subKmer).palindromicScore;
+            dataBins.KLen = Kmap.at(subKmer).KLen;
         }
         // updating bin nums
         newBinNum++;

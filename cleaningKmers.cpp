@@ -10,7 +10,7 @@
 void cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha){
     // formatting data from catalog
     unordered_map<string,vector<string>> Smap;
-    unordered_map<string,int> Kmap;
+    unordered_map<string,data_t> Kmap;
     
     ifstream catalogFile;
     catalogFile.open(inputCatalog);
@@ -46,7 +46,7 @@ void cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha)
 
     // formatting output
     unordered_map<string,data_t> outputMap;
-    unordered_map<string,string> binsOutputMap;
+    unordered_map<string,data_t> binsOutputMap;
     string binsOutputFile = outputFile + "_bins_data";
     creatingOutputMap(outputMap, binsOutputMap, finalReps, reverseBins, Kmap);
     
@@ -64,13 +64,17 @@ void cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha)
     outFS1 << 
     setw(10) << left << "repeat" <<
     setw(10) << '\t' << "number_of_lines" <<
-    setw(10) << '\t' << "bin_#" << endl;
+    setw(10) << '\t' << "bin_#" <<
+    setw(10) << '\t' << "num_palindromic_nucleotides" <<
+    setw(10) << '\t' << "Kmer_Length" << endl;
     writeUnorderedMapToFile(outputMap, outFS1);
     outFS1.close();
 
     outFS2 << 
     setw(10) << left << "repeat" <<
-    setw(10) << '\t' << "bin_#" << endl;
+    setw(10) << '\t' << "bin_#" <<
+    setw(10) << '\t' << "num_palindromic_nucleotides" <<
+    setw(10) << '\t' << "Kmer_Length" << endl;
     writeUnorderedMapToFile(binsOutputMap, outFS2);
     outFS2.close();
 }
