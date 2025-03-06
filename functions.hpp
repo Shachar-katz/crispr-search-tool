@@ -46,6 +46,7 @@ void binSingles(const unordered_map<string,vector<string>>& Smap, DynamicBins& b
 void selectReps(unordered_map<int, string>& provisionalRepList, const unordered_map<int,vector<string>>& reverseBins, const unordered_map<string,int>& Kmap);
 unordered_map<int, string> reCannonization(const unordered_map<int, string>& provisionalRepList, const DynamicBins& bins);
 void creatingOutputMap(unordered_map<string,data_t>& outputMap, unordered_map<string,string>& binsOutputMap, const unordered_map<int,string>& choosenReps, const unordered_map<int,vector<string>>& reverseBins, const unordered_map<string,int>& Kmap);
+int palindromicScore(string Kmer);
 
 // step three functions:
 void buildSmap(ifstream& InCatalog, unordered_map<string,Kmap_t>& Smap, int seedK);

@@ -297,3 +297,38 @@ void creatingOutputMap(unordered_map<string,data_t>& outputMap, unordered_map<st
         newBinNum++;
     }
 }
+
+int palindromicScore(string Kmer){
+    int palindromScore = 0;
+    for(int iForward = 0; iForward < (Kmer.length() / 2); iForward++ ){
+        char nucleotide = Kmer[iForward];
+        for(int iReverse = Kmer.length(); iReverse > (Kmer.length() / 2); iReverse-- ){
+            char nucleotideRe = Kmer[iReverse];
+            switch(nucleotide)
+            {
+                case 'A': 
+                    if (nucleotideRe == 'T'){
+                        palindromScore++;
+                    }
+                    break;
+                case 'G': 
+                    if (nucleotideRe == 'C'){
+                        palindromScore++;
+                    }
+                    break;
+                case 'C': 
+                    if (nucleotideRe == 'G'){
+                        palindromScore++;
+                    }
+                    break;
+                case 'T': 
+                    if (nucleotideRe == 'A'){
+                        palindromScore++;
+                    }
+                    break;
+                default: break;
+            }
+        }
+    }
+    return palindromScore * 2;
+}
