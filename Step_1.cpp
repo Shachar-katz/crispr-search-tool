@@ -9,24 +9,42 @@
 void step_1(string inputFile, string inputFileType, string outputFile, int seedK, int minK, int legitimateSpacer){
     
     unordered_map<string,int> globalKmerMap;
+    unordered_map<string,double> stats;
     
     MultiFormatFileReader fileReader(inputFile, inputFileType);
     
     cout << "finding Kmers in file" << endl;
-    findKmersInFile(fileReader, globalKmerMap, seedK, minK, legitimateSpacer);
+    findKmersInFile(fileReader, globalKmerMap, seedK, minK, legitimateSpacer, stats);
     
     cout << "Number of Kmers found: " << globalKmerMap.size() << endl;
     
-    ofstream outFS;
-    outFS.open(outputFile);
-    if (!outFS.is_open()){
+    // writing output file 
+
+    ofstream outFS1;
+    outFS1.open(outputFile);
+    if (!outFS1.is_open()){
          cerr << "Error: Could not open output file." << endl;
          return;
     }
     
     cout << "opened output file named: " << outputFile << endl;
-    outFS << setw(30)<< left << "repeat" << '\t' << "number_of_lines" << '\n';
-    writeUnorderedMapToFile(globalKmerMap, outFS);
+    outFS1 << setw(30)<< left << "repeat" << '\t' << "number_of_lines" << '\n';
+    writeUnorderedMapToFile(globalKmerMap, outFS1);
     cout << "written" << endl;
-    outFS.close();
+    outFS1.close();
+
+    // writing statistics file
+
+    ofstream outFS2;
+    string statsOutput = "stats_step_1";
+    outFS2.open(statsOutput);
+    if (!outFS2.is_open()){
+         cerr << "Error: Could not open stats output file." << endl;
+         return;
+    }
+    
+    cout << "opened output file named: " << statsOutput << endl;
+    writeUnorderedMapToFile(stats, outFS2);
+    cout << "written" << endl;
+    outFS2.close();
 }

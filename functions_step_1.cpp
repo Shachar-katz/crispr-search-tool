@@ -4,16 +4,20 @@
 
 // step one functions bellow:
 
-void findKmersInFile(MultiFormatFileReader& fileReader, unordered_map<string,int>& globalKmerMap, int seedK, int minK, int legitimateSpacer){
+void findKmersInFile(MultiFormatFileReader& fileReader, unordered_map<string,int>& globalKmerMap, int seedK, int minK, int legitimateSpacer,unordered_map<string,double>& stats){
     // line variable temporerally holds the reads
     string line;
+    // statistics Vars
     int progressCounter = 0;
+    int numReadsWithRepeats = 0;
     // we are looping over every read
     while (fileReader.getNextLine(line)) {
+        // statistics and progress managment:
         progressCounter++;
         if (progressCounter % 100000 == 0){
             cout << "Procession line: " << progressCounter << endl;
         }
+        // check for faulty lines
         if (skipThisLine(line)){
             cerr << "faulty line" << endl;
             continue;
@@ -31,6 +35,10 @@ void findKmersInFile(MultiFormatFileReader& fileReader, unordered_map<string,int
                 expandSeedToKmer(line, Smer, idxs, minK, uniqueKmersInLine, legitimateSpacer);
             }
         }
+        // for statistics 
+        if (!uniqueKmersInLine.empty()){
+            numReadsWithRepeats++;
+        }
         // for every unique Kmer found on the line:
         // 1) we Determine the canonical form of the K-mer to ensure consistency in representation 
         //     * choosing between reverse complement and the Kmer to not add both to the global Kmer map
@@ -40,6 +48,16 @@ void findKmersInFile(MultiFormatFileReader& fileReader, unordered_map<string,int
             globalKmerMap[uniqueKmerOrReverse]++;
         }
     }
+    // check for 0 division (process terminated before it started)
+    if (progressCounter == 0){
+        cerr << "no lines were processed" << endl;
+       return;
+    }
+    // calculate stats:
+    double precentReadsWithRepeat = (static_cast<double>(numReadsWithRepeats) / static_cast<double>(progressCounter)) * 100;
+    stats["number_of_reads_in_file: "] = progressCounter;
+    stats["number_of_reads_in_file_with_repeat: "] = numReadsWithRepeats;
+    stats["precent_reads_in_file_with_repeat: "] = precentReadsWithRepeat;
 }
 
 bool skipThisLine(const string& read){

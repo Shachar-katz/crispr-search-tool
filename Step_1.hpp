@@ -18,6 +18,7 @@
 #include "functions.hpp"
 #include "classData.hpp"
 #include "fileReadClass.hpp"
+#include "globalFunctions.h"
 using namespace std;
 
 void step_1(string inputFile, string inputFileType, string outputFile, int seedK, int minK, int legitimateSpacer);
