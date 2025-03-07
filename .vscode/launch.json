@@ -10,10 +10,10 @@
         "1",
         "fastq_single",
         "/Users/sarahkatz/AAK_samples/SRR24705341_1_100K_reads_sample.fastq",
-        "output_step_1_AAK_R1_5341_100K_V1.txt",
+        "output_step_1_AAK_R1_5341_100K_V2.txt",
         "20",
         "10",
-        "0"
+        "20"
       ],
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}",
@@ -27,8 +27,8 @@
       "program": "/Users/sarahkatz/Documents/crispr-search-tool/altKmain",
       "args": [
         "2",
-        "/Users/sarahkatz/Documents/crispr-search-tool/output_step_1_AAK_R1_5341_100K_V1.txt",
-        "output_step_2_AAK_R1_5341_100K_testing_step_3",
+        "/Users/sarahkatz/Documents/crispr-search-tool/output_step_1_AAK_R1_5341_100K_V2.txt",
+        "output_step_2_AAK_R1_5341_100K_V2",
         "8",
         "1"
       ],
@@ -46,8 +46,8 @@
         "3",
         "fastq_single",
         "/Users/sarahkatz/AAK_samples/SRR24705341_1_100K_reads_sample.fastq",
-        "/Users/sarahkatz/Documents/crispr-search-tool/output_step_2_AAK_R1_5341_100K_testing_step_3",
-        "output_step_3_AAK_R1_5341_100K_test",
+        "/Users/sarahkatz/Documents/crispr-search-tool/output_step_2_AAK_R1_5341_100K_V2",
+        "output_step_3_AAK_R1_5341_100K_V2",
         "20",
         "8"
       ],
