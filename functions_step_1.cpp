@@ -163,22 +163,25 @@ void expandSeedToKmer(const string& line, string Smer, vector<int> SmerIdxVect ,
                 }
                 
             } 
-            // when we exist this loop we know that either:
-            // the nucleotids dont match anymore or, they have reached a point that if expanded more they would overlap
+            // if they reached a point where either Kmers overlap, or hit any of the bounds, throw them out.
+            if (!notOverlapping(idxStartPotential,idxStartCompare,idxEndPotential,idxEndCompare,legitimateSpacer) || 
+                idxEndPotential >= (line.length() - 1) || 
+                idxEndCompare >= (line.length() - 1) || 
+                idxStartPotential <= 0 || 
+                idxStartCompare <= 0){ continue; }
+            // now if we reached this part of the code we are sure we have reached max expansion:
+            // 1) the nucleotids dont match anymore
+            // 2) they haven't reached a point of hitting boundaries or overlapping  (overlap defined as include spacer)
 
-            // once both flags are false and we are done expanding to both sides we can generate a Kmer:
-            // we get the length of the (still "potential") Kmer
+            // we get the length of the (still "potential") Kmer and generate it using substring
             int KmerLen = idxEndPotential - idxStartPotential + 1;
-
-            // as long as the indecies are valid we generate the substring Kmer 
-            if (idxStartPotential >= 0 && idxEndPotential < line.size()) {
-                string Kmer = line.substr(idxStartPotential, KmerLen);
-                // if this potential Kmer follows requirements :
-                // (is indeed a Kmer and is longer then the best Kmer so far)
-                // we make it the best Kmer
-                if(KmerLen >= minK && KmerLen > bestK.length()){
-                    bestK = Kmer;
-                }
+            string Kmer = line.substr(idxStartPotential, KmerLen);
+            
+            // if this potential Kmer follows requirements :
+            // (is indeed a Kmer and is longer then the best Kmer so far)
+            // we make it the best Kmer
+            if(KmerLen >= minK && KmerLen > bestK.length()){
+                bestK = Kmer;
             }
         }
         // once we have compared every instance of the "potential Kmer" Smer:

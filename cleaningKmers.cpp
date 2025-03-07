@@ -52,13 +52,17 @@ void cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha)
     
     ofstream outFS1;
     ofstream outFS2;
+    // cout << " -" << outputFile << "- " << endl; //db
+    // cout << " -" << binsOutputFile << "- " << endl; //db
     outFS1.open(outputFile);
     outFS2.open(binsOutputFile);
-    if (!outFS1.is_open() || !outFS2.is_open()){
-         cerr << "Error: Could not open one of the output files." << endl;
-         return;
+    if (!outFS1.is_open()) {
+        cerr << "Error: Could not open output file: " << outputFile << endl;
     }
-    
+    if (!outFS2.is_open()) {
+        cerr << "Error: Could not open bins output file: " << binsOutputFile << endl;
+    }
+
     cout << "opened two output file named: " << endl << outputFile << endl << binsOutputFile << endl;
     
     outFS1 << 

@@ -19,29 +19,38 @@
 #include "Params.h"
 using namespace std;
 
-int main(int argc, const char * argv[]) {
-    Parameters args;
-
-    //global args
+void init_params(const char* name, int argc, const char **argv, Parameters& args)
+{
+      //global args
     args.add_parser("step", new ParserInteger("Step (1, 2, or 3)"), true);
-    args.add_parser("inputFileType", new ParserString("Input file type"), true);
-
     args.add_parser("seedK", new ParserInteger("Seed k"), true);
     args.add_parser("outputFile", new ParserFilename("Output file name"), true);
 
     // args maked based on step usage:
+    args.add_parser("inputFileType", new ParserString("Input file type")); // for 1 & 3
     args.add_parser("inputFile", new ParserFilename("Input file name (for single fastq)")); // for 1 & 3
     args.add_parser("inputFileR1", new ParserFilename("Input file R1 (for fastq_dual)")); // for 1 & 3
     args.add_parser("inputFileR2", new ParserFilename("Input file R2 (for fastq_dual)")); // for 1 & 3
     args.add_parser("minK", new ParserInteger("Minimum k")); // for 1 & 3
     args.add_parser("legitimateSpacer", new ParserInteger("Legitimate spacer length")); // for 1
-    args.add_parser("inputFileCatalog", new ParserFilename("Input file catalog")); // for 3 & 2
+    args.add_parser("inputFileCatalog", new ParserFilename("Input file catalog")); // for 3
     args.add_parser("alpha", new ParserInteger("Alpha (number of mutations permitted for grouping kmers)")); // for 2
+    args.add_parser("strict", new ParserBoolean("Should we throw suspected tandam lines", false)); //for 1
     
+     if (argc == 1) {
+        args.usage(name);
+        return;
+    }
     // Read and parse
     args.read(argc, argv);
     args.parse(); // maybe needs a true
     args.verify_mandatory();
+}
+
+int main(int argc, const char * argv[]) {
+    Parameters args;
+    
+    init_params(argv[0], argc, argv, args);
     
     int step = args.get_int("step");
 
@@ -99,7 +108,7 @@ int main(int argc, const char * argv[]) {
             string outputFile = args.get_string("outputFile");
             int seedK = args.get_int("seedK");
             int alpha = args.get_int("alpha");
-            outputFile = "/data/" + outputFile;
+            outputFile = "/Users/sarahkatz/Documents/data/" + outputFile;
             cleaningKmers(inputFileCatalog, outputFile, seedK, alpha);
             break;
         }
