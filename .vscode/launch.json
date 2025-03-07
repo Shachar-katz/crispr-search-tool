@@ -28,7 +28,7 @@
       "args": [
         "2",
         "/Users/sarahkatz/Documents/crispr-search-tool/output_step_1_AAK_R1_5341_100K_V1.txt",
-        "output_step_2_AAK_R1_5341_100K_V10_db",
+        "output_step_2_AAK_R1_5341_100K_pal_score_test_V3",
         "8",
         "1"
       ],
