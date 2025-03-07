@@ -38,10 +38,15 @@ void buildSmap(ifstream& InCatalog, unordered_map<string,Kmap_t>& Smap, int seed
 }
 
 // this function goes line by line and searches for known Smers to find known Kmers
-void findKmersInFileWithSmap(MultiFormatFileReader& fileReader, unordered_map<string,data_t>& globalKmerMap, unordered_map<string,Kmap_t>& Smap, int seedK){
+void findKmersInFileWithSmap(MultiFormatFileReader& fileReader, unordered_map<string,data_t>& globalKmerMap, unordered_map<string,Kmap_t>& Smap, int seedK, unordered_map<string,double>& stats){
+    // stats
+    int progressCounter = 0;
+    int numReadsWithRepeats = 0;
     // we initilize a line variable and reassign the next line to it using the filereader class untill the file's end
     string line;
     while (fileReader.getNextLine(line)) {
+        // initilize a var to see if this line has a repeat in it (for stats)
+        bool activeLine = false;
         // we iterate over the line (as long as not empty), generating an Smer at each index point 
         // untill the point we'd pass the end of the line if we made another Smer
         if (line.size() == 0){
@@ -51,7 +56,7 @@ void findKmersInFileWithSmap(MultiFormatFileReader& fileReader, unordered_map<st
             string Smer = line.substr(i,seedK);
             // if this Smer appears in our Smap we try expanding it to a Kmer and checking if its a known Kmer
             if (Smap.find(Smer) != Smap.end()){
-                expandSeedToKmerWithSmap(line, Smer, i, globalKmerMap, Smap);
+                expandSeedToKmerWithSmap(line, Smer, i, globalKmerMap, Smap, activeLine);
                 // if this succeeds the Kmer is counted in or added to the global Kmer map
             }
         }
@@ -60,11 +65,30 @@ void findKmersInFileWithSmap(MultiFormatFileReader& fileReader, unordered_map<st
             auto& finalData = globalKmerMap.at(Kmer);
             finalData.countInLine = 0;
         }
+        // stats
+        if (activeLine == true){
+            numReadsWithRepeats++;
+        }
+        // progress bar
+        progressCounter++;
+        if (progressCounter % 100000 == 0){
+            cout << "Procession line: " << progressCounter << endl;
+        }
     }
+    // check for 0 division (process terminated before it started)
+    if (progressCounter == 0){
+        cerr << "no lines were processed" << endl;
+       return;
+    }
+    // calculate stats:
+    double precentReadsWithRepeat = (static_cast<double>(numReadsWithRepeats) / static_cast<double>(progressCounter)) * 100;
+    stats["number_of_reads_in_file: "] = progressCounter;
+    stats["number_of_reads_in_file_with_repeat: "] = numReadsWithRepeats;
+    stats["precent_reads_in_file_with_repeat: "] = precentReadsWithRepeat;
 }
 
 // this function checks if the known Smer occurance indeed means a known Kmer occurance and if 
-void expandSeedToKmerWithSmap(const string& line, const string& Smer, int& idxInLine, unordered_map<string,data_t>& globalKmerMap, unordered_map<string,Kmap_t>& Smap){
+void expandSeedToKmerWithSmap(const string& line, const string& Smer, int& idxInLine, unordered_map<string,data_t>& globalKmerMap, unordered_map<string,Kmap_t>& Smap, bool& activeLine){
     // we acess the Kmers that the Smer of interest appears in
     auto& Kmap = Smap[Smer];
     int copyIdxInLine = idxInLine;
@@ -92,6 +116,7 @@ void expandSeedToKmerWithSmap(const string& line, const string& Smer, int& idxIn
             // 3) we test if its only been counted once in the line, and if so we also count a line it appeared on
             // 4) last we move the iterator of the line in the external function that iterates over the line to pass the Kmer
             if (Kmer == KmerInLine){
+                activeLine = true;
                 string canonizedKmer = pickKey(Kmer);
                 auto& finalData = globalKmerMap[canonizedKmer];
                 finalData.countInFile++;

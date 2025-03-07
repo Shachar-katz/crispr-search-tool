@@ -11,6 +11,7 @@
 void step_3(string inputRead, string inputReadFileType, string inputCatalog, string outputFile, int seedK){
     unordered_map<string,Kmap_t> Smap;
     unordered_map<string,data_t> globalKmerMap;
+    unordered_map<string,double> stats;
     
     ifstream catalogFile;
     catalogFile.open(inputCatalog);
@@ -33,20 +34,37 @@ void step_3(string inputRead, string inputReadFileType, string inputCatalog, str
     MultiFormatFileReader fileReader(inputRead, inputReadFileType);
     cout << "reads file opened" << endl;
     
-    findKmersInFileWithSmap(fileReader, globalKmerMap, Smap, seedK);
+    findKmersInFileWithSmap(fileReader, globalKmerMap, Smap, seedK, stats);
     
     cout << "Kmers found" << endl;
     
-    ofstream outFS;
-    outFS.open(outputFile);
-    if (!outFS.is_open()){
+    // writing output file
+    
+    ofstream outFS1;
+    outFS1.open(outputFile);
+    if (!outFS1.is_open()){
          cerr << "Error: Could not open output file." << endl;
          return;
     }
     
     cout << "opened output file named: " << outputFile << endl;
-    outFS << "repeat" << '\t' << "repeats_in_file" << '\t' << "number_of_lines" << '\n';
-    writeUnorderedMapToFile(globalKmerMap, outFS);
+    outFS1 << "repeat" << '\t' << "repeats_in_file" << '\t' << "number_of_lines" << '\n';
+    writeUnorderedMapToFile(globalKmerMap, outFS1);
     cout << "written" << endl;
-    outFS.close();
+    outFS1.close();
+
+        // writing statistics file
+
+    ofstream outFS2;
+    string statsOutput = "stats_step_3";
+    outFS2.open(statsOutput);
+    if (!outFS2.is_open()){
+         cerr << "Error: Could not open stats output file." << endl;
+         return;
+    }
+    
+    cout << "opened output file named: " << statsOutput << endl;
+    writeUnorderedMapToFile(stats, outFS2);
+    cout << "written" << endl;
+    outFS2.close();
 }

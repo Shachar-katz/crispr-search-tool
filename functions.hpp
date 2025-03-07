@@ -50,8 +50,8 @@ int palindromicScore(string Kmer);
 
 // step three functions:
 void buildSmap(ifstream& InCatalog, unordered_map<string,Kmap_t>& Smap, int seedK);
-void findKmersInFileWithSmap(MultiFormatFileReader& fileReader, unordered_map<string,data_t>& globalKmerMap, unordered_map<string,Kmap_t>& Smap, int seedK);
-void expandSeedToKmerWithSmap(const string& line, const string& Smer, int& idx , unordered_map<string,data_t>& globalKmerMap, unordered_map<string,Kmap_t>& Smap);
+void findKmersInFileWithSmap(MultiFormatFileReader& fileReader, unordered_map<string,data_t>& globalKmerMap, unordered_map<string,Kmap_t>& Smap, int seedK, unordered_map<string,double>& stats);
+void expandSeedToKmerWithSmap(const string& line, const string& Smer, int& idx , unordered_map<string,data_t>& globalKmerMap, unordered_map<string,Kmap_t>& Smap, bool& activeLine);
 
 
 #endif /* functions_hpp */
