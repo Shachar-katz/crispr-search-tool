@@ -36,7 +36,7 @@ void step_1(string inputFile, string inputFileType, string outputFile, int seedK
     // writing statistics file
 
     ofstream outFS2;
-    string statsOutput = "stats_step_1";
+    string statsOutput = "/Users/sarahkatz/Documents/data/stats_step_1";
     outFS2.open(statsOutput);
     if (!outFS2.is_open()){
          cerr << "Error: Could not open stats output file." << endl;

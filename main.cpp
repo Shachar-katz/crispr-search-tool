@@ -67,8 +67,8 @@ int main(int argc, const char * argv[]) {
                 int minK = args.get_int("minK");
                 int seedK = args.get_int("seedK");
                 int legitimateSpacer = args.get_int("legitimateSpacer");
-                string outputFileR1 = "/Users/sarahkatz/Documents/crispr-search-tool/" + outputFile + "_R1";
-                string outputFileR2 = "/Users/sarahkatz/Documents/crispr-search-tool/" + outputFile + "_R2";
+                string outputFileR1 = "/Users/sarahkatz/Documents/data/" + outputFile + "_R1";
+                string outputFileR2 = "/Users/sarahkatz/Documents/data/" + outputFile + "_R2";
                 step_1(inputFileR1, inputFileType, outputFileR1, seedK, minK, legitimateSpacer);
                 step_1(inputFileR2, inputFileType, outputFileR2, seedK, minK, legitimateSpacer);
             } else {
@@ -81,7 +81,7 @@ int main(int argc, const char * argv[]) {
                 int minK = args.get_int("minK");
                 int seedK = args.get_int("seedK");
                 int legitimateSpacer = args.get_int("legitimateSpacer");
-                outputFile = "/Users/sarahkatz/Documents/crispr-search-tool/" + outputFile;
+                outputFile = "/Users/sarahkatz/Documents/data/" + outputFile;
                 cout << "repeat finder initialized" << endl;
                 step_1(inputFile, inputFileType, outputFile, seedK, minK, legitimateSpacer);
             }
@@ -99,6 +99,7 @@ int main(int argc, const char * argv[]) {
             string outputFile = args.get_string("outputFile");
             int seedK = args.get_int("seedK");
             int alpha = args.get_int("alpha");
+            outputFile = "/data/" + outputFile;
             cleaningKmers(inputFileCatalog, outputFile, seedK, alpha);
             break;
         }
@@ -118,8 +119,8 @@ int main(int argc, const char * argv[]) {
                 string inputFileCatalog = args.get_string("inputFileCatalog");
                 string outputFile = args.get_string("outputFile");
                 int seedK = args.get_int("seedK");
-                string outputFileR1 = "/Users/sarahkatz/Documents/crispr-search-tool/" + outputFile + "_R1";
-                string outputFileR2 = "/Users/sarahkatz/Documents/crispr-search-tool/" + outputFile + "_R2";
+                string outputFileR1 = "/Users/sarahkatz/Documents/data/" + outputFile + "_R1";
+                string outputFileR2 = "/Users/sarahkatz/Documents/data/" + outputFile + "_R2";
                 step_3(inputFileR1, inputFileType, inputFileCatalog, outputFileR1, seedK);
                 step_3(inputFileR2, inputFileType, inputFileCatalog, outputFileR2, seedK);
             } else if (args.is_defined("inputFile")) {
@@ -127,7 +128,7 @@ int main(int argc, const char * argv[]) {
                 string inputFileCatalog = args.get_string("inputFileCatalog");
                 string outputFile = args.get_string("outputFile");
                 int seedK = args.get_int("seedK");
-                outputFile = "/Users/sarahkatz/Documents/crispr-search-tool/" + outputFile;
+                outputFile = "/Users/sarahkatz/Documents/data/" + outputFile;
                 step_3(inputFile, inputFileType, inputFileCatalog, outputFile, seedK);
             } else {
                 cerr << "Missing mandatory input file for step 3" << endl;
