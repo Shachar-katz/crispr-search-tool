@@ -22,7 +22,7 @@ void step_1(string inputFile, string inputFileType, string outputFile, int seedK
     MultiFormatFileReader fileReader(inputFile, inputFileType);
     
     logFile << "finding Kmers in file" << endl;
-    findKmersInFile(fileReader, globalKmerMap, seedK, minK, legitimateSpacer, stats, strict, preStrict);
+    findKmersInFile(fileReader, globalKmerMap, seedK, minK, legitimateSpacer, stats, strict, preStrict, logFile);
     logFile << "Number of Kmers found: " << globalKmerMap.size() << endl;
     
     // writing output file 

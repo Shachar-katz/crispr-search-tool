@@ -40,7 +40,7 @@ void step_3(string inputRead, string inputReadFileType, string inputCatalog, str
     
     MultiFormatFileReader fileReader(inputRead, inputReadFileType);
     logFile << "reads file opened" << endl;
-    findKmersInFileWithSmap(fileReader, globalKmerMap, Smap, seedK, stats);
+    findKmersInFileWithSmap(fileReader, globalKmerMap, Smap, seedK, stats, logFile);
     logFile << globalKmerMap.size() << "Kmers found" << endl;
     
     // writing output file

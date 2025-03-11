@@ -38,7 +38,7 @@ void buildSmap(ifstream& InCatalog, unordered_map<string,Kmap_t>& Smap, int seed
 }
 
 // this function goes line by line and searches for known Smers to find known Kmers
-void findKmersInFileWithSmap(MultiFormatFileReader& fileReader, unordered_map<string,data_t>& globalKmerMap, unordered_map<string,Kmap_t>& Smap, int seedK, unordered_map<string,double>& stats){
+void findKmersInFileWithSmap(MultiFormatFileReader& fileReader, unordered_map<string,data_t>& globalKmerMap, unordered_map<string,Kmap_t>& Smap, int seedK, unordered_map<string,double>& stats, ofstream& logFile){
     // stats
     int progressCounter = 0;
     int numReadsWithRepeats = 0;
@@ -73,6 +73,7 @@ void findKmersInFileWithSmap(MultiFormatFileReader& fileReader, unordered_map<st
         progressCounter++;
         if (progressCounter % 100000 == 0){
             cout << "Procession line: " << progressCounter << endl;
+            logFile << "Procession line: " << progressCounter << endl;
         }
     }
     // check for 0 division (process terminated before it started)
