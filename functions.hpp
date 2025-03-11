@@ -27,11 +27,11 @@ using namespace std;
 
 // step one functions:
 bool isInputFileValid(ifstream& inFS);
-void findKmersInFile(MultiFormatFileReader& fileReader, unordered_map<string,int>& globalKmerMap, int seedK, int minK, int legitimateSpacer, unordered_map<string,double>& stats);
+void findKmersInFile(MultiFormatFileReader& fileReader, unordered_map<string,int>& globalKmerMap, int seedK, int minK, int legitimateSpacer, unordered_map<string,double>& stats, bool strict, bool preStrict);
 bool skipThisLine(const string& read);
 void findSeedPattern(string line, unordered_map<string,vector<int>>& singleLineMapSeedKToIdx, int seedK);
 bool notOverlapping(int idxStartPotential, int idxStartCompare, int idxEndPotential, int idxEndCompare, int legitimateSpacer);
-void expandSeedToKmer(const string& line, string Smer, vector<int> SmerIdxVect , int minK, set<string>& uniqueKmersInLine, int legitimateSpacer);
+void expandSeedToKmer(const string& line, string Smer, vector<int> SmerIdxVect , int minK, set<string>& uniqueKmersInLine, int legitimateSpacer, bool strict);
 
 //step two functions:
 void catalogToSAndKMaps(ifstream& InCatalog, unordered_map<string,vector<string>>& Smap, unordered_map<string,data_t>& Kmap, int seedK);

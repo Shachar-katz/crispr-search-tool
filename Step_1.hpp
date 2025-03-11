@@ -21,6 +21,7 @@
 #include "globalFunctions.h"
 using namespace std;
 
-void step_1(string inputFile, string inputFileType, string outputFile, int seedK, int minK, int legitimateSpacer);
+void step_1(string inputFile, string inputFileType, string outputFile, int seedK, int minK, int legitimateSpacer, 
+            bool strict = false, bool preStrict = false);
 
 #endif /* Step_1_hpp */

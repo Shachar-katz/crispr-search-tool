@@ -35,7 +35,8 @@ void init_params(const char* name, int argc, const char **argv, Parameters& args
     args.add_parser("legitimateSpacer", new ParserInteger("Legitimate spacer length")); // for 1
     args.add_parser("inputFileCatalog", new ParserFilename("Input file catalog")); // for 3
     args.add_parser("alpha", new ParserInteger("Alpha (number of mutations permitted for grouping kmers)")); // for 2
-    args.add_parser("strict", new ParserBoolean("Should we throw suspected tandam lines", false)); //for 1
+    args.add_parser("preStrict", new ParserBoolean("Should we throw suspected tandam lines before processing", false)); //for 1
+    args.add_parser("strictDuring", new ParserBoolean("Should we throw suspected tandam lines during processing", false)); //for 1
     
      if (argc == 1) {
         args.usage(name);
@@ -54,6 +55,9 @@ bool step_1_executor(Parameters& args){
     int minK = args.get_int("minK");
     int seedK = args.get_int("seedK");
     int legitimateSpacer = args.get_int("legitimateSpacer");
+    bool strict = args.get_bool("strictDuring");
+    bool preStrict = args.get_bool("preStrict");
+    cout << preStrict << endl;
     outputFile = "/Users/sarahkatz/Documents/data/" + outputFile;
     // a case for either dual fastq
     if (inputFileType == "fastq_dual") {
@@ -65,12 +69,12 @@ bool step_1_executor(Parameters& args){
         string inputFileR1 = args.get_string("inputFileR1");
         string outputFileR1 = "/Users/sarahkatz/Documents/data/" + outputFile + "_R1";
         cout << "repeat finder initialized" << endl;
-        step_1(inputFileR1, inputFileType, outputFileR1, seedK, minK, legitimateSpacer);
+        step_1(inputFileR1, inputFileType, outputFileR1, seedK, minK, legitimateSpacer, strict, preStrict);
         // run for step 2
         string inputFileR2 = args.get_string("inputFileR2");
         string outputFileR2 = "/Users/sarahkatz/Documents/data/" + outputFile + "_R2";
         cout << "repeat finder initialized" << endl;
-        step_1(inputFileR2, inputFileType, outputFileR2, seedK, minK, legitimateSpacer);
+        step_1(inputFileR2, inputFileType, outputFileR2, seedK, minK, legitimateSpacer, strict, preStrict);
     } 
     // a case for all other file types
     else {
@@ -80,7 +84,7 @@ bool step_1_executor(Parameters& args){
         }
         string inputFile = args.get_string("inputFile");
         cout << "repeat finder initialized" << endl;
-        step_1(inputFile, inputFileType, outputFile, seedK, minK, legitimateSpacer);
+        step_1(inputFile, inputFileType, outputFile, seedK, minK, legitimateSpacer, strict, preStrict);
     }
     return true;
 }
@@ -119,6 +123,7 @@ bool step_3_executor(Parameters& args){
         cerr << "Missing mandatory input file for step 3" << endl;
                 return false;
     }
+    return true;
 }
 
 
