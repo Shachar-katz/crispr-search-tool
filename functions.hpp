@@ -27,31 +27,62 @@ using namespace std;
 
 // step one functions:
 bool isInputFileValid(ifstream& inFS);
-void findKmersInFile(MultiFormatFileReader& fileReader, unordered_map<string,int>& globalKmerMap, int seedK, int minK, int legitimateSpacer, unordered_map<string,double>& stats, bool strict, bool preStrict);
+
+void findKmersInFile(MultiFormatFileReader& fileReader, unordered_map<string,int>& globalKmerMap, int seedK, 
+                     int minK, int legitimateSpacer, unordered_map<string,double>& stats, bool strict, 
+                     bool preStrict);
+
 bool skipThisLine(const string& read);
+
 void findSeedPattern(string line, unordered_map<string,vector<int>>& singleLineMapSeedKToIdx, int seedK);
-bool notOverlapping(int idxStartPotential, int idxStartCompare, int idxEndPotential, int idxEndCompare, int legitimateSpacer);
-void expandSeedToKmer(const string& line, string Smer, vector<int> SmerIdxVect , int minK, set<string>& uniqueKmersInLine, int legitimateSpacer, bool strict);
+
+bool notOverlapping(int idxStartPotential, int idxStartCompare, int idxEndPotential, int idxEndCompare, 
+                    int legitimateSpacer);
+void expandSeedToKmer(const string& line, string Smer, vector<int> SmerIdxVect , int minK, 
+                    set<string>& uniqueKmersInLine, int legitimateSpacer, bool strict);
 
 //step two functions:
-void catalogToSAndKMaps(ifstream& InCatalog, unordered_map<string,vector<string>>& Smap, unordered_map<string,data_t>& Kmap, int seedK);
+void catalogToSAndKMaps(ifstream& InCatalog, unordered_map<string,vector<string>>& Smap, 
+                        unordered_map<string,data_t>& Kmap, int seedK);
 void findSmersVect(string shortestKmer, vector<string>& smerVect, int seedK);
-void makePotentialRelationsSet(const unordered_map<string,vector<string>>& Smap, set<pair<string,string>>& potentialRelationSet);
+
+void makePotentialRelationsSet(const unordered_map<string,vector<string>>& Smap, 
+                               set<pair<string,string>>& potentialRelationSet);
 void chooseShortestK (const pair<string, string>& Kpair, string& shortestK, string& otherK);
+
 void binRelatives(const string& shortestK, const string& otherK, DynamicBins& bins);
-void verifyRelation(const unordered_map<string,vector<string>>& Smap, const set<pair<string,string>>& potentialRelationSet, int seedK, DynamicBins& bins, int alpha = 1);
+
+void verifyRelation(const unordered_map<string,vector<string>>& Smap, const set<pair<string,string>>& potentialRelationSet, 
+                    int seedK, DynamicBins& bins, int alpha = 1);
+
 string kmerCompetition(const unordered_map<string,data_t>& Kmap, string currentRep, string auditioningKmer);
+
 string tieBreaker(string currentRep, string auditioningKmer);
+
 void binSingles(const unordered_map<string,vector<string>>& Smap, DynamicBins& bins);
-void selectReps(unordered_map<int, string>& provisionalRepList, const unordered_map<int,vector<string>>& reverseBins, const unordered_map<string,data_t>& Kmap);
-unordered_map<int, string> reCannonization(const unordered_map<int, string>& provisionalRepList, const DynamicBins& bins);
-void creatingOutputMap(unordered_map<string,data_t>& outputMap, unordered_map<string,data_t>& binsOutputMap, const unordered_map<int,string>& choosenReps, const unordered_map<int,vector<string>>& reverseBins, const unordered_map<string,data_t>& Kmap);
+
+void selectReps(unordered_map<int, string>& provisionalRepList, const unordered_map<int,
+                vector<string>>& reverseBins, const unordered_map<string,data_t>& Kmap);
+
+unordered_map<int, string> reCannonization(const unordered_map<int, string>& provisionalRepList);
+
+void creatingOutputMap(unordered_map<string,data_t>& outputMap, unordered_map<string,data_t>& binsOutputMap, 
+                       const unordered_map<int,string>& choosenReps, const unordered_map<int,
+                       vector<string>>& reverseBins, const unordered_map<string,data_t>& Kmap);
+
 int palindromicScore(string Kmer);
+
+void validateBins(const unordered_map<int, string>& provisionalRepList, const DynamicBins& bins, 
+                  const unordered_map<int,vector<string>>& reverseBins);
 
 // step three functions:
 void buildSmap(ifstream& InCatalog, unordered_map<string,Kmap_t>& Smap, int seedK);
-void findKmersInFileWithSmap(MultiFormatFileReader& fileReader, unordered_map<string,data_t>& globalKmerMap, unordered_map<string,Kmap_t>& Smap, int seedK, unordered_map<string,double>& stats);
-void expandSeedToKmerWithSmap(const string& line, const string& Smer, int& idx , unordered_map<string,data_t>& globalKmerMap, unordered_map<string,Kmap_t>& Smap, bool& activeLine);
+
+void findKmersInFileWithSmap(MultiFormatFileReader& fileReader, unordered_map<string,data_t>& globalKmerMap, 
+                            unordered_map<string,Kmap_t>& Smap, int seedK, unordered_map<string,double>& stats);
+void expandSeedToKmerWithSmap(const string& line, const string& Smer, int& idx , 
+                              unordered_map<string,data_t>& globalKmerMap, unordered_map<string,Kmap_t>& Smap, 
+                              bool& activeLine);
 
 
 #endif /* functions_hpp */

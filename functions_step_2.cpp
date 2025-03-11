@@ -158,9 +158,9 @@ void verifyRelation(const unordered_map<string,vector<string>>& Smap, const set<
         // if after the check they are still related, we bin them together using the binning function, as well as their RC's, otherwise we bin them seperately.
         if (isRelated){
             binRelatives(shortestK, otherK, bins);
-            string RCShortestK = reverseComplement(shortestK);
-            string RCOtherK = reverseComplement(otherK);
-            binRelatives(RCShortestK, RCOtherK, bins); // viable_change
+            // string RCShortestK = reverseComplement(shortestK);
+            // string RCOtherK = reverseComplement(otherK);
+            // binRelatives(RCShortestK, RCOtherK, bins); // viable_change
         }
         else{ // maybe need to add RC's here too?
             bins.addAutoSingle(shortestK);
@@ -226,7 +226,7 @@ string tieBreaker(string currentRep, string auditioningKmer){
 
 // this function iterates over the reverse bins and assigns exactly one representative for each bin (the one with the highest abundance).
 // the end result is a list of representatives and bin numbers in the repList structure
-void selectReps(unordered_map<int, string>& provisionalRepList, const unordered_map<int,vector<string>>& reverseBins, const unordered_map<string,data_t>& Kmap){
+void selectReps(unordered_map<int, string>& provisionalRepList, const unordered_map<int, vector<string>>& reverseBins, const unordered_map<string,data_t>& Kmap){
     cout << "begining selecting reps" << endl;
     // we iterate over the reverse bins structure that points from bin number to a vector of Kmers in that bin.
     for (const auto& [binNum, KVect] : reverseBins){
@@ -255,7 +255,8 @@ void selectReps(unordered_map<int, string>& provisionalRepList, const unordered_
     cout << "selected final reps" << endl; // debugging
 }
 
-unordered_map<int, string> reCannonization(const unordered_map<int, string>& provisionalRepList, const DynamicBins& bins) {
+// a function to cannonize reps
+unordered_map<int, string> reCannonization(const unordered_map<int, string>& provisionalRepList) {
     
     unordered_map<string, int> reverseRepList;
     unordered_map<int, string> finalRepList;
@@ -285,7 +286,7 @@ unordered_map<int, string> reCannonization(const unordered_map<int, string>& pro
 }
 
 // this function iterates over all of the structures needed to collect all the data and format it in an output map
-void creatingOutputMap(unordered_map<string,data_t>& outputMap, unordered_map<string,data_t>& binsOutputMap, const unordered_map<int,string>& choosenReps, const unordered_map<int,vector<string>>& reverseBins, const unordered_map<string,data_t>& Kmap){
+void creatingOutputMap(unordered_map<string,data_t>& outputMap, unordered_map<string,data_t>& binsOutputMap, const unordered_map<int,string>& choosenReps, const unordered_map<int, vector<string>>& reverseBins, const unordered_map<string,data_t>& Kmap){
     int newBinNum = 1;
     for(const auto& [binNum, repKmer] : choosenReps){
         // filling up normal output
@@ -307,6 +308,7 @@ void creatingOutputMap(unordered_map<string,data_t>& outputMap, unordered_map<st
     }
 }
 
+// function that calculates palindromic score for repeat (num nucleotides thar are palindromic)
 int palindromicScore(string Kmer){
     int palindromScore = 0;
     int iForward = 0;
@@ -342,4 +344,28 @@ int palindromicScore(string Kmer){
         iForward++;
     }
     return palindromScore * 2;
+}
+
+// function that iteraes over the bins and makes sure they are mirrored
+void validateBins(const unordered_map<int, string>& provisionalRepList, const DynamicBins& bins, const unordered_map<int,vector<string>>& reverseBins){
+    cout << "validating bins." << endl;
+    bool valid = true;
+    for (const auto& [binNum, repK] : provisionalRepList){
+        string RC = reverseComplement(repK);
+        int binRC = bins.getBin(RC);
+        if (provisionalRepList.at(binRC) != RC){
+            valid = false;
+            cerr << "the reps of bins " << binNum << " and " << binRC << " are not mirrored, this points to an error" << endl;
+            cerr << "rep : " << repK << " RC : " << RC << endl;
+        }
+        if (reverseBins.at(binNum).size() != reverseBins.at(binRC).size()){
+            valid = false;
+            cerr << "the expected mirror bins " << binNum << " and " << binRC << " are not the same size, this points to an error" << endl;
+            cerr << "rep : " << repK << " RC : " << RC << endl;
+        }
+
+    }
+    if (valid){
+        cout << "bins are valid" << endl;
+    }
 }

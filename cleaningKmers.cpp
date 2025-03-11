@@ -41,7 +41,14 @@ void cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha)
     
     selectReps(provisionalReps, reverseBins, Kmap);
     cout << "size of choosen reps before cannonization: " << provisionalReps.size() << endl; // debugg
-    unordered_map<int,string> finalReps = reCannonization(provisionalReps, bins);
+    try{
+        validateBins(provisionalReps,bins,reverseBins);
+    }
+    catch(const out_of_range& ex){
+        cerr << "error occured validating bins for this data set" << endl;
+        return;
+    }
+    unordered_map<int,string> finalReps = reCannonization(provisionalReps);
     cout << "size of choosen reps after cannonization: " << finalReps.size() << endl; // debugg
 
     // formatting output
