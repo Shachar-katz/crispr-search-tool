@@ -43,28 +43,28 @@ void expandSeedToKmer(const string& line, string Smer, vector<int> SmerIdxVect ,
 
 //step two functions:
 void catalogToSAndKMaps(ifstream& InCatalog, unordered_map<string,vector<string>>& Smap, 
-                        unordered_map<string,data_t>& Kmap, int seedK);
+                        unordered_map<string,data_t>& Kmap, int seedK, ofstream& logFile);
 void findSmersVect(string shortestKmer, vector<string>& smerVect, int seedK);
 
 void makePotentialRelationsSet(const unordered_map<string,vector<string>>& Smap, 
-                               set<pair<string,string>>& potentialRelationSet);
+                               set<pair<string,string>>& potentialRelationSet, ofstream& logFile);
 void chooseShortestK (const pair<string, string>& Kpair, string& shortestK, string& otherK);
 
 void binRelatives(const string& shortestK, const string& otherK, DynamicBins& bins);
 
 void verifyRelation(const unordered_map<string,vector<string>>& Smap, const set<pair<string,string>>& potentialRelationSet, 
-                    int seedK, DynamicBins& bins, int alpha = 1);
+                    int seedK, DynamicBins& bins, ofstream& logFile, int alpha = 1);
 
-string kmerCompetition(const unordered_map<string,data_t>& Kmap, string currentRep, string auditioningKmer);
+string kmerCompetition(const unordered_map<string,data_t>& Kmap, string currentRep, string auditioningKmer, ofstream& logFile);
 
 string tieBreaker(string currentRep, string auditioningKmer);
 
-void binSingles(const unordered_map<string,vector<string>>& Smap, DynamicBins& bins);
+void binSingles(const unordered_map<string,vector<string>>& Smap, DynamicBins& bins, ofstream& logFile);
 
 void selectReps(unordered_map<int, string>& provisionalRepList, const unordered_map<int,
-                vector<string>>& reverseBins, const unordered_map<string,data_t>& Kmap);
+                vector<string>>& reverseBins, const unordered_map<string,data_t>& Kmap, ofstream& logFile);
 
-unordered_map<int, string> reCannonization(const unordered_map<int, string>& provisionalRepList);
+unordered_map<int, string> reCannonization(const unordered_map<int, string>& provisionalRepList, ofstream& logFile);
 
 void creatingOutputMap(unordered_map<string,data_t>& outputMap, unordered_map<string,data_t>& binsOutputMap, 
                        const unordered_map<int,string>& choosenReps, const unordered_map<int,
@@ -73,7 +73,7 @@ void creatingOutputMap(unordered_map<string,data_t>& outputMap, unordered_map<st
 int palindromicScore(string Kmer);
 
 void validateBins(const unordered_map<int, string>& provisionalRepList, const DynamicBins& bins, 
-                  const unordered_map<int,vector<string>>& reverseBins);
+                  const unordered_map<int,vector<string>>& reverseBins, ofstream& logFile);
 
 // step three functions:
 void buildSmap(ifstream& InCatalog, unordered_map<string,Kmap_t>& Smap, int seedK);

@@ -8,6 +8,15 @@
 #include "cleaningKmers.hpp"
 
 void cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha){
+    // open log file
+    ofstream logFile;
+    string logFileName = outputFile + "_run_log";
+    logFile.open(logFileName);
+    if (!logFile.is_open()){
+         cerr << "Error: Could not open log output file." << endl;
+         return;
+    }
+
     // formatting data from catalog
     unordered_map<string,vector<string>> Smap;
     unordered_map<string,data_t> Kmap;
@@ -21,7 +30,7 @@ void cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha)
     catalogFile.clear();
     catalogFile.seekg(0, ios::beg);
     
-    catalogToSAndKMaps(catalogFile, Smap, Kmap, seedK);
+    catalogToSAndKMaps(catalogFile, Smap, Kmap, seedK, logFile);
     
     catalogFile.close();
 
@@ -29,27 +38,28 @@ void cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha)
     set<pair<string,string>> potentialRelationSet;
     DynamicBins bins;
     
-    makePotentialRelationsSet(Smap, potentialRelationSet);
-    verifyRelation(Smap, potentialRelationSet, seedK, bins, alpha);
-    cout << "size of bins before binning singles: " << bins.getLen() << endl; // debugg
-    binSingles(Smap, bins);
-    cout << "size of bins: " << bins.getLen() << endl; // debugg
+    makePotentialRelationsSet(Smap, potentialRelationSet, logFile);
+    verifyRelation(Smap, potentialRelationSet, seedK, bins, logFile, alpha);
+    logFile << "size of bins before binning singles: " << bins.getLen() << endl; // debugg
+    binSingles(Smap, bins, logFile);
+    logFile << "size of bins: " << bins.getLen() << endl; // debugg
     bins.reverseBin();
 
     unordered_map<int,vector<string>> reverseBins = bins.getReBins();
     unordered_map<int,string> provisionalReps;
     
-    selectReps(provisionalReps, reverseBins, Kmap);
-    cout << "size of choosen reps before cannonization: " << provisionalReps.size() << endl; // debugg
+    selectReps(provisionalReps, reverseBins, Kmap, logFile);
+    logFile << "size of choosen reps before cannonization: " << provisionalReps.size() << endl; // debugg
     try{
-        validateBins(provisionalReps,bins,reverseBins);
+        validateBins(provisionalReps,bins,reverseBins,logFile);
     }
     catch(const out_of_range& ex){
+        logFile << "error occured validating bins for this data set" << endl;
         cerr << "error occured validating bins for this data set" << endl;
         return;
     }
-    unordered_map<int,string> finalReps = reCannonization(provisionalReps);
-    cout << "size of choosen reps after cannonization: " << finalReps.size() << endl; // debugg
+    unordered_map<int,string> finalReps = reCannonization(provisionalReps,logFile);
+    logFile << "size of choosen reps after cannonization: " << finalReps.size() << endl; // debugg
 
     // formatting output
     unordered_map<string,data_t> outputMap;
@@ -64,13 +74,15 @@ void cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha)
     outFS1.open(outputFile);
     outFS2.open(binsOutputFile);
     if (!outFS1.is_open()) {
+        logFile << "Error: Could not open output file: " << outputFile << endl;
         cerr << "Error: Could not open output file: " << outputFile << endl;
     }
     if (!outFS2.is_open()) {
+        logFile << "Error: Could not open bins output file: " << binsOutputFile << endl;
         cerr << "Error: Could not open bins output file: " << binsOutputFile << endl;
     }
 
-    cout << "opened two output file named: " << endl << outputFile << endl << binsOutputFile << endl;
+    logFile << "opened two output file named: " << endl << outputFile << endl << binsOutputFile << endl;
     
     outFS1 << 
     setw(10) << left << "repeat" <<
