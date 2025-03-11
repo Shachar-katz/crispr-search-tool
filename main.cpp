@@ -47,6 +47,81 @@ void init_params(const char* name, int argc, const char **argv, Parameters& args
     args.verify_mandatory();
 }
 
+bool step_1_executor(Parameters& args){
+    // setting all the variables from args
+    string inputFileType = args.get_string("inputFileType");
+    string outputFile = args.get_string("outputFile");
+    int minK = args.get_int("minK");
+    int seedK = args.get_int("seedK");
+    int legitimateSpacer = args.get_int("legitimateSpacer");
+    outputFile = "/Users/sarahkatz/Documents/data/" + outputFile;
+    // a case for either dual fastq
+    if (inputFileType == "fastq_dual") {
+        if (!args.is_defined("inputFileR1") || !args.is_defined("inputFileR2")) {
+            cerr << "Missing mandatory fastq_dual input files for step 1." << endl;
+            return false;
+        }
+        // run for strand 1
+        string inputFileR1 = args.get_string("inputFileR1");
+        string outputFileR1 = "/Users/sarahkatz/Documents/data/" + outputFile + "_R1";
+        cout << "repeat finder initialized" << endl;
+        step_1(inputFileR1, inputFileType, outputFileR1, seedK, minK, legitimateSpacer);
+        // run for step 2
+        string inputFileR2 = args.get_string("inputFileR2");
+        string outputFileR2 = "/Users/sarahkatz/Documents/data/" + outputFile + "_R2";
+        cout << "repeat finder initialized" << endl;
+        step_1(inputFileR2, inputFileType, outputFileR2, seedK, minK, legitimateSpacer);
+    } 
+    // a case for all other file types
+    else {
+        if (!args.is_defined("inputFile")) {
+            cerr << "Missing mandatory inputFile for step 1." << endl;
+            return false;
+        }
+        string inputFile = args.get_string("inputFile");
+        cout << "repeat finder initialized" << endl;
+        step_1(inputFile, inputFileType, outputFile, seedK, minK, legitimateSpacer);
+    }
+    return true;
+}
+
+void step_2_executor(Parameters& args){
+    string inputFileCatalog = args.get_string("inputFileCatalog");
+    string outputFile = args.get_string("outputFile");
+    int seedK = args.get_int("seedK");
+    int alpha = args.get_int("alpha");
+    outputFile = "/Users/sarahkatz/Documents/data/" + outputFile;
+    cleaningKmers(inputFileCatalog, outputFile, seedK, alpha);
+}
+
+bool step_3_executor(Parameters& args){
+    string inputFileType = args.get_string("inputFileType");
+    string inputFileCatalog = args.get_string("inputFileCatalog");
+    string outputFile = args.get_string("outputFile");
+    int seedK = args.get_int("seedK");
+    // decide on dual or single fastq
+    if (args.is_defined("inputFileR1") && args.is_defined("inputFileR2")) {
+        // run for strand 1
+        string inputFileR1 = args.get_string("inputFileR1");
+        string outputFileR1 = "/Users/sarahkatz/Documents/data/" + outputFile + "_R1";
+        step_3(inputFileR1, inputFileType, inputFileCatalog, outputFileR1, seedK);
+        // run for strand 2
+        string inputFileR2 = args.get_string("inputFileR2");
+        string outputFileR2 = "/Users/sarahkatz/Documents/data/" + outputFile + "_R2";
+        step_3(inputFileR2, inputFileType, inputFileCatalog, outputFileR2, seedK);
+    } 
+    else if (args.is_defined("inputFile")) {
+        string inputFile = args.get_string("inputFile");
+        outputFile = "/Users/sarahkatz/Documents/data/" + outputFile;
+        step_3(inputFile, inputFileType, inputFileCatalog, outputFile, seedK);
+    } 
+    else {
+        cerr << "Missing mandatory input file for step 3" << endl;
+                return false;
+    }
+}
+
+
 int main(int argc, const char * argv[]) {
     Parameters args;
     
@@ -64,35 +139,8 @@ int main(int argc, const char * argv[]) {
                 cerr << "Missing mandatory arguments for step 1." << endl;
                 return 1;
             }
-            string inputFileType = args.get_string("inputFileType");
-            if (inputFileType == "fastq_dual") {
-                if (!args.is_defined("inputFileR1") || !args.is_defined("inputFileR2")) {
-                    cerr << "Missing mandatory fastq_dual input files for step 1." << endl;
-                    return 1;
-                }
-                string inputFileR1 = args.get_string("inputFileR1");
-                string inputFileR2 = args.get_string("inputFileR2");
-                string outputFile = args.get_string("outputFile");
-                int minK = args.get_int("minK");
-                int seedK = args.get_int("seedK");
-                int legitimateSpacer = args.get_int("legitimateSpacer");
-                string outputFileR1 = "/Users/sarahkatz/Documents/data/" + outputFile + "_R1";
-                string outputFileR2 = "/Users/sarahkatz/Documents/data/" + outputFile + "_R2";
-                step_1(inputFileR1, inputFileType, outputFileR1, seedK, minK, legitimateSpacer);
-                step_1(inputFileR2, inputFileType, outputFileR2, seedK, minK, legitimateSpacer);
-            } else {
-                if (!args.is_defined("inputFile")) {
-                    cerr << "Missing mandatory inputFile for step 1." << endl;
-                    return 1;
-                }
-                string inputFile = args.get_string("inputFile");
-                string outputFile = args.get_string("outputFile");
-                int minK = args.get_int("minK");
-                int seedK = args.get_int("seedK");
-                int legitimateSpacer = args.get_int("legitimateSpacer");
-                outputFile = "/Users/sarahkatz/Documents/data/" + outputFile;
-                cout << "repeat finder initialized" << endl;
-                step_1(inputFile, inputFileType, outputFile, seedK, minK, legitimateSpacer);
+            if(!step_1_executor(args)){
+                cerr << "error occured while initilizing step 1" << endl;
             }
             break;
         }
@@ -104,12 +152,7 @@ int main(int argc, const char * argv[]) {
                 cerr << "Missing mandatory arguments for step 2." << endl;
                 return 1;
             }
-            string inputFileCatalog = args.get_string("inputFileCatalog");
-            string outputFile = args.get_string("outputFile");
-            int seedK = args.get_int("seedK");
-            int alpha = args.get_int("alpha");
-            outputFile = "/Users/sarahkatz/Documents/data/" + outputFile;
-            cleaningKmers(inputFileCatalog, outputFile, seedK, alpha);
+            step_2_executor(args);
             break;
         }
         case 3:{
@@ -120,28 +163,8 @@ int main(int argc, const char * argv[]) {
                 cerr << "Missing mandatory arguments for step 3." << endl;
                 return 1;
             }
-            string inputFileType = args.get_string("inputFileType");
-            // decide on dual or single fastq
-            if (args.is_defined("inputFileR1") && args.is_defined("inputFileR2")) {
-                string inputFileR1 = args.get_string("inputFileR1");
-                string inputFileR2 = args.get_string("inputFileR2");
-                string inputFileCatalog = args.get_string("inputFileCatalog");
-                string outputFile = args.get_string("outputFile");
-                int seedK = args.get_int("seedK");
-                string outputFileR1 = "/Users/sarahkatz/Documents/data/" + outputFile + "_R1";
-                string outputFileR2 = "/Users/sarahkatz/Documents/data/" + outputFile + "_R2";
-                step_3(inputFileR1, inputFileType, inputFileCatalog, outputFileR1, seedK);
-                step_3(inputFileR2, inputFileType, inputFileCatalog, outputFileR2, seedK);
-            } else if (args.is_defined("inputFile")) {
-                string inputFile = args.get_string("inputFile");
-                string inputFileCatalog = args.get_string("inputFileCatalog");
-                string outputFile = args.get_string("outputFile");
-                int seedK = args.get_int("seedK");
-                outputFile = "/Users/sarahkatz/Documents/data/" + outputFile;
-                step_3(inputFile, inputFileType, inputFileCatalog, outputFile, seedK);
-            } else {
-                cerr << "Missing mandatory input file for step 3" << endl;
-                return 1;
+            if(!step_3_executor(args)){
+                cerr << "error occured while initilizing step 3" << endl;
             }
             break;
         }
