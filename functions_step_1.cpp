@@ -16,6 +16,7 @@ void findKmersInFile(MultiFormatFileReader& fileReader, unordered_map<string,int
         // statistics and progress managment:
         progressCounter++;
         if (progressCounter % 100000 == 0){
+            cout << "Procession line: " << progressCounter << endl;
             logFile << "Procession line: " << progressCounter << endl;
         }
         // check for faulty lines
