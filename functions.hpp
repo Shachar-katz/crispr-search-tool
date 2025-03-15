@@ -75,6 +75,8 @@ int palindromicScore(string Kmer);
 void validateBins(const unordered_map<int, string>& provisionalRepList, const DynamicBins& bins, 
                   const unordered_map<int,vector<string>>& reverseBins, ofstream& logFile);
 
+bool isKmer(string maybeKmer);
+
 // step three functions:
 void buildSmap(ifstream& InCatalog, unordered_map<string,Kmap_t>& Smap, int seedK);
 
