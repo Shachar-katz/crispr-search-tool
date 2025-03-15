@@ -68,11 +68,9 @@ void makePotentialRelationsSet(const unordered_map<string,vector<string>>& Smap,
             });
 
             // for the sorted vector of Kmers we put every Kmer in a pair with all the others to signify they may be subsets of one another
-            for (int i = 0; i < copyKVect.size(); i++){
-                for (int j = 0; j < copyKVect.size(); j++) {
-                    if (i != j){
-                        potentialRelationSet.emplace(copyKVect.at(i), copyKVect.at(j));
-                    }
+            for (int i = 0; i < copyKVect.size() - 1; i++){
+                for (int j = i + 1; j < copyKVect.size(); j++) {
+                    potentialRelationSet.emplace(copyKVect.at(i), copyKVect.at(j));
                 }
             }
         }
@@ -161,13 +159,17 @@ void verifyRelation(const unordered_map<string,vector<string>>& Smap, const set<
         // if after the check they are still related, we bin them together using the binning function, as well as their RC's, otherwise we bin them seperately.
         if (isRelated){
             binRelatives(shortestK, otherK, bins);
-            // string RCShortestK = reverseComplement(shortestK);
-            // string RCOtherK = reverseComplement(otherK);
-            // binRelatives(RCShortestK, RCOtherK, bins); // viable_change
+            string RCShortestK = reverseComplement(shortestK);
+            string RCOtherK = reverseComplement(otherK);
+            binRelatives(RCShortestK, RCOtherK, bins); // viable_change
         }
         else{ // maybe need to add RC's here too?
             bins.addAutoSingle(shortestK);
             bins.addAutoSingle(otherK);
+            string RCShortestK = reverseComplement(shortestK);
+            string RCOtherK = reverseComplement(otherK);
+            bins.addAutoSingle(RCShortestK);
+            bins.addAutoSingle(RCOtherK);
         }
     }
     logFile << "grouping completed" << endl; // debugging
