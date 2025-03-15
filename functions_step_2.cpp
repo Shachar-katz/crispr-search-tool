@@ -366,6 +366,19 @@ void validateBins(const unordered_map<int, string>& provisionalRepList, const Dy
             logFile << "rep : " << repK << " RC : " << RC << endl;
             cerr << "the reps of bins " << binNum << " and " << binRC << " are not mirrored, this points to an error" << endl;
             cerr << "rep : " << repK << " RC : " << RC << endl;
+
+            logFile << "the Kmers in the RC bin number: " << binRC << endl;
+            cerr << "the Kmers in the RC bin number: " << binRC << endl;
+            for (const auto& Kmer : reverseBins.at(binRC)){
+                logFile << Kmer << endl;
+                cerr << Kmer << endl;
+            }
+            logFile << "the Kmers in the rep bin number: " << binNum << endl;
+            cerr << "the Kmers in the rep bin number: " << binNum << endl;
+            for (const auto& Kmer : reverseBins.at(binNum)){
+                logFile << Kmer << endl;
+                cerr << Kmer << endl;
+            }
         }
         if (reverseBins.at(binNum).size() != reverseBins.at(binRC).size()){
             valid = false;
