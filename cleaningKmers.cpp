@@ -7,7 +7,7 @@
 
 #include "cleaningKmers.hpp"
 
-void cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha){
+void cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha, string inputCatalog2){
     // open log file
     ofstream logFile;
     string logFileName = outputFile + "_run_log";
@@ -33,6 +33,21 @@ void cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha)
     catalogToSAndKMaps(catalogFile, Smap, Kmap, seedK, logFile);
     
     catalogFile.close();
+
+    if (inputCatalog2 != ""){
+        ifstream catalogFile2;
+        catalogFile2.open(inputCatalog2);
+        if (!isInputFileValid(catalogFile2)){
+            return;
+        }
+        
+        catalogFile2.clear();
+        catalogFile2.seekg(0, ios::beg);
+        
+        catalogToSAndKMaps(catalogFile2, Smap, Kmap, seedK, logFile);
+        
+        catalogFile2.close();
+    }
 
     // preforming binning and selecting most common variation of repeat
     set<pair<string,string>> potentialRelationSet;

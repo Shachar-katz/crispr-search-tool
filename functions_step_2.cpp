@@ -20,9 +20,9 @@ void catalogToSAndKMaps(ifstream& InCatalog, unordered_map<string,vector<string>
         istringstream iss(line);
         // extract the data (Kmer string and its abundance)
         if (iss >> Kmer >> abundance) {
-            if (!isKmer(Kmer)){
-                continue;
-            }
+            // if (!isKmer(Kmer)){
+            //     continue;
+            // }
             // we generate a reverse complement for the Kmer
             string reverseComp = reverseComplement(Kmer);
             // we place the Kmer and reverse complement in a map mapping from Kmer to abundance, palindrom score, and length
@@ -381,12 +381,12 @@ void validateBins(const unordered_map<int, string>& provisionalRepList, const Dy
     }
 }
 
-bool isKmer(string maybeKmer){
-    for (int i = 0; i < maybeKmer.size(); i++) {
-        char nucleaotid = maybeKmer[i];
-        if (nucleaotid != 'A' || nucleaotid != 'T' || nucleaotid != 'C' || nucleaotid != 'G'){
-            return false;
-        }
-    }
-    return true;
-}
+// bool isKmer(string maybeKmer){
+//     for (int i = 0; i < maybeKmer.size(); i++) {
+//         char nucleaotid = maybeKmer[i];
+//         if (nucleaotid != 'A' || nucleaotid != 'T' || nucleaotid != 'C' || nucleaotid != 'G'){
+//             return false;
+//         }
+//     }
+//     return true;
+// }

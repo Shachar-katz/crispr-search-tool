@@ -20,5 +20,5 @@
 #include "classData.hpp"
 using namespace std;
 
-void cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha);
+void cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha, string inputCatalog2 = "");
 #endif /* cleaningKmers_hpp */

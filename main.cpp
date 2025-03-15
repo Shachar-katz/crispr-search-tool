@@ -33,7 +33,8 @@ void init_params(const char* name, int argc, const char **argv, Parameters& args
     args.add_parser("inputFileR2", new ParserFilename("Input file R2 (for fastq_dual)")); // for 1 & 3
     args.add_parser("minK", new ParserInteger("Minimum k")); // for 1 & 3
     args.add_parser("legitimateSpacer", new ParserInteger("Legitimate spacer length")); // for 1
-    args.add_parser("inputFileCatalog", new ParserFilename("Input file catalog")); // for 3
+    args.add_parser("inputFileCatalog", new ParserFilename("Input file catalog")); // for 3 and 2
+    args.add_parser("secondInputFileCatalog", new ParserFilename("Additional input file catalog for dual fastq")); // for 2
     args.add_parser("alpha", new ParserInteger("Alpha (number of mutations permitted for grouping kmers)")); // for 2
     args.add_parser("preStrict", new ParserBoolean("Should we throw suspected tandam lines before processing", false)); //for 1
     args.add_parser("strictDuring", new ParserBoolean("Should we throw suspected tandam lines during processing", false)); //for 1
@@ -89,10 +90,11 @@ bool step_1_executor(Parameters& args){
 
 void step_2_executor(Parameters& args){
     string inputFileCatalog = args.get_string("inputFileCatalog");
+    string inputFileCatalog2 = args.get_string("secondInputFileCatalog");
     string outputFile = args.get_string("outputFile");
     int seedK = args.get_int("seedK");
     int alpha = args.get_int("alpha");
-    cleaningKmers(inputFileCatalog, outputFile, seedK, alpha);
+    cleaningKmers(inputFileCatalog, outputFile, seedK, alpha, inputFileCatalog2);
 }
 
 bool step_3_executor(Parameters& args){
