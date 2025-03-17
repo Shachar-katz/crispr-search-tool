@@ -73,7 +73,7 @@ void cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha,
         cerr << "error occured validating bins for this data set" << endl;
         return;
     }
-    unordered_map<int,string> finalReps = reCannonization(provisionalReps,logFile);
+    unordered_map<int,string> finalReps = reCannonization(provisionalReps,bins,logFile);
     logFile << "size of choosen reps after cannonization: " << finalReps.size() << endl; // debugg
 
     // formatting output

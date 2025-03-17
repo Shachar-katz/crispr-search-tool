@@ -20,7 +20,7 @@ void findKmersInFile(MultiFormatFileReader& fileReader, unordered_map<string,int
             logFile << "Procession line: " << progressCounter << endl;
         }
         // check for faulty lines
-        if (preStrict == 1 && skipThisLine(line)){
+        if (preStrict == 1 && skipThisLine(line, 0.5)){
             logFile << "faulty line" << endl;
             cerr << "faulty line" << endl;
             continue;
@@ -64,7 +64,7 @@ void findKmersInFile(MultiFormatFileReader& fileReader, unordered_map<string,int
     stats["precent_reads_in_file_with_repeat: "] = precentReadsWithRepeat;
 }
 
-bool skipThisLine(const string& read){
+bool skipThisLine(const string& read, double iligitimateRatio){
     int A = 0;
     int T = 0;
     int C = 0;
@@ -80,7 +80,7 @@ bool skipThisLine(const string& read){
     }
     int countOfMostFrequentNuc = max({A, T, C, G});
     double ratio = (double)countOfMostFrequentNuc / (double)read.size();
-    if (ratio >= 0.5) {
+    if (ratio >= iligitimateRatio) {
         // Skip expansions for this line
         return true; 
     }

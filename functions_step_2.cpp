@@ -20,9 +20,9 @@ void catalogToSAndKMaps(ifstream& InCatalog, unordered_map<string,vector<string>
         istringstream iss(line);
         // extract the data (Kmer string and its abundance)
         if (iss >> Kmer >> abundance) {
-            // if (!isKmer(Kmer)){
-            //     continue;
-            // }
+            if (skipThisLine(Kmer, 0.9)){
+                continue;
+            }
             // we generate a reverse complement for the Kmer
             string reverseComp = reverseComplement(Kmer);
             // we place the Kmer and reverse complement in a map mapping from Kmer to abundance, palindrom score, and length
@@ -49,8 +49,9 @@ void catalogToSAndKMaps(ifstream& InCatalog, unordered_map<string,vector<string>
 
 // this function recives a Kmer input and generates a vector of Smers that comprize it
 void findSmersVect(string shortestKmer, vector<string>& smerVect, int seedK){
-    for (int j = 0; j < (shortestKmer.size() - seedK); j++){
+    for (int j = 0; j <= (shortestKmer.size() - seedK); j++){
         string SmerForSearch = shortestKmer.substr(j,seedK);
+        // if (SmerForSearch.length() < seedK){ break; }
         smerVect.emplace_back(SmerForSearch);
     }
 }
@@ -159,17 +160,17 @@ void verifyRelation(const unordered_map<string,vector<string>>& Smap, const set<
         // if after the check they are still related, we bin them together using the binning function, as well as their RC's, otherwise we bin them seperately.
         if (isRelated){
             binRelatives(shortestK, otherK, bins);
-            string RCShortestK = reverseComplement(shortestK);
-            string RCOtherK = reverseComplement(otherK);
-            binRelatives(RCShortestK, RCOtherK, bins); // viable_change
+            // string RCShortestK = reverseComplement(shortestK);
+            // string RCOtherK = reverseComplement(otherK);
+            // binRelatives(RCShortestK, RCOtherK, bins); // viable_change
         }
         else{ // maybe need to add RC's here too?
             bins.addAutoSingle(shortestK);
             bins.addAutoSingle(otherK);
-            string RCShortestK = reverseComplement(shortestK);
-            string RCOtherK = reverseComplement(otherK);
-            bins.addAutoSingle(RCShortestK);
-            bins.addAutoSingle(RCOtherK);
+            // string RCShortestK = reverseComplement(shortestK);
+            // string RCOtherK = reverseComplement(otherK);
+            // bins.addAutoSingle(RCShortestK);
+            // bins.addAutoSingle(RCOtherK);
         }
     }
     logFile << "grouping completed" << endl; // debugging
@@ -264,7 +265,7 @@ void selectReps(unordered_map<int, string>& provisionalRepList, const unordered_
 }
 
 // a function to cannonize reps
-unordered_map<int, string> reCannonization(const unordered_map<int, string>& provisionalRepList, ofstream& logFile) {
+unordered_map<int, string> reCannonization(const unordered_map<int, string>& provisionalRepList, const DynamicBins& bins, ofstream& logFile) {
     
     unordered_map<string, int> reverseRepList;
     unordered_map<int, string> finalRepList;
@@ -283,6 +284,11 @@ unordered_map<int, string> reCannonization(const unordered_map<int, string>& pro
         }
         // 3) otherwise check if the rep is its own cannonized form 
         else if(repKmer == cannonized){
+            // 4) if so add it to final reps list
+            finalRepList[binNum] = cannonized;
+        }
+        // 3) otherwise if RC and Kmer are in the same bin
+        else if(binNum == bins.getBin(cannonized)){
             // 4) if so add it to final reps list
             finalRepList[binNum] = cannonized;
         }
@@ -362,6 +368,9 @@ void validateBins(const unordered_map<int, string>& provisionalRepList, const Dy
     for (const auto& [binNum, repK] : provisionalRepList){
         string RC = reverseComplement(repK);
         int binRC = bins.getBin(RC);
+        if (binNum == binRC){
+            continue;
+        }
         if (provisionalRepList.at(binRC) != RC){
             valid = false;
             logFile << "the reps of bins " << binNum << " and " << binRC << " are not mirrored, this points to an error" << endl;
@@ -395,13 +404,3 @@ void validateBins(const unordered_map<int, string>& provisionalRepList, const Dy
         logFile << "bins are valid" << endl;
     }
 }
-
-// bool isKmer(string maybeKmer){
-//     for (int i = 0; i < maybeKmer.size(); i++) {
-//         char nucleaotid = maybeKmer[i];
-//         if (nucleaotid != 'A' || nucleaotid != 'T' || nucleaotid != 'C' || nucleaotid != 'G'){
-//             return false;
-//         }
-//     }
-//     return true;
-// }

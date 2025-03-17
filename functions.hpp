@@ -32,7 +32,7 @@ void findKmersInFile(MultiFormatFileReader& fileReader, unordered_map<string,int
                      int minK, int legitimateSpacer, unordered_map<string,double>& stats, bool strict, 
                      bool preStrict, ofstream& logFile);
 
-bool skipThisLine(const string& read);
+bool skipThisLine(const string& read, double iligitimateRatio);
 
 void findSeedPattern(string line, unordered_map<string,vector<int>>& singleLineMapSeedKToIdx, int seedK);
 
@@ -64,7 +64,7 @@ void binSingles(const unordered_map<string,vector<string>>& Smap, DynamicBins& b
 void selectReps(unordered_map<int, string>& provisionalRepList, const unordered_map<int,
                 vector<string>>& reverseBins, const unordered_map<string,data_t>& Kmap, ofstream& logFile);
 
-unordered_map<int, string> reCannonization(const unordered_map<int, string>& provisionalRepList, ofstream& logFile);
+unordered_map<int, string> reCannonization(const unordered_map<int, string>& provisionalRepList, const DynamicBins& bins, ofstream& logFile);
 
 void creatingOutputMap(unordered_map<string,data_t>& outputMap, unordered_map<string,data_t>& binsOutputMap, 
                        const unordered_map<int,string>& choosenReps, const unordered_map<int,
