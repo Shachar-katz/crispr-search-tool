@@ -135,6 +135,8 @@ void expandSeedToKmerWithSmap(const string& line, const string& Smer, int& idxIn
                 else if(idxInLine - copyIdxInLine < Kmer.length()){
                     idxInLine = copyIdxInLine + (Kmer.length() - startIdxInKmer);
                 }
+                // then we break to stop iterating over indecies in that same Kmer if the Smer appears in the Kmer more then once
+                break;
             }
         }
     }
