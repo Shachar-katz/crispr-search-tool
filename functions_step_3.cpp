@@ -60,11 +60,6 @@ void findKmersInFileWithSmap(MultiFormatFileReader& fileReader, unordered_map<st
                 // if this succeeds the Kmer is counted in or added to the global Kmer map
             }
         }
-        // We iterate over entire global Kmap to 0 out the count in line since we are moving to the next line
-        for (const auto& [Kmer, data] : globalKmerMap){
-            auto& finalData = globalKmerMap.at(Kmer);
-            finalData.countInLine = 0;
-        }
         // stats
         if (activeLine == true){
             numReadsWithRepeats++;
@@ -91,6 +86,7 @@ void findKmersInFileWithSmap(MultiFormatFileReader& fileReader, unordered_map<st
 // this function checks if the known Smer occurance indeed means a known Kmer occurance and if 
 void expandSeedToKmerWithSmap(const string& line, const string& Smer, int& idxInLine, unordered_map<string,data_t>& globalKmerMap, unordered_map<string,Kmap_t>& Smap, bool& activeLine){
     // we acess the Kmers that the Smer of interest appears in
+    vector<string> foundKmersInPos;
     auto& Kmap = Smap[Smer];
     int copyIdxInLine = idxInLine;
     // we iterate over all the Kmers that this Smer is associated to
@@ -119,7 +115,8 @@ void expandSeedToKmerWithSmap(const string& line, const string& Smer, int& idxIn
             if (Kmer == KmerInLine){
                 activeLine = true;
                 string canonizedKmer = pickKey(Kmer);
-                auto& finalData = globalKmerMap[canonizedKmer];
+                foundKmersInPos.emplace_back(canonizedKmer);
+                auto& finalData = globalKmerMap[canonizedKmer]; // does not override existing elements
                 finalData.countInFile++;
                 finalData.countInLine++;
                 if (finalData.countInLine <= 1){
@@ -139,5 +136,10 @@ void expandSeedToKmerWithSmap(const string& line, const string& Smer, int& idxIn
                 break;
             }
         }
+    }
+    // We iterate over entire global Kmap to 0 out the count in line since we are moving to the next line
+    for(auto& Kmer : foundKmersInPos){
+        auto& finalData = globalKmerMap.at(Kmer);
+        finalData.countInLine = 0;
     }
 }
