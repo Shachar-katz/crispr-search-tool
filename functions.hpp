@@ -84,7 +84,7 @@ void findKmersInFileWithSmap(MultiFormatFileReader& fileReader, unordered_map<st
                             unordered_map<string,Kmap_t>& Smap, int seedK, unordered_map<string,double>& stats, ofstream& logFile);
 void expandSeedToKmerWithSmap(const string& line, const string& Smer, int& idx , 
                               unordered_map<string,data_t>& globalKmerMap, unordered_map<string,Kmap_t>& Smap, 
-                              bool& activeLine);
+                              bool& activeLine, set<string>& foundKmersInLine);
 
 
 #endif /* functions_hpp */
