@@ -91,9 +91,9 @@ void findKmersInFileWithSmap(MultiFormatFileReader& fileReader, unordered_map<st
     stats["precent_reads_in_file_with_repeat: "] = precentReadsWithRepeat;
 }
 
-bool willSelfOverlap(unordered_map<string,int>& KmerToIdxInLine,int startIdexOfKmerInLine, string KmerInLine){
+bool willSelfOverlap(const unordered_map<string,int>& KmerToIdxInLine,int startIdexOfKmerInLine, string KmerInLine){
     string cannonized = pickKey(KmerInLine);
-    if (KmerToIdxInLine.count(cannonized) != 0 && startIdexOfKmerInLine < KmerToIdxInLine.at(cannonized)){
+    if (KmerToIdxInLine.count(cannonized) != 0 && startIdexOfKmerInLine <= KmerToIdxInLine.at(cannonized)){
         return true;
     }
     return false;

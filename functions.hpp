@@ -85,7 +85,7 @@ void findKmersInFileWithSmap(MultiFormatFileReader& fileReader, unordered_map<st
 void expandSeedToKmerWithSmap(const string& line, const string& Smer, int& idx , 
                               unordered_map<string,data_t>& globalKmerMap, unordered_map<string,Kmap_t>& Smap, 
                               bool& activeLine, unordered_map<string,int>& KmerToIdxInLine);
-bool willSelfOverlap(unordered_map<string,int>& KmerToIdxInLine,int startIdexOfKmerInLine, string KmerInLine);
+bool willSelfOverlap(const unordered_map<string,int>& KmerToIdxInLine,int startIdexOfKmerInLine, string KmerInLine);
 
 
 #endif /* functions_hpp */
