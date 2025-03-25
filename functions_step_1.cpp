@@ -11,6 +11,7 @@ void findKmersInFile(MultiFormatFileReader& fileReader, unordered_map<string,int
     // statistics Vars
     int progressCounter = 0;
     int numReadsWithRepeats = 0;
+    int faultyLine = 0;
     // we are looping over every read
     while (fileReader.getNextLine(line)) {
         // statistics and progress managment:
@@ -18,11 +19,13 @@ void findKmersInFile(MultiFormatFileReader& fileReader, unordered_map<string,int
         if (progressCounter % 100000 == 0){
             cout << "Procession line: " << progressCounter << endl;
             logFile << "Procession line: " << progressCounter << endl;
+            // also output faulty lines
+            logFile << faultyLine << " faulty lines" << endl;
+            cerr << faultyLine << " faulty lines" << endl;
         }
         // check for faulty lines
-        if (preStrict == 1 && skipThisLine(line, 0.5)){
-            logFile << "faulty line" << endl;
-            cerr << "faulty line" << endl;
+        if ((preStrict == 1 && skipThisLine(line, 0.5)) || line.length() <= 52){
+            faultyLine++;
             continue;
         }
         // every line we create an empty Smap that maps from an Smer to vect of indecies in the line.

@@ -50,7 +50,7 @@ void findKmersInFileWithSmap(MultiFormatFileReader& fileReader, unordered_map<st
         unordered_map<string,int> KmerToIdxInLine;
         // we iterate over the line (as long as not empty), generating an Smer at each index point 
         // untill the point we'd pass the end of the line if we made another Smer
-        if (line.size() == 0){
+        if (line.length() <= 52){
             continue;
         }
         for (int i = 0; i <= (line.size() - seedK); i++){
