@@ -106,12 +106,8 @@ bool step_3_executor(Parameters& args){
     if (args.is_defined("inputFileR1") && args.is_defined("inputFileR2")) {
         // run for strand 1
         string inputFileR1 = args.get_string("inputFileR1");
-        string outputFileR1 = outputFile + "_R1";
-        step_3(inputFileR1, inputFileType, inputFileCatalog, outputFileR1, seedK);
-        // run for strand 2
         string inputFileR2 = args.get_string("inputFileR2");
-        string outputFileR2 = outputFile + "_R2";
-        step_3(inputFileR2, inputFileType, inputFileCatalog, outputFileR2, seedK);
+        step_3(inputFileR1, inputFileType, inputFileCatalog, outputFile, seedK, inputFileR2);  
     } 
     else if (args.is_defined("inputFile")) {
         string inputFile = args.get_string("inputFile");

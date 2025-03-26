@@ -8,7 +8,7 @@
 #include "Step_3.hpp"
 #include "fileReadClass.hpp"
 
-void step_3(string inputRead, string inputReadFileType, string inputCatalog, string outputFile, int seedK){
+void step_3(string inputRead, string inputReadFileType, string inputCatalog, string outputFile, int seedK, string inputFileR2){
     // open log file
     ofstream logFile;
     string logFileName = outputFile + "_run_log";
@@ -38,10 +38,17 @@ void step_3(string inputRead, string inputReadFileType, string inputCatalog, str
     
   //potentially add try catch for if file doesnt open
     
-    MultiFormatFileReader fileReader(inputRead, inputReadFileType);
+    MultiFormatFileReader fileReaderR1(inputRead, inputReadFileType);
     logFile << "reads file opened" << endl;
-    findKmersInFileWithSmap(fileReader, globalKmerMap, Smap, seedK, stats, logFile);
+    findKmersInFileWithSmap(fileReaderR1, globalKmerMap, Smap, seedK, stats, logFile);
     logFile << globalKmerMap.size() << "Kmers found" << endl;
+
+    if (inputReadFileType == "fastq_dual"){
+        MultiFormatFileReader fileReaderR2(inputRead, inputReadFileType);
+        logFile << "reads file R2 opened" << endl;
+        findKmersInFileWithSmap(fileReaderR2, globalKmerMap, Smap, seedK, stats, logFile);
+        logFile << globalKmerMap.size() << "Kmers found" << endl;
+    }
     
     // writing output file
     

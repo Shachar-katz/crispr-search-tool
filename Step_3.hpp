@@ -21,6 +21,6 @@
 
 using namespace std;
 
-void step_3(string inputRead, string inputReadFileType, string inputCatalog, string outputFile, int seedK);
+void step_3(string inputRead, string inputReadFileType, string inputCatalog, string outputFile, int seedK, string inputFileR2 = "");
 
 #endif /* Step_3_hpp */
