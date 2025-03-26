@@ -6,7 +6,12 @@
 // this function populates 2 maps: 
 // 1) Smap: maps from Smer to a vector of Kmers
 // 2) Kmap: maps from Kmer to abundance data that is recived in the file
-void catalogToSAndKMaps(ifstream& InCatalog, unordered_map<string,vector<string>>& Smap, unordered_map<string,data_t>& Kmap, int seedK, ofstream& logFile) {
+void catalogToSAndKMaps(ifstream& InCatalog, 
+                        unordered_map<string,vector<string>>& Smap, 
+                        unordered_map<string,data_t>& Kmap, 
+                        int seedK, 
+                        ofstream& logFile) 
+{
     logFile << "initializing converting catalog to an Smap and Kmap" << endl; 
     string line;
     string Kmer;

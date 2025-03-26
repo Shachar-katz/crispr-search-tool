@@ -4,8 +4,16 @@
 
 // step one functions bellow:
 
-void findKmersInFile(MultiFormatFileReader& fileReader, unordered_map<string,int>& globalKmerMap, int seedK, 
-                    int minK, int legitimateSpacer,unordered_map<string,double>& stats, bool strict, bool preStrict, ofstream& logFile){
+void findKmersInFile(MultiFormatFileReader& fileReader, 
+                     unordered_map<string,int>& globalKmerMap, 
+                     int seedK, 
+                     int minK, 
+                     int legitimateSpacer,
+                     unordered_map<string,double>& stats, 
+                     bool strict, 
+                     bool preStrict, 
+                     ofstream& logFile)
+    {
     // line variable temporerally holds the reads
     string line;
     // statistics Vars
@@ -22,12 +30,14 @@ void findKmersInFile(MultiFormatFileReader& fileReader, unordered_map<string,int
             // also output faulty lines
             logFile << faultyLine << " faulty lines" << endl;
             cerr << faultyLine << " faulty lines" << endl;
+            faultyLine = 0;
         }
         // check for faulty lines
-        if ((preStrict == 1 && skipThisLine(line, 0.5)) || line.length() <= 52){
+        if ((preStrict == 1 && skipThisLine(line, 0.5)) || line.length() <= (2 * minK + legitimateSpacer + 2)){
             faultyLine++;
             continue;
         }
+        
         // every line we create an empty Smap that maps from an Smer to vect of indecies in the line.
         unordered_map<string,vector<int>> singleLineMapSeedKToIdx;
         // we also create an empty set of unique pre "vetted" Kmers in this line.
