@@ -66,14 +66,9 @@ bool step_1_executor(Parameters& args){
         }
         // run for strand 1
         string inputFileR1 = args.get_string("inputFileR1");
-        string outputFileR1 = outputFile + "_R1";
-        cout << "repeat finder initialized for R1" << endl;
-        step_1(inputFileR1, inputFileType, outputFileR1, seedK, minK, legitimateSpacer, strict, preStrict);
-        // run for step 2
         string inputFileR2 = args.get_string("inputFileR2");
-        string outputFileR2 = outputFile + "_R2";
-        cout << "repeat finder initialized for R2" << endl;
-        step_1(inputFileR2, inputFileType, outputFileR2, seedK, minK, legitimateSpacer, strict, preStrict);
+        cout << "repeat finder initialized for R1" << endl;
+        step_1(inputFileR1, inputFileType, outputFile, seedK, minK, legitimateSpacer, strict, preStrict, inputFileR2);
     } 
     // a case for all other file types
     else {

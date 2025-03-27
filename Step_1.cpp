@@ -6,8 +6,15 @@
 //
 
 #include "Step_1.hpp"
-void step_1(string inputFile, string inputFileType, string outputFile, int seedK, int minK, 
-            int legitimateSpacer, bool strict, bool preStrict){
+void step_1(string inputFile, 
+            string inputFileType, 
+            string outputFile, 
+            int seedK, 
+            int minK, 
+            int legitimateSpacer, 
+            bool strict, 
+            bool preStrict, 
+            string inputFileR2){
     // open log file
     ofstream logFile;
     string logFileName = outputFile + "_run_log";
@@ -24,7 +31,13 @@ void step_1(string inputFile, string inputFileType, string outputFile, int seedK
     logFile << "finding Kmers in file" << endl;
     findKmersInFile(fileReader, globalKmerMap, seedK, minK, legitimateSpacer, stats, strict, preStrict, logFile);
     logFile << "Number of Kmers found: " << globalKmerMap.size() << endl;
-    
+
+    if (inputFileType == "fastq_dual"){
+          MultiFormatFileReader fileReader2(inputFileR2, inputFileType);
+          logFile << "finding Kmers in file R2" << endl;
+          findKmersInFile(fileReader2, globalKmerMap, seedK, minK, legitimateSpacer, stats, strict, preStrict, logFile);
+          logFile << "Number of Kmers found after second round: " << globalKmerMap.size() << endl;
+    }
     // writing output file 
 
     ofstream outFS1;

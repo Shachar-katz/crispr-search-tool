@@ -22,6 +22,6 @@
 using namespace std;
 
 void step_1(string inputFile, string inputFileType, string outputFile, int seedK, int minK, int legitimateSpacer, 
-            bool strict = false, bool preStrict = false);
+            bool strict = false, bool preStrict = false, string inputFileR2 = "");
 
 #endif /* Step_1_hpp */
