@@ -86,9 +86,9 @@ void findKmersInFileWithSmap(MultiFormatFileReader& fileReader, unordered_map<st
     }
     // calculate stats:
     double precentReadsWithRepeat = (static_cast<double>(numReadsWithRepeats) / static_cast<double>(progressCounter)) * 100;
-    stats["number_of_reads_in_file: "] = progressCounter;
-    stats["number_of_reads_in_file_with_repeat: "] = numReadsWithRepeats;
-    stats["precent_reads_in_file_with_repeat: "] = precentReadsWithRepeat;
+    stats["number_of_reads_in_file: "] += progressCounter;
+    stats["number_of_reads_in_file_with_repeat: "] += numReadsWithRepeats;
+    stats["precent_reads_in_file_with_repeat: "] += precentReadsWithRepeat;
 }
 
 bool willSelfOverlap(const unordered_map<string,int>& KmerToIdxInLine,int startIdexOfKmerInLine, string KmerInLine){

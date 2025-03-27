@@ -20,7 +20,11 @@ void step_3(string inputRead, string inputReadFileType, string inputCatalog, str
 
     unordered_map<string,Kmap_t> Smap;
     unordered_map<string,data_t> globalKmerMap;
+    // initilize stats
     unordered_map<string,double> stats;
+    stats["number_of_reads_in_file: "] = 0;
+    stats["number_of_reads_in_file_with_repeat: "] = 0;
+    stats["precent_reads_in_file_with_repeat: "] = 0;
     
     ifstream catalogFile;
     catalogFile.open(inputCatalog);
