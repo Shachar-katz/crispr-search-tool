@@ -70,7 +70,7 @@ void creatingOutputMap(unordered_map<string,data_t>& outputMap, unordered_map<st
                        const unordered_map<int,string>& choosenReps, const unordered_map<int,
                        vector<string>>& reverseBins, const unordered_map<string,data_t>& Kmap);
 
-int palindromicScore(string Kmer);
+int palindromicScore(string Kmer, int alpha = 0);
 
 void validateBins(const unordered_map<int, string>& provisionalRepList, const DynamicBins& bins, 
                   const unordered_map<int,vector<string>>& reverseBins, ofstream& logFile);

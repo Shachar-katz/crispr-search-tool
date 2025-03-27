@@ -329,37 +329,34 @@ void creatingOutputMap(unordered_map<string,data_t>& outputMap, unordered_map<st
 }
 
 // function that calculates palindromic score for repeat (num nucleotides thar are palindromic)
-int palindromicScore(string Kmer){
+int palindromicScore(string Kmer, int alpha){
     int palindromScore = 0;
+    int errorCount = 0;
     int iForward = 0;
     int iReverse = Kmer.length() - 1;
     while(iForward < iReverse){
         char nucleotide = Kmer[iForward];
         char nucleotideRe = Kmer[iReverse];
-        switch(nucleotide)
-        {
-            case 'A':
-                if (nucleotideRe == 'T'){
-                    palindromScore++;
-                }
-                break;
-            case 'G': 
-                if (nucleotideRe == 'C'){
-                    palindromScore++;
-                }
-                break;
-            case 'C': 
-                if (nucleotideRe == 'G'){
-                    palindromScore++;
-                }
-                break;
-            case 'T': 
-                if (nucleotideRe == 'A'){
-                    palindromScore++;
-                }
-                break;
-            default: break;
+        
+        // Directly check if the nucleotides are complementary
+        bool isComplementary = false;
+        switch(nucleotide) {
+            case 'A': isComplementary = (nucleotideRe == 'T'); break;
+            case 'G': isComplementary = (nucleotideRe == 'C'); break;
+            case 'C': isComplementary = (nucleotideRe == 'G'); break;
+            case 'T': isComplementary = (nucleotideRe == 'A'); break;
+            default: isComplementary = false;
         }
+        
+        if (isComplementary) {
+            palindromScore++;
+        } else if (errorCount < alpha) {
+            errorCount++;
+        }
+        else{
+            return palindromScore * 2;
+        }
+        
         iReverse--;
         iForward++;
     }
