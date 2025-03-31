@@ -20,11 +20,14 @@ void findKmersInFile(MultiFormatFileReader& fileReader,
     int progressCounter = 0;
     int numReadsWithRepeats = 0;
     int faultyLine = 0;
+    int interval;
+    if (fileReader.getFileType() == FileType::FASTA) { interval = 1000;}
+    else { interval = 100000; }
     // we are looping over every read
     while (fileReader.getNextLine(line)) {
         // statistics and progress managment:
         progressCounter++;
-        if (progressCounter % 100000 == 0){
+        if (progressCounter % interval == 0){
             cout << "Procession line: " << progressCounter << endl;
             logFile << "Procession line: " << progressCounter << endl;
             // also output faulty lines

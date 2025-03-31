@@ -135,6 +135,9 @@ public:
     bool getNextLine(string &line) {
             return reader->getNextRead(line);
     }
+    FileType getFileType(){
+        return this->fileType;
+    }
     
 };
 #endif /* fileReadClass_h */
