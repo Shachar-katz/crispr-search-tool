@@ -9,6 +9,7 @@
 #define functions_hpp
 
 #include <stdio.h>
+#include <cctype>
 #include <iostream>
 #include <iomanip>
 #include <string>
@@ -78,7 +79,7 @@ void validateBins(const unordered_map<int, string>& provisionalRepList, const Dy
 // bool isKmer(string maybeKmer);
 
 // step three functions:
-void buildSmap(ifstream& InCatalog, unordered_map<string,Kmap_t>& Smap, int seedK);
+int buildSmap(ifstream& InCatalog, unordered_map<string,Kmap_t>& Smap, int seedK);
 
 void findKmersInFileWithSmap(MultiFormatFileReader& fileReader, unordered_map<string,data_t>& globalKmerMap, 
                             unordered_map<string,Kmap_t>& Smap, int seedK, unordered_map<string,double>& stats, ofstream& logFile);

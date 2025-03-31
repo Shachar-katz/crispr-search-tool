@@ -5,36 +5,38 @@
 
 // this function initilizes and builds and Smap that maps from Smers to 
 // and the indecies / positions where they appear in in the Kmers
-void buildSmap(ifstream& InCatalog, unordered_map<string,Kmap_t>& Smap, int seedK) {
+int buildSmap(ifstream& InCatalog, unordered_map<string,Kmap_t>& Smap, int seedK) 
+{
     // create a variable for a temp line and a Kmer to extract the Kmer from the catalog output
     string tempLine;
     string Kmer;
     // dump the header line
     getline(InCatalog, tempLine);
+    if (!valideHeader(tempLine)){ return 1; }
     while (!InCatalog.eof() && InCatalog.good()) {
         // while the file is good and doesnt reach its end we keep pulling lines and extracting the first string (the Kmer)
         getline(InCatalog, tempLine);
         istringstream iss(tempLine);
-        if (iss >> Kmer) {
-            // we also want to extract the reverse of the Kmer so that we can search for both
-            string reverseComp = reverseComplement(Kmer);
-            // we iterate over the Kmer or reverse complemet 
-            // untill our iterator reaches a length that couldn't produce an Smer (end of line - seed)
-            for (int j = 0; j <= (Kmer.size() - seedK); j++){
-                // we generate a "forward" Smer of size seedK at every index
-                string Smer = Kmer.substr(j,seedK);
-                auto& Kmap = Smap[Smer];
-                auto& idxVect = Kmap[Kmer];
-                idxVect.emplace_back(j); // we store the position of the Smer in the Kmer
-                
-                // we generate a reverse Smer of size seedK at every index
-                string reverseSmer = reverseComp.substr(j,seedK);
-                auto& KmapReverse = Smap[reverseSmer];
-                auto& idxVectReverse = KmapReverse[reverseComp];
-                idxVectReverse.emplace_back(j); // we store the position of the Smer in the Kmer
-            }
+        if (!(iss >> Kmer)) { return 2; }
+        // we also want to extract the reverse of the Kmer so that we can search for both
+        string reverseComp = reverseComplement(Kmer);
+        // we iterate over the Kmer or reverse complemet 
+        // untill our iterator reaches a length that couldn't produce an Smer (end of line - seed)
+        for (int j = 0; j <= (Kmer.size() - seedK); j++){
+            // we generate a "forward" Smer of size seedK at every index
+            string Smer = Kmer.substr(j,seedK);
+            auto& Kmap = Smap[Smer];
+            auto& idxVect = Kmap[Kmer];
+            idxVect.emplace_back(j); // we store the position of the Smer in the Kmer
+            
+            // we generate a reverse Smer of size seedK at every index
+            string reverseSmer = reverseComp.substr(j,seedK);
+            auto& KmapReverse = Smap[reverseSmer];
+            auto& idxVectReverse = KmapReverse[reverseComp];
+            idxVectReverse.emplace_back(j); // we store the position of the Smer in the Kmer
         }
     }
+    return 0;
 }
 
 // this function goes line by line and searches for known Smers to find known Kmers
@@ -158,4 +160,10 @@ void expandSeedToKmerWithSmap(const string& line, const string& Smer, int& idxIn
             }
         }
     }
+}
+bool valideHeader(string header){
+    istringstream iss(header);
+    string columnTitle;
+    if (iss >> columnTitle && columnTitle == "repeat") { return true; }
+    return false;
 }
