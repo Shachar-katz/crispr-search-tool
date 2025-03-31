@@ -83,7 +83,7 @@ int buildSmap(ifstream& InCatalog, unordered_map<string,Kmap_t>& Smap, int seedK
 
 void findKmersInFileWithSmap(MultiFormatFileReader& fileReader, unordered_map<string,data_t>& globalKmerMap, 
                             unordered_map<string,Kmap_t>& Smap, int seedK, unordered_map<string,double>& stats, ofstream& logFile);
-void expandSeedToKmerWithSmap(const string& line, const string& Smer, int& idx , 
+int expandSeedToKmerWithSmap(const string& line, const string& Smer, const int idxInLine , 
                               unordered_map<string,data_t>& globalKmerMap, unordered_map<string,Kmap_t>& Smap, 
                               bool& activeLine, unordered_map<string,int>& KmerToIdxInLine);
 bool willSelfOverlap(const unordered_map<string,int>& KmerToIdxInLine,int startIdexOfKmerInLine, string KmerInLine);

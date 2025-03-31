@@ -21,6 +21,8 @@ bool isInputFileValid(ifstream& inFS) {
         cerr << "Error: The file is empty." << endl;
         return false;
     }
+    inFS.clear();
+    inFS.seekg(0, ios::beg);
     return true;
 }
 
