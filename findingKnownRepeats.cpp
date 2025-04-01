@@ -8,7 +8,7 @@
 #include "pipelineSectionsHeader.h"
 #include "fileReadClass.hpp"
 
-void step_3(string inputRead, 
+int findingKnownRepeats(string inputRead, 
             string inputReadFileType, 
             string inputCatalog, 
             string outputFile, 
@@ -21,7 +21,7 @@ void step_3(string inputRead,
     logFile.open(logFileName);
     if (!logFile.is_open()){
          cerr << "Error: Could not open log output file." << endl;
-         return;
+         return -1;
     }
 
     // initilize stats
@@ -33,7 +33,7 @@ void step_3(string inputRead,
     
     ifstream catalogFile;
     catalogFile.open(inputCatalog);
-    if (!isInputFileValid(catalogFile, inputCatalog)){ return; }
+    if (!isInputFileValid(catalogFile, inputCatalog)){ return -1; }
     logFile << "catalog file opened" << endl;
 
     unordered_map<string,Kmap_t> smap;
@@ -42,7 +42,7 @@ void step_3(string inputRead,
     if (validSmap == 1){
         logFile << "header error: no header or incorrect header in the catalog file provided" << endl;
         cerr << "header error: no header or incorrect header in the catalog file provided" << endl;
-        return;
+        return -1;
     }
     
     logFile << "smap built" << endl;
@@ -70,7 +70,7 @@ void step_3(string inputRead,
     if (!outFS1.is_open()){
          logFile << "Error: Could not open output file." << endl;
          cerr << "Error: Could not open output file." << endl;
-         return;
+         return -1;
     }
     
     logFile << "opened output file named: " << outputFile << endl;
@@ -87,11 +87,12 @@ void step_3(string inputRead,
     if (!outFS2.is_open()){
          logFile << "Error: Could not open stats output file." << endl;
          cerr << "Error: Could not open stats output file." << endl;
-         return;
+         return -1;
     }
     
     logFile << "opened output file named: " << statsOutput << endl;
     writeUnorderedMapToFile(stats, outFS2);
     logFile << "written" << endl;
     outFS2.close();
+    return 0;
 }

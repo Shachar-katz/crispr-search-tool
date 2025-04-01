@@ -7,7 +7,7 @@
 
 #include "pipelineSectionsHeader.h"
 
-void cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha, string inputCatalog2)
+int cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha, string inputCatalog2)
 {
     // open log file
     ofstream logFile;
@@ -15,7 +15,7 @@ void cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha,
     logFile.open(logFileName);
     if (!logFile.is_open()){
          cerr << "Error: Could not open log output file." << endl;
-         return;
+         return -1;
     }
 
     // formatting data from catalog
@@ -24,7 +24,7 @@ void cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha,
     
     ifstream catalogFile;
     catalogFile.open(inputCatalog);
-    if (!isInputFileValid(catalogFile, inputCatalog)){ return; }
+    if (!isInputFileValid(catalogFile, inputCatalog)){ return -1; }
     
     catalogToSAndKMaps(catalogFile, smap, kmap, seedK, logFile);
     
@@ -33,7 +33,7 @@ void cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha,
     if (inputCatalog2 != ""){
         ifstream catalogFile2;
         catalogFile2.open(inputCatalog2);
-        if (!isInputFileValid(catalogFile2, inputCatalog2)){ return; }
+        if (!isInputFileValid(catalogFile2, inputCatalog2)){ return -1; }
         
         catalogToSAndKMaps(catalogFile2, smap, kmap, seedK, logFile);
         
@@ -62,7 +62,7 @@ void cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha,
     catch(const out_of_range& ex){
         logFile << "error occured validating bins for this data set" << endl;
         cerr << "error occured validating bins for this data set" << endl;
-        return;
+        return -1;
     }
     unordered_map<int,string> finalReps = reCannonization(provisionalReps,bins,logFile);
     logFile << "size of choosen reps after cannonization: " << finalReps.size() << endl; // debugg
@@ -82,10 +82,12 @@ void cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha,
     if (!outFS1.is_open()) {
         logFile << "Error: Could not open output file: " << outputFile << endl;
         cerr << "Error: Could not open output file: " << outputFile << endl;
+        return -1;
     }
     if (!outFS2.is_open()) {
         logFile << "Error: Could not open bins output file: " << binsOutputFile << endl;
         cerr << "Error: Could not open bins output file: " << binsOutputFile << endl;
+        return -1;
     }
 
     logFile << "opened two output file named: " << endl << outputFile << endl << binsOutputFile << endl;
@@ -105,4 +107,5 @@ void cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha,
      '\t' << "kmer_Length" << endl;
     writeUnorderedMapToFile(binsOutputMap, outFS2);
     outFS2.close();
+    return 0;
 }

@@ -2,12 +2,12 @@
 //  Step_1.cpp
 //  repeatesSearchProjectAltK
 //
-//  Created by Sarah Katz on 12/18/24.
+//  Created by Shachar Katz on 12/18/24.
 //
 
 #include "pipelineSectionsHeader.h"
 
-void step_1(string inputFile, 
+int identifyingRepeatPatterns(string inputFile, 
             string inputFileType, 
             string outputFile, 
             int seedK, 
@@ -23,7 +23,7 @@ void step_1(string inputFile,
     logFile.open(logFileName);
     if (!logFile.is_open()){
          cerr << "Error: Could not open log output file." << endl;
-         return;
+         return -1;
     }
 
     unordered_map<string,int> globalKmerMap;
@@ -47,7 +47,7 @@ void step_1(string inputFile,
     if (!outFS1.is_open()){
          logFile << "Error: Could not open output file." << endl;
          cerr << "Error: Could not open output file." << endl;
-         return;
+         return -1;
     }
     
     logFile << "opened output file named: " << outputFile << endl;
@@ -64,11 +64,12 @@ void step_1(string inputFile,
     if (!outFS2.is_open()){
          logFile << "Error: Could not open stats output file." << endl;
          cerr << "Error: Could not open stats output file." << endl;
-         return;
+         return -1;
     }
     
     logFile << "opened output file named: " << statsOutput << endl;
     writeUnorderedMapToFile(stats, outFS2);
     logFile << "written" << endl;
     outFS2.close();
+    return 0;
 }

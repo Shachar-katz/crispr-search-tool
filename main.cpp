@@ -66,7 +66,11 @@ bool step_1_executor(Parameters& args){
         string inputFileR1 = args.get_string("inputFileR1");
         string inputFileR2 = args.get_string("inputFileR2");
         cout << "repeat finder initialized for R1" << endl;
-        step_1(inputFileR1, inputFileType, outputFile, seedK, minK, legitimateSpacer, strict, preStrict, inputFileR2);
+        int run = identifyingRepeatPatterns(inputFileR1, inputFileType, outputFile, seedK, minK, legitimateSpacer, strict, preStrict, inputFileR2);
+        if (run != 0){
+            cerr << "ERROR: could not complete identifying repeat pattern run, please refer to previous error messages for more information." << endl;
+            return false;
+        }
     } 
     // a case for all other file types
     else {
@@ -76,18 +80,27 @@ bool step_1_executor(Parameters& args){
         }
         string inputFile = args.get_string("inputFile");
         cout << "repeat finder initialized" << endl;
-        step_1(inputFile, inputFileType, outputFile, seedK, minK, legitimateSpacer, strict, preStrict);
+        int run = identifyingRepeatPatterns(inputFile, inputFileType, outputFile, seedK, minK, legitimateSpacer, strict, preStrict);
+        if (run != 0){
+            cerr << "ERROR: could not complete identifying repeat pattern run, please refer to previous error messages for more information." << endl;
+            return false;
+        }
     }
     return true;
 }
 
-void step_2_executor(Parameters& args){
+bool step_2_executor(Parameters& args){
     string inputFileCatalog = args.get_string("inputFileCatalog");
     string inputFileCatalog2 = args.get_string("secondInputFileCatalog");
     string outputFile = args.get_string("outputFile");
     int seedK = args.get_int("seedK");
     int alpha = args.get_int("alpha");
-    cleaningKmers(inputFileCatalog, outputFile, seedK, alpha, inputFileCatalog2);
+    int run = cleaningKmers(inputFileCatalog, outputFile, seedK, alpha, inputFileCatalog2);
+    if (run != 0){
+        cerr << "ERROR: could not complete the catalog cleaning run, please refer to previous error messages for more information." << endl;
+        return false;
+    }
+    return true;
 }
 
 bool step_3_executor(Parameters& args){
@@ -100,15 +113,23 @@ bool step_3_executor(Parameters& args){
         // run for strand 1
         string inputFileR1 = args.get_string("inputFileR1");
         string inputFileR2 = args.get_string("inputFileR2");
-        step_3(inputFileR1, inputFileType, inputFileCatalog, outputFile, seedK, inputFileR2);  
+        int run = findingKnownRepeats(inputFileR1, inputFileType, inputFileCatalog, outputFile, seedK, inputFileR2);
+        if (run != 0){
+            cerr << "ERROR: could not complete the finding known repeats run, please refer to previous error messages for more information." << endl;
+            return false;
+        }
     } 
     else if (args.is_defined("inputFile")) {
         string inputFile = args.get_string("inputFile");
-        step_3(inputFile, inputFileType, inputFileCatalog, outputFile, seedK);
+        int run = findingKnownRepeats(inputFile, inputFileType, inputFileCatalog, outputFile, seedK);
+        if (run != 0){
+            cerr << "ERROR: could not complete the finding known repeats run, please refer to previous error messages for more information." << endl;
+            return false;
+        }
     } 
     else {
         cerr << "Missing mandatory input file for step 3" << endl;
-                return false;
+        return false;
     }
     return true;
 }
@@ -131,9 +152,7 @@ int main(int argc, const char * argv[]) {
                 cerr << "Missing mandatory arguments for step 1." << endl;
                 return 1;
             }
-            if(!step_1_executor(args)){
-                cerr << "error occured while initilizing step 1" << endl;
-            }
+            if(!step_1_executor(args)){ return 1; }
             break;
         }
         case 2:{
@@ -144,7 +163,7 @@ int main(int argc, const char * argv[]) {
                 cerr << "Missing mandatory arguments for step 2." << endl;
                 return 1;
             }
-            step_2_executor(args);
+            if (!step_2_executor(args)) { return 1; }
             break;
         }
         case 3:{
@@ -155,9 +174,7 @@ int main(int argc, const char * argv[]) {
                 cerr << "Missing mandatory arguments for step 3." << endl;
                 return 1;
             }
-            if(!step_3_executor(args)){
-                cerr << "error occured while initilizing step 3" << endl;
-            }
+            if(!step_3_executor(args)){ return 1; }
             break;
         }
         default:{
