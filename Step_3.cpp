@@ -5,7 +5,7 @@
 //  Created by Sarah Katz on 12/29/24.
 //
 
-#include "Step_3.hpp"
+#include "pipelineSectionsHeader.h"
 #include "fileReadClass.hpp"
 
 void step_3(string inputRead, 
@@ -13,7 +13,8 @@ void step_3(string inputRead,
             string inputCatalog, 
             string outputFile, 
             int seedK, 
-            string inputFileR2){
+            string inputFileR2)
+{
     // open log file
     ofstream logFile;
     string logFileName = outputFile + "_run_log";

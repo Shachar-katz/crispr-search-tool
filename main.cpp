@@ -13,9 +13,7 @@
 #include <set>
 #include "functions.hpp"
 #include "classData.hpp"
-#include "Step_1.hpp"
-#include "cleaningKmers.hpp"
-#include "Step_3.hpp"
+#include "pipelineSectionsHeader.h"
 #include "Params.h"
 using namespace std;
 

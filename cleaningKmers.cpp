@@ -5,9 +5,10 @@
 //  Created by Sarah Katz on 1/2/25.
 //
 
-#include "cleaningKmers.hpp"
+#include "pipelineSectionsHeader.h"
 
-void cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha, string inputCatalog2){
+void cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha, string inputCatalog2)
+{
     // open log file
     ofstream logFile;
     string logFileName = outputFile + "_run_log";

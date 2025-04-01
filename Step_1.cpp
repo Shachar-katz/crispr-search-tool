@@ -5,7 +5,8 @@
 //  Created by Sarah Katz on 12/18/24.
 //
 
-#include "Step_1.hpp"
+#include "pipelineSectionsHeader.h"
+
 void step_1(string inputFile, 
             string inputFileType, 
             string outputFile, 
@@ -14,7 +15,8 @@ void step_1(string inputFile,
             int legitimateSpacer, 
             bool strict, 
             bool preStrict, 
-            string inputFileR2){
+            string inputFileR2)
+{
     // open log file
     ofstream logFile;
     string logFileName = outputFile + "_run_log";
