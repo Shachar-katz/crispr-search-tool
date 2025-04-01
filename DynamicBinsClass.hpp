@@ -23,10 +23,10 @@ using namespace std;
 class DynamicBins {
 public:
     DynamicBins();
-    void addAutoSingle(const string &Kmer);
-    void autoGroup(const string &Kmer1, const string &Kmer2);
-    void addToExistingBin(const string &Kmer, int binNumber);
-    int getBin(const string &Kmer) const;
+    void addAutoSingle(const string &kmer);
+    void autoGroup(const string &kmer1, const string &kmer2);
+    void addToExistingBin(const string &kmer, int binNumber);
+    int getBin(const string &kmer) const;
     void merge(int binA , int binB);
     set<int> getAssignedBinNumbers() const;
     void print() const;

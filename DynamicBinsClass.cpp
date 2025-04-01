@@ -5,30 +5,30 @@ using namespace std;
 DynamicBins::DynamicBins() : nextBinNumber(1) {}
 
     // adds a key with an auto-generated bin number
-void DynamicBins::addAutoSingle(const string &Kmer) {
-    if(this->getBin(Kmer) != -1){
+void DynamicBins::addAutoSingle(const string &kmer) {
+    if(this->getBin(kmer) != -1){
         return;
     }
     int binNumber = nextBinNumber++;
-    bins[Kmer] = binNumber;
+    bins[kmer] = binNumber;
     existingBinNums.insert(binNumber);
 }
-    // groups Kmers with an auto generated bin number
-void DynamicBins::autoGroup(const string &Kmer1, const string &Kmer2) {
+    // groups kmers with an auto generated bin number
+void DynamicBins::autoGroup(const string &kmer1, const string &kmer2) {
     int binNumber = nextBinNumber++;
-    bins[Kmer1] = binNumber;
-    bins[Kmer2] = binNumber;
+    bins[kmer1] = binNumber;
+    bins[kmer2] = binNumber;
     existingBinNums.insert(binNumber);
 }
     // Manually assigns a bin number to a key.
-void DynamicBins::addToExistingBin(const string &Kmer, int binNumber) {
-    bins[Kmer] = binNumber;
+void DynamicBins::addToExistingBin(const string &kmer, int binNumber) {
+    bins[kmer] = binNumber;
 }
 
     // Looks up the bin number for a key or -1 if not found
-int DynamicBins::getBin(const string &Kmer) const {
-    if (bins.find(Kmer) != bins.end()){
-        return bins.at(Kmer);
+int DynamicBins::getBin(const string &kmer) const {
+    if (bins.find(kmer) != bins.end()){
+        return bins.at(kmer);
     }
     else{
         return -1;
@@ -64,9 +64,9 @@ void DynamicBins::print() const {
 }
 
 void DynamicBins::reverseBin(){
-    for (const auto& [Kmer, binNum] : bins) {
+    for (const auto& [kmer, binNum] : bins) {
         auto& KVect = reBins[binNum];
-        KVect.emplace_back(Kmer);
+        KVect.emplace_back(kmer);
     }
     normlizeReverseBin();
 }

@@ -24,7 +24,7 @@ public:
     int countInFile = 0;
     int numLines = 0;
     int palindromicScore = 0;
-    int KLen = 0;
+    int kLen = 0;
     string binNum = "";
     // vector<string> subKmers;
 };

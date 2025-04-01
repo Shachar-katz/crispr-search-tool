@@ -8,7 +8,12 @@
 #include "Step_3.hpp"
 #include "fileReadClass.hpp"
 
-void step_3(string inputRead, string inputReadFileType, string inputCatalog, string outputFile, int seedK, string inputFileR2){
+void step_3(string inputRead, 
+            string inputReadFileType, 
+            string inputCatalog, 
+            string outputFile, 
+            int seedK, 
+            string inputFileR2){
     // open log file
     ofstream logFile;
     string logFileName = outputFile + "_run_log";
@@ -34,8 +39,8 @@ void step_3(string inputRead, string inputReadFileType, string inputCatalog, str
     }
     logFile << "catalog file opened" << endl;
 
-    unordered_map<string,Kmap_t> Smap;
-    int validSmap = buildSmap(catalogFile, Smap, seedK);
+    unordered_map<string,Kmap_t> smap;
+    int validSmap = buildSmap(catalogFile, smap, seedK);
 
     if (validSmap == 1){
         logFile << "header error: no header or incorrect header in the catalog file provided" << endl;
@@ -51,13 +56,13 @@ void step_3(string inputRead, string inputReadFileType, string inputCatalog, str
     unordered_map<string,data_t> globalKmerMap;
     MultiFormatFileReader fileReaderR1(inputRead, inputReadFileType);
     logFile << "reads file opened" << endl;
-    findKmersInFileWithSmap(fileReaderR1, globalKmerMap, Smap, seedK, stats, logFile);
+    findKmersInFileWithSmap(fileReaderR1, globalKmerMap, smap, seedK, stats, logFile);
     logFile << globalKmerMap.size() << "Kmers found" << endl;
 
     if (inputReadFileType == "fastq_dual"){
         MultiFormatFileReader fileReaderR2(inputFileR2, inputReadFileType);
         logFile << "reads file R2 opened" << endl;
-        findKmersInFileWithSmap(fileReaderR2, globalKmerMap, Smap, seedK, stats, logFile);
+        findKmersInFileWithSmap(fileReaderR2, globalKmerMap, smap, seedK, stats, logFile);
         logFile << globalKmerMap.size() << "Kmers found" << endl;
     }
     
@@ -72,7 +77,7 @@ void step_3(string inputRead, string inputReadFileType, string inputCatalog, str
     }
     
     logFile << "opened output file named: " << outputFile << endl;
-    outFS1 << "repeat" << '\t' << "repeats_in_file" << '\t' << "number_of_lines" << '\n';
+    outFS1 << "repeat" << '\t' << "repeats_in_file" << '\t' << "number_of_lines" << endl;;
     writeUnorderedMapToFile(globalKmerMap, outFS1);
     logFile << "written" << endl;
     outFS1.close();

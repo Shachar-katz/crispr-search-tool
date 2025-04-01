@@ -18,8 +18,8 @@ void cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha,
     }
 
     // formatting data from catalog
-    unordered_map<string,vector<string>> Smap;
-    unordered_map<string,data_t> Kmap;
+    unordered_map<string,vector<string>> smap;
+    unordered_map<string,data_t> kmap;
     
     ifstream catalogFile;
     catalogFile.open(inputCatalog);
@@ -30,7 +30,7 @@ void cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha,
     catalogFile.clear();
     catalogFile.seekg(0, ios::beg);
     
-    catalogToSAndKMaps(catalogFile, Smap, Kmap, seedK, logFile);
+    catalogToSAndKMaps(catalogFile, smap, kmap, seedK, logFile);
     
     catalogFile.close();
 
@@ -44,7 +44,7 @@ void cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha,
         catalogFile2.clear();
         catalogFile2.seekg(0, ios::beg);
         
-        catalogToSAndKMaps(catalogFile2, Smap, Kmap, seedK, logFile);
+        catalogToSAndKMaps(catalogFile2, smap, kmap, seedK, logFile);
         
         catalogFile2.close();
     }
@@ -53,17 +53,17 @@ void cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha,
     set<pair<string,string>> potentialRelationSet;
     DynamicBins bins;
     
-    makePotentialRelationsSet(Smap, potentialRelationSet, logFile);
-    verifyRelation(Smap, potentialRelationSet, seedK, bins, logFile, alpha);
+    makePotentialRelationsSet(smap, potentialRelationSet, logFile);
+    verifyRelation(smap, potentialRelationSet, seedK, bins, logFile, alpha);
     logFile << "size of bins before binning singles: " << bins.getLen() << endl; // debugg
-    binSingles(Smap, bins, logFile);
+    binSingles(smap, bins, logFile);
     logFile << "size of bins: " << bins.getLen() << endl; // debugg
     bins.reverseBin();
 
     unordered_map<int,vector<string>> reverseBins = bins.getReBins();
     unordered_map<int,string> provisionalReps;
     
-    selectReps(provisionalReps, reverseBins, Kmap, logFile);
+    selectReps(provisionalReps, reverseBins, kmap, logFile);
     logFile << "size of choosen reps before cannonization: " << provisionalReps.size() << endl; // debugg
     try{
         validateBins(provisionalReps,bins,reverseBins,logFile);
@@ -80,7 +80,7 @@ void cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha,
     unordered_map<string,data_t> outputMap;
     unordered_map<string,data_t> binsOutputMap;
     string binsOutputFile = outputFile + "_bins_data";
-    creatingOutputMap(outputMap, binsOutputMap, finalReps, reverseBins, Kmap);
+    creatingOutputMap(outputMap, binsOutputMap, finalReps, reverseBins, kmap);
     
     ofstream outFS1;
     ofstream outFS2;
@@ -103,7 +103,7 @@ void cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha,
      '\t' << "number_of_lines" <<
      '\t' << "bin_identifier" <<
      '\t' << "num_palindromic_nucleotides" <<
-     '\t' << "Kmer_Length" << endl;
+     '\t' << "kmer_Length" << endl;
     writeUnorderedMapToFile(outputMap, outFS1);
     outFS1.close();
 
@@ -111,7 +111,7 @@ void cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha,
      left << "repeat" <<
      '\t' << "bin_identifier" <<
      '\t' << "num_palindromic_nucleotides" <<
-     '\t' << "Kmer_Length" << endl;
+     '\t' << "kmer_Length" << endl;
     writeUnorderedMapToFile(binsOutputMap, outFS2);
     outFS2.close();
 }

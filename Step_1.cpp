@@ -49,7 +49,7 @@ void step_1(string inputFile,
     }
     
     logFile << "opened output file named: " << outputFile << endl;
-    outFS1 << setw(30)<< left << "repeat" << '\t' << "number_of_lines" << '\n';
+    outFS1 << left << "repeat" << '\t' << "number_of_lines" << endl;
     writeUnorderedMapToFile(globalKmerMap, outFS1);
     logFile << "written" << endl;
     outFS1.close();

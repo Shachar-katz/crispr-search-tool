@@ -41,26 +41,26 @@ void findKmersInFile(MultiFormatFileReader& fileReader,
             continue;
         }
         
-        // every line we create an empty Smap that maps from an Smer to vect of indecies in the line.
+        // every line we create an empty smap that maps from an smer to vect of indecies in the line.
         unordered_map<string,vector<int>> singleLineMapSeedKToIdx;
         // we also create an empty set of unique pre "vetted" Kmers in this line.
         set<string> uniqueKmersInLine;
-        // populating Smap for this line.
+        // populating smap for this line.
         findSeedPattern(line, singleLineMapSeedKToIdx, seedK);
-        // for every Smer in the map, if it appears more then once in the line:
-        // we check if it can be expanded to a Kmer and if so that Kmer is added to the set of unique Kmers
-        for (const auto& [Smer, idxs] : singleLineMapSeedKToIdx){
-            if (singleLineMapSeedKToIdx[Smer].size() > 1){
-                expandSeedToKmer(line, Smer, idxs, minK, uniqueKmersInLine, legitimateSpacer, strict);
+        // for every smer in the map, if it appears more then once in the line:
+        // we check if it can be expanded to a kmer and if so that kmer is added to the set of unique Kmers
+        for (const auto& [smer, idxs] : singleLineMapSeedKToIdx){
+            if (singleLineMapSeedKToIdx[smer].size() > 1){
+                expandSeedToKmer(line, smer, idxs, minK, uniqueKmersInLine, legitimateSpacer, strict);
             }
         }
         // for statistics 
         if (!uniqueKmersInLine.empty()){
             numReadsWithRepeats++;
         }
-        // for every unique Kmer found on the line:
+        // for every unique kmer found on the line:
         // 1) we Determine the canonical form of the K-mer to ensure consistency in representation 
-        //     * choosing between reverse complement and the Kmer to not add both to the global Kmer map
+        //     * choosing between reverse complement and the kmer to not add both to the global kmer map
         // 2) then we increment the count of the one that was selected in the global map (or adding it for the first time) 
         for (const auto& uniqueKmer : uniqueKmersInLine) {
             string uniqueKmerOrReverse = pickKey(uniqueKmer);
@@ -105,7 +105,7 @@ bool skipThisLine(const string& read, double iligitimateRatio){
     }
 }
 
-// this function populates the Smap
+// this function populates the smap
 void findSeedPattern(string line, unordered_map<string,vector<int>>& singleLineMapSeedKToIdx, int seedK){
     for (int j = 0; j < (line.size() - seedK); j++){
         string key = line.substr(j,seedK);
@@ -123,26 +123,26 @@ bool notOverlapping(int idxStartPotential, int idxStartCompare, int idxEndPotent
     return ((idxEndPotential + legitimateSpacer) < idxStartCompare) || ((idxEndCompare + legitimateSpacer) < idxStartPotential);
 }
 
-// this function populates the unique Kmer set
-void expandSeedToKmer(const string& line, string Smer, vector<int> SmerIdxVect , int minK, set<string>& uniqueKmersInLine,int legitimateSpacer, bool strict){
-    // Track unique K-mers for this particular Smer on this particular line
+// this function populates the unique kmer set
+void expandSeedToKmer(const string& line, string smer, vector<int> smerIdxVect , int minK, set<string>& uniqueKmersInLine,int legitimateSpacer, bool strict){
+    // Track unique K-mers for this particular smer on this particular line
     set<string> UniqueKmersFromSmer; 
-    // we iterate over the index vector of the appearences of this Smer, each index gets a turn to be the potential Kmer.
-    for (int potentialKmer = 0; potentialKmer < SmerIdxVect.size(); potentialKmer++){
-        // we initilize an empty "best fitting Kmer for this index of choice"
+    // we iterate over the index vector of the appearences of this smer, each index gets a turn to be the potential kmer.
+    for (int potentialKmer = 0; potentialKmer < smerIdxVect.size(); potentialKmer++){
+        // we initilize an empty "best fitting kmer for this index of choice"
         string bestK = "";
-        // then we iterate over all the other indecies comparing the Smer appearance there to our "Potential Kmer"
-        for (int comparisionKmer = 0; comparisionKmer < SmerIdxVect.size(); comparisionKmer++ ){
+        // then we iterate over all the other indecies comparing the smer appearance there to our "Potential kmer"
+        for (int comparisionKmer = 0; comparisionKmer < smerIdxVect.size(); comparisionKmer++ ){
             // we verify that we are no trying to expand the same location
             if (comparisionKmer == potentialKmer){
                 continue;
             }
-            // we set the indecies of the start and end at our potential Kmer and our comparision
-            int idxStartPotential = SmerIdxVect.at(potentialKmer);
-            int idxEndPotential = SmerIdxVect.at(potentialKmer) + Smer.length() - 1;
+            // we set the indecies of the start and end at our potential kmer and our comparision
+            int idxStartPotential = smerIdxVect.at(potentialKmer);
+            int idxEndPotential = smerIdxVect.at(potentialKmer) + smer.length() - 1;
             
-            int idxStartCompare = SmerIdxVect.at(comparisionKmer);
-            int idxEndCompare = SmerIdxVect.at(comparisionKmer) + Smer.length() - 1;
+            int idxStartCompare = smerIdxVect.at(comparisionKmer);
+            int idxEndCompare = smerIdxVect.at(comparisionKmer) + smer.length() - 1;
             
             // we set flags = true to represent are the 2 occurances equal at the start and end.
             bool equalAtStart = true;
@@ -200,26 +200,26 @@ void expandSeedToKmer(const string& line, string Smer, vector<int> SmerIdxVect ,
             // 1) the nucleotids dont match anymore
             // 2) they haven't reached a point of hitting boundaries or overlapping  (overlap defined as include spacer)
 
-            // we get the length of the (still "potential") Kmer and generate it using substring
-            int KmerLen = idxEndPotential - idxStartPotential + 1;
-            string Kmer = line.substr(idxStartPotential, KmerLen);
+            // we get the length of the (still "potential") kmer and generate it using substring
+            int kmerLen = idxEndPotential - idxStartPotential + 1;
+            string kmer = line.substr(idxStartPotential, kmerLen);
             
-            // if this potential Kmer follows requirements :
-            // (is indeed a Kmer and is longer then the best Kmer so far)
-            // we make it the best Kmer
-            if(KmerLen >= minK && KmerLen > bestK.length()){
-                bestK = Kmer;
+            // if this potential kmer follows requirements :
+            // (is indeed a kmer and is longer then the best kmer so far)
+            // we make it the best kmer
+            if(kmerLen >= minK && kmerLen > bestK.length()){
+                bestK = kmer;
             }
         }
-        // once we have compared every instance of the "potential Kmer" Smer:
-        // if we got a Best Kmer we add it to the unique Kmers from Smer Set
+        // once we have compared every instance of the "potential kmer" smer:
+        // if we got a Best kmer we add it to the unique Kmers from smer Set
         if(bestK.size() > 0){
             UniqueKmersFromSmer.insert(bestK);
         }
             
     }
-    // once we have compared every Smer to all the other Smers:
-    // We add the best match for each instance (a Kmer) to the unique Kmers in line Set.
+    // once we have compared every smer to all the other Smers:
+    // We add the best match for each instance (a kmer) to the unique Kmers in line Set.
     for (const auto& uniqueKmer : UniqueKmersFromSmer) {
         uniqueKmersInLine.insert(uniqueKmer);
     }
