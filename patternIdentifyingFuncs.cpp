@@ -100,9 +100,7 @@ bool skipThisLine(const string& read, double iligitimateRatio){
         // Skip expansions for this line
         return true; 
     }
-    else{
-        return false;
-    }
+    return false;
 }
 
 // this function populates the smap
