@@ -45,13 +45,7 @@ int buildSmap(ifstream& InCatalog, unordered_map<string,Kmap_t>& Smap, int seedK
 }
 
 // this function goes line by line and searches for known Smers to find known Kmers
-void findKmersInFileWithSmap(MultiFormatFileReader& fileReader, 
-                             unordered_map<string,data_t>& globalKmerMap, 
-                             unordered_map<string,Kmap_t>& Smap, 
-                             int seedK, 
-                             unordered_map<string,double>& stats, 
-                             ofstream& logFile)
-{
+void findKmersInFileWithSmap(MultiFormatFileReader& fileReader, unordered_map<string,data_t>& globalKmerMap, unordered_map<string,Kmap_t>& Smap, int seedK, unordered_map<string,double>& stats, ofstream& logFile){
     // stats
     int progressCounter = 0;
     int numReadsWithRepeats = 0;
@@ -66,17 +60,14 @@ void findKmersInFileWithSmap(MultiFormatFileReader& fileReader,
         if (line.length() <= 52){
             continue;
         }
-        int i = 0;
-        while (i <= (line.size() - seedK)){
+        for (int i = 0; i <= (line.size() - seedK); i++){
             // cout << "start iter: " << i << endl; // debugg
             string Smer = line.substr(i,seedK);
-            // if this Smer doesnt appear in our Smap we continue
-            if (Smap.find(Smer) == Smap.end()){
-                i++;
-                continue;
+            // if this Smer appears in our Smap we try expanding it to a Kmer and checking if its a known Kmer
+            if (Smap.find(Smer) != Smap.end()){
+                expandSeedToKmerWithSmap(line, Smer, i, globalKmerMap, Smap, activeLine, KmerToIdxInLine);
+                // if this succeeds the Kmer is counted in or added to the global Kmer map
             }
-            // if this succeeds the Kmer is counted in or added to the global Kmer map
-            i = expandSeedToKmerWithSmap(line, Smer, i, globalKmerMap, Smap, activeLine, KmerToIdxInLine);
             // cout << "end iter: " << i << endl; // debugg
         }
             // We iterate over the Kmers that were found and set count in line to 0 since we are moving to the next line
@@ -116,13 +107,7 @@ bool willSelfOverlap(const unordered_map<string,int>& KmerToIdxInLine,int startI
 }
 
 // this function checks if the known Smer occurance indeed means a known Kmer occurance and if 
-int expandSeedToKmerWithSmap(const string& line, 
-                             const string& Smer, 
-                             const int idxInLine, 
-                             unordered_map<string,data_t>& globalKmerMap, 
-                             unordered_map<string,Kmap_t>& Smap, 
-                             bool& activeLine, 
-                             unordered_map<string,int>& KmerToIdxInLine){
+void expandSeedToKmerWithSmap(const string& line, const string& Smer, int& idxInLine, unordered_map<string,data_t>& globalKmerMap, unordered_map<string,Kmap_t>& Smap, bool& activeLine, unordered_map<string,int>& KmerToIdxInLine){
     // we acess the Kmers that the Smer of interest appears in
     auto& Kmap = Smap[Smer];
     int copyIdxInLine = idxInLine;
@@ -136,44 +121,50 @@ int expandSeedToKmerWithSmap(const string& line,
         for (int i = 0; i < idxs.size(); i++){
             // an index where this Smer appears in the Kmer
             int startIdxInKmer = idxs[i];
-            int startIdexOfKmerInLine = idxInLine - startIdxInKmer;
+            int startIdexOfKmerInLine = copyIdxInLine - startIdxInKmer;
             // a check to prevent substring out of bounds error
-            if (idxInLine < startIdxInKmer){ continue; }
-            // we extract the substring of the potential Kmer from the line
-            KmerInLine = line.substr(startIdexOfKmerInLine, K);
+            if (copyIdxInLine >= startIdxInKmer){
+                // we extract the substring of the potential Kmer from the line
+                KmerInLine = line.substr(startIdexOfKmerInLine, K);
+            }
+            else{
+                continue;
+            }
             // filter for overlap and to avoid double counting
-            if (willSelfOverlap(KmerToIdxInLine, startIdexOfKmerInLine, KmerInLine)){ continue; }
-
+            if (willSelfOverlap(KmerToIdxInLine, startIdexOfKmerInLine, KmerInLine)){
+                continue;
+            }
             // if the Kmer that we extracted is the same Kmer as the recorded Kmer:
             // 1) we cannonize it so that we dont record both Kmer and reverse complement seperatly
             // 2) we count it in the file and in the line
             // 3) we test if its only been counted once in the line, and if so we also count a line it appeared on
             // 4) last we move the iterator of the line in the external function that iterates over the line to pass the Kmer
-            
-             // !!! switch to allow n=1 mismatches
-            if (Kmer != KmerInLine){ continue; }
-            // !!! maintain single best found kmer
-            activeLine = true;
-            string canonizedKmer = pickKey(Kmer);
-            auto& finalData = globalKmerMap[canonizedKmer]; // does not override existing elements
-            finalData.countInFile++;
-            finalData.countInLine++;
-            if (finalData.countInLine <= 1){
-                finalData.numLines++;
+            if (Kmer == KmerInLine){
+                activeLine = true;
+                string canonizedKmer = pickKey(Kmer);
+                auto& finalData = globalKmerMap[canonizedKmer]; // does not override existing elements
+                finalData.countInFile++;
+                finalData.countInLine++;
+                if (finalData.countInLine <= 1){
+                    finalData.numLines++;
+                }
+                // to move iterator we:
+                // check that its still the original index that the external function gave, if so we update
+                if (idxInLine == copyIdxInLine){
+                    idxInLine += (Kmer.length() - startIdxInKmer);
+                    KmerToIdxInLine[canonizedKmer] = startIdexOfKmerInLine + K - 1;
+                }
+                // if it isn't, then we chack if the previous K that we found at this Smer was smaller then this one
+                // if so, we update to what the skip over this K would have been
+                else if(idxInLine - copyIdxInLine < Kmer.length()){
+                    idxInLine = copyIdxInLine + (Kmer.length() - startIdxInKmer);
+                    KmerToIdxInLine[canonizedKmer] = startIdexOfKmerInLine + K - 1;
+                }
+                // then we break to stop iterating over indecies in that same Kmer if the Smer appears in the Kmer more then once
+                break;
             }
-            // to move iterator we:
-            int endOfKmerInLine = startIdexOfKmerInLine + K;
-            // check if the new position of the end of the current K is less then any K found previously or the original iterator location
-            // if so we dont need to update
-            if (endOfKmerInLine < copyIdxInLine) { continue; }
-            // if it isn't (meaning the new position is further then was before) we update to what the skip over this K would have been
-            copyIdxInLine = endOfKmerInLine;
-            KmerToIdxInLine[canonizedKmer] = endOfKmerInLine - 1; // !!!
-            // then we break to stop iterating over indecies in that same Kmer if the Smer appears in the Kmer more then once
-            break;
         }
     }
-    return copyIdxInLine;
 }
 
 bool valideHeader(string header){
