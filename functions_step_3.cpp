@@ -10,6 +10,7 @@ int buildSmap(ifstream& InCatalog, unordered_map<string,Kmap_t>& Smap, int seedK
     // create a variable for a temp line and a Kmer to extract the Kmer from the catalog output
     string tempLine;
     string Kmer;
+    int lineNum = 1;
     // dump the header line
     getline(InCatalog, tempLine);
     if (!valideHeader(tempLine)){ return 1; }
@@ -17,7 +18,10 @@ int buildSmap(ifstream& InCatalog, unordered_map<string,Kmap_t>& Smap, int seedK
         // while the file is good and doesnt reach its end we keep pulling lines and extracting the first string (the Kmer)
         getline(InCatalog, tempLine);
         istringstream iss(tempLine);
-        if (!(iss >> Kmer)) { return 2; }
+        if (!(iss >> Kmer)) { 
+            cerr << "could not read Kmer on line: " << lineNum << endl; 
+            continue;
+        }
         // we also want to extract the reverse of the Kmer so that we can search for both
         string reverseComp = reverseComplement(Kmer);
         // we iterate over the Kmer or reverse complemet 
@@ -35,6 +39,7 @@ int buildSmap(ifstream& InCatalog, unordered_map<string,Kmap_t>& Smap, int seedK
             auto& idxVectReverse = KmapReverse[reverseComp];
             idxVectReverse.emplace_back(j); // we store the position of the Smer in the Kmer
         }
+        lineNum++;
     }
     return 0;
 }
@@ -174,6 +179,6 @@ int expandSeedToKmerWithSmap(const string& line,
 bool valideHeader(string header){
     istringstream iss(header);
     string columnTitle;
-    if (iss >> columnTitle && columnTitle == "repeat") { return true; }
+    if (iss >> columnTitle /* && columnTitle == "repeat"*/) { return true; }
     return false;
 }

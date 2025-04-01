@@ -36,15 +36,10 @@ void step_3(string inputRead, string inputReadFileType, string inputCatalog, str
 
     unordered_map<string,Kmap_t> Smap;
     int validSmap = buildSmap(catalogFile, Smap, seedK);
-    
+
     if (validSmap == 1){
         logFile << "header error: no header or incorrect header in the catalog file provided" << endl;
         cerr << "header error: no header or incorrect header in the catalog file provided" << endl;
-        return;
-    }
-    else if (validSmap == 2){
-        logFile << "Error: could not extract Kmers to build Smap" << endl;
-        cerr << "Error: could not extract Kmers to build Smap" << endl;
         return;
     }
     

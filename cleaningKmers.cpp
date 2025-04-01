@@ -99,20 +99,19 @@ void cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha,
 
     logFile << "opened two output file named: " << endl << outputFile << endl << binsOutputFile << endl;
     
-    outFS1 << 
-    setw(10) << left << "repeat" <<
-    setw(10) << '\t' << "number_of_lines" <<
-    setw(10) << '\t' << "bin_#" <<
-    setw(10) << '\t' << "num_palindromic_nucleotides" <<
-    setw(10) << '\t' << "Kmer_Length" << endl;
+    outFS1 << left << "repeat" <<
+     '\t' << "number_of_lines" <<
+     '\t' << "bin_identifier" <<
+     '\t' << "num_palindromic_nucleotides" <<
+     '\t' << "Kmer_Length" << endl;
     writeUnorderedMapToFile(outputMap, outFS1);
     outFS1.close();
 
     outFS2 << 
-    setw(10) << left << "repeat" <<
-    setw(10) << '\t' << "bin_#" <<
-    setw(10) << '\t' << "num_palindromic_nucleotides" <<
-    setw(10) << '\t' << "Kmer_Length" << endl;
+     left << "repeat" <<
+     '\t' << "bin_identifier" <<
+     '\t' << "num_palindromic_nucleotides" <<
+     '\t' << "Kmer_Length" << endl;
     writeUnorderedMapToFile(binsOutputMap, outFS2);
     outFS2.close();
 }

@@ -88,5 +88,7 @@ int expandSeedToKmerWithSmap(const string& line, const string& Smer, const int i
                               bool& activeLine, unordered_map<string,int>& KmerToIdxInLine);
 bool willSelfOverlap(const unordered_map<string,int>& KmerToIdxInLine,int startIdexOfKmerInLine, string KmerInLine);
 
+bool valideHeader(string header);
+
 
 #endif /* functions_hpp */
