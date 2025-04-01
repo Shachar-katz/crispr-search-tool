@@ -15,7 +15,7 @@ ostream& operator<<(ostream& out, const data_t& obj){
          obj.numLines <<
          '\t' << obj.binNum <<
          '\t' << obj.palindromicScore <<
-         '\t' << obj.KLen;
+         '\t' << obj.kLen;
     }
     else{
         return out << obj.countInFile << '\t' << obj.numLines;
