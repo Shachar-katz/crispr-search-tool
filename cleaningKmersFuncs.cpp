@@ -41,10 +41,9 @@ void catalogToSAndKMaps(ifstream& InCatalog,
             for (int j = 0; j <= (kmer.size() - seedK) ; j++){
                 string smer = kmer.substr(j,seedK);
                 string reverseSmer = reverseComp.substr(j,seedK);
-                if (smer.size() == seedK){
-                    smap[smer].emplace_back(kmer);
-                    smap[reverseSmer].emplace_back(reverseComp);
-                }
+                if (smer.size() != seedK){ break; }
+                smap[smer].emplace_back(kmer);
+                smap[reverseSmer].emplace_back(reverseComp);
 
             }
         }
@@ -55,9 +54,9 @@ void catalogToSAndKMaps(ifstream& InCatalog,
 // this function recives a kmer input and generates a vector of Smers that comprize it
 void findSmersVect(string shortestKmer, vector<string>& smerVect, int seedK){
     for (int j = 0; j <= (shortestKmer.size() - seedK); j++){
-        string SmerForSearch = shortestKmer.substr(j,seedK);
+        string smerForSearch = shortestKmer.substr(j,seedK);
         // if (SmerForSearch.length() < seedK){ break; }
-        smerVect.emplace_back(SmerForSearch);
+        smerVect.emplace_back(smerForSearch);
     }
 }
 
@@ -66,18 +65,17 @@ void makePotentialRelationsSet(const unordered_map<string,vector<string>>& smap,
     logFile << "initializing making the potential relations set" << endl; 
     // for every smer and vector of Kmers in the smap, if the vector contains more then 1 kmer:
     for (const auto& [smer, kVect] : smap){
-        if (kVect.size() > 1){
-            vector<string> copyKVect = kVect;
-            // we sort the Kmers from small to large
-            sort(copyKVect.begin(), copyKVect.end(), [](const string &a, const string &b) {
-                return (a.length() == b.length()) ? pickKey(a) < pickKey(b) : a.length() < b.length();
-            });
+        if (kVect.size() <= 1){ continue; }
+        vector<string> copyKVect = kVect;
+        // we sort the Kmers from small to large
+        sort(copyKVect.begin(), copyKVect.end(), [](const string &a, const string &b) {
+            return (a.length() == b.length()) ? pickKey(a) < pickKey(b) : a.length() < b.length();
+        });
 
-            // for the sorted vector of Kmers we put every kmer in a pair with all the others to signify they may be subsets of one another
-            for (int i = 0; i < copyKVect.size() - 1; i++){
-                for (int j = i + 1; j < copyKVect.size(); j++) {
-                    potentialRelationSet.emplace(copyKVect.at(i), copyKVect.at(j));
-                }
+        // for the sorted vector of Kmers we put every kmer in a pair with all the others to signify they may be subsets of one another
+        for (int i = 0; i < copyKVect.size() - 1; i++){
+            for (int j = i + 1; j < copyKVect.size(); j++) {
+                potentialRelationSet.emplace(copyKVect.at(i), copyKVect.at(j));
             }
         }
     }
@@ -145,37 +143,30 @@ void verifyRelation(const unordered_map<string,vector<string>>& smap, const set<
         // then we run over this generated smer Vector:
         for(int i = 0; i < smerVect.size(); i++){
             string currentSmer = smerVect[i];
-            try{
-                // we then produce for every smer in the smer Vector of our shortest kmer, the vector of Kmers that it appears in on the smap
-                const auto& currKvect = smap.at(currentSmer);
-                // if we don't find the longer k in this smer we increment the disimilarity score for this pair
-                if (find(currKvect.begin(), currKvect.end(), otherK) == currKvect.end()){
-                    disimilarityScore++;
-                }
-                // if at any point the disimilarity score passes the required disimilarity score we determine that this pair is NOT related and exit the function
-                if (disimilarityScore > reqDisimilarity){
-                    isRelated = false;
-                    break;
-                }
-            }
-            catch(const out_of_range& ex){
+            if (smap.count(currentSmer) == 0){
                 logFile << "failed to find " << currentSmer << "in smap" << endl;
+                cerr << "failed to find " << currentSmer << "in smap" << endl;
+                continue;
+            }
+            // we then produce for every smer in the smer Vector of our shortest kmer, the vector of Kmers that it appears in on the smap
+            const auto& currKvect = smap.at(currentSmer);
+            // if we don't find the longer k in this smer we increment the disimilarity score for this pair
+            if (find(currKvect.begin(), currKvect.end(), otherK) == currKvect.end()){
+                disimilarityScore++;
+            }
+            // if at any point the disimilarity score passes the required disimilarity score we determine that this pair is NOT related and exit the function
+            if (disimilarityScore > reqDisimilarity){
+                isRelated = false;
+                break;
             }
         }
         // if after the check they are still related, we bin them together using the binning function, as well as their RC's, otherwise we bin them seperately.
         if (isRelated){
             binRelatives(shortestK, otherK, bins);
-            // string RCShortestK = reverseComplement(shortestK);
-            // string RCOtherK = reverseComplement(otherK);
-            // binRelatives(RCShortestK, RCOtherK, bins); // viable_change
         }
-        else{ // maybe need to add RC's here too?
+        else{ 
             bins.addAutoSingle(shortestK);
             bins.addAutoSingle(otherK);
-            // string RCShortestK = reverseComplement(shortestK);
-            // string RCOtherK = reverseComplement(otherK);
-            // bins.addAutoSingle(RCShortestK);
-            // bins.addAutoSingle(RCOtherK);
         }
     }
     logFile << "grouping completed" << endl; // debugging
@@ -195,36 +186,18 @@ void binSingles(const unordered_map<string,vector<string>>& smap, DynamicBins& b
 
 // this function takes in 2 Kmers and the kmap and returns the one that is of higher abundance in the kmap
 string kmerCompetition(const unordered_map<string,data_t>& kmap, string currentRep, string auditioningKmer, ofstream& logFile){
-    try {
-        // we search for the abundance of both the current leader kmer and the auditioning leader kmer and return the one of higher abundance
-        int abundanceCurrent = kmap.at(currentRep).numLines;
-        int abundanceAudition = kmap.at(auditioningKmer).numLines;
+    // we search for the abundance of both the current leader kmer and the auditioning leader kmer and return the one of higher abundance
+    if (kmap.count(currentRep) == 0 || kmap.count(auditioningKmer) == 0){ return ""; }
+    int abundanceCurrent = kmap.at(currentRep).numLines;
+    int abundanceAudition = kmap.at(auditioningKmer).numLines;
 
-        if (abundanceCurrent < abundanceAudition) {
-            return auditioningKmer;
-        }
-        else if(abundanceCurrent == abundanceAudition){
-            return tieBreaker(currentRep,auditioningKmer);
-        }
-        return currentRep;
+    if (abundanceCurrent < abundanceAudition) {
+        return auditioningKmer;
     }
-    catch (const out_of_range& ex) {
-        // Check which key is missing
-        if (kmap.find(currentRep) == kmap.end()) {
-            logFile << "Key not found in kmap: " << currentRep << endl;
-            cerr << "Key not found in kmap: " << currentRep << endl;
-        }
-        else if (kmap.find(auditioningKmer) == kmap.end()) {
-            logFile << "Key not found in kmap: " << auditioningKmer << endl;
-            cerr << "Key not found in kmap: " << auditioningKmer << endl;
-        }
-        else {
-            // (Extremely unlikely, but handle the generic case if needed)
-            logFile << "A key was not found in the map, but neither currentRep nor auditioningKmer is missing??\n";
-            cerr << "A key was not found in the map, but neither currentRep nor auditioningKmer is missing??\n";
-        }
-        return "";
+    else if(abundanceCurrent == abundanceAudition){
+        return tieBreaker(currentRep,auditioningKmer);
     }
+    return currentRep;
 }
 
 // this function cannonicly picks a kmer rep if their abundance is equal
@@ -261,8 +234,20 @@ void selectReps(unordered_map<int, string>& provisionalRepList, const unordered_
             // 1) we assign the representative to a variable and check which is more abundent using kmer competition
             // 2) if the auditioning kmer is more abundent we assign it as the new representative, else we leave the bin as is (with the existing rep)
             string currentRep = provisionalRepList.at(binNum);
-            if (kmerCompetition(kmap, currentRep, auditioningKmer,logFile) == auditioningKmer){
+            string winner = kmerCompetition(kmap, currentRep, auditioningKmer,logFile);
+            if (winner == auditioningKmer){
                 provisionalRepList[binNum] = auditioningKmer;
+            }
+            else if (winner == ""){
+                // Check which key is missing
+                if (kmap.find(currentRep) == kmap.end()) {
+                    logFile << "ERROR: Key not found in kmap: " << currentRep << endl;
+                    cerr << "ERROR: Key not found in kmap: " << currentRep << endl;
+                }
+                else if (kmap.find(auditioningKmer) == kmap.end()) {
+                    logFile << "ERROR: Key not found in kmap: " << auditioningKmer << endl;
+                    cerr << "ERROR: Key not found in kmap: " << auditioningKmer << endl;
+                }
             }
         }
     }
