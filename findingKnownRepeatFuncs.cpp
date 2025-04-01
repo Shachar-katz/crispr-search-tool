@@ -45,10 +45,13 @@ int buildSmap(ifstream& inCatalog, unordered_map<string,Kmap_t>& smap, int seedK
 }
 
 // this function goes line by line and searches for known Smers to find known Kmers
-void findKmersInFileWithSmap(MultiFormatFileReader& fileReader, unordered_map<string,data_t>& globalKmerMap, unordered_map<string,Kmap_t>& smap, int seedK, unordered_map<string,double>& stats, ofstream& logFile){
+void findKmersInFileWithSmap(MultiFormatFileReader& fileReader, unordered_map<string,data_t>& globalKmerMap, unordered_map<string,Kmap_t>& smap, int seedK, unordered_map<string,double>& stats, ofstream& logFile, int legitimateSpacer, int minK){
     // stats
     int progressCounter = 0;
     int numReadsWithRepeats = 0;
+    int interval;
+    if (fileReader.getFileType() == FileType::FASTA) { interval = 1000;}
+    else { interval = 100000; }
     // we initilize a line variable and reassign the next line to it using the filereader class untill the file's end
     string line;
     while (fileReader.getNextLine(line)) {
@@ -57,7 +60,7 @@ void findKmersInFileWithSmap(MultiFormatFileReader& fileReader, unordered_map<st
         unordered_map<string,int> kmerToIdxInLine;
         // we iterate over the line (as long as not empty), generating an smer at each index point 
         // untill the point we'd pass the end of the line if we made another smer
-        if (line.length() <= 52){
+        if (line.length() <= (2 * minK + legitimateSpacer + 2)){
             continue;
         }
         for (int i = 0; i <= (line.size() - seedK); i++){
@@ -81,7 +84,7 @@ void findKmersInFileWithSmap(MultiFormatFileReader& fileReader, unordered_map<st
         }
         // progress bar
         progressCounter++;
-        if (progressCounter % 100000 == 0){
+        if (progressCounter % interval == 0){
             cout << "Procession line: " << progressCounter << endl;
             logFile << "Procession line: " << progressCounter << endl;
         }

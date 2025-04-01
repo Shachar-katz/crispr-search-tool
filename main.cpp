@@ -108,6 +108,14 @@ bool step_3_executor(Parameters& args){
     string inputFileCatalog = args.get_string("inputFileCatalog");
     string outputFile = args.get_string("outputFile");
     int seedK = args.get_int("seedK");
+    int legitimateSpacer;
+    int minK;
+    if (args.is_defined("legitimateSpacer")){
+        legitimateSpacer = args.get_int("legitimateSpacer");
+    }
+    if (args.is_defined("minK")){
+        minK = args.get_int("minK");
+    }
     // decide on dual or single fastq
     if (args.is_defined("inputFileR1") && args.is_defined("inputFileR2")) {
         // run for strand 1
