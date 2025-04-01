@@ -23,12 +23,7 @@ void cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha,
     
     ifstream catalogFile;
     catalogFile.open(inputCatalog);
-    if (!isInputFileValid(catalogFile)){
-        return;
-    }
-    
-    catalogFile.clear();
-    catalogFile.seekg(0, ios::beg);
+    if (!isInputFileValid(catalogFile, inputCatalog)){ return; }
     
     catalogToSAndKMaps(catalogFile, smap, kmap, seedK, logFile);
     
@@ -37,12 +32,7 @@ void cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha,
     if (inputCatalog2 != ""){
         ifstream catalogFile2;
         catalogFile2.open(inputCatalog2);
-        if (!isInputFileValid(catalogFile2)){
-            return;
-        }
-        
-        catalogFile2.clear();
-        catalogFile2.seekg(0, ios::beg);
+        if (!isInputFileValid(catalogFile2, inputCatalog2)){ return; }
         
         catalogToSAndKMaps(catalogFile2, smap, kmap, seedK, logFile);
         

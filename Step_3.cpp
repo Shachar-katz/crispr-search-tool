@@ -32,11 +32,7 @@ void step_3(string inputRead,
     
     ifstream catalogFile;
     catalogFile.open(inputCatalog);
-    if (!isInputFileValid(catalogFile)){
-        logFile << "Error: Could not open input catalog file." << endl;
-        cerr << "Error: Could not open input catalog file." << endl;
-        return;
-    }
+    if (!isInputFileValid(catalogFile, inputCatalog)){ return; }
     logFile << "catalog file opened" << endl;
 
     unordered_map<string,Kmap_t> smap;

@@ -27,7 +27,7 @@ using namespace std;
 
 
 // step one functions:
-bool isInputFileValid(ifstream& inFS);
+bool isInputFileValid(ifstream& inFS, string fileName);
 
 void findKmersInFile(MultiFormatFileReader& fileReader, unordered_map<string,int>& globalKmerMap, int seedK, 
                      int minK, int legitimateSpacer, unordered_map<string,double>& stats, bool strict, 
