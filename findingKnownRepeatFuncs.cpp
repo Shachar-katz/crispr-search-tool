@@ -18,7 +18,7 @@ int buildSmap(ifstream& inCatalog, unordered_map<string,Kmap_t>& smap, int seedK
         // while the file is good and doesnt reach its end we keep pulling lines and extracting the first string (the kmer)
         getline(inCatalog, tempLine);
         istringstream iss(tempLine);
-        if (!(iss >> kmer)) { 
+        if (!(iss >> kmer) && !tempLine.empty()) { 
             cerr << "could not read kmer on line: " << lineNum << endl; 
             continue;
         }
