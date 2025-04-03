@@ -13,9 +13,9 @@ int findingKnownRepeats(string inputRead,
             string inputCatalog, 
             string outputFile, 
             int seedK, 
-            string inputFileR2,
             int legitimateSpacer,
-            int minK)
+            int minK,
+            string inputFileR2)
 {
     // open log file
     ofstream logFile;

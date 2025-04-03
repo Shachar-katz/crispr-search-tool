@@ -126,7 +126,7 @@ bool step_3_executor(Parameters& args){
         // run for strand 1
         string inputFileR1 = args.get_string("inputFileR1");
         string inputFileR2 = args.get_string("inputFileR2");
-        int run = findingKnownRepeats(inputFileR1, inputFileType, inputFileCatalog, outputFile, seedK, inputFileR2);
+        int run = findingKnownRepeats(inputFileR1, inputFileType, inputFileCatalog, outputFile, seedK, legitimateSpacer, minK, inputFileR2);
         if (run != 0){
             cerr << "ERROR: could not complete the finding known repeats run, please refer to previous error messages for more information." << endl;
             return false;
@@ -134,7 +134,7 @@ bool step_3_executor(Parameters& args){
     } 
     else if (args.is_defined("inputFile")) {
         string inputFile = args.get_string("inputFile");
-        int run = findingKnownRepeats(inputFile, inputFileType, inputFileCatalog, outputFile, seedK);
+        int run = findingKnownRepeats(inputFile, inputFileType, inputFileCatalog, outputFile, seedK, legitimateSpacer, minK);
         if (run != 0){
             cerr << "ERROR: could not complete the finding known repeats run, please refer to previous error messages for more information." << endl;
             return false;
