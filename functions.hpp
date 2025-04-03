@@ -31,7 +31,7 @@ bool isInputFileValid(ifstream& inFS, string fileName);
 
 void findKmersInFile(MultiFormatFileReader& fileReader, unordered_map<string,int>& globalKmerMap, int seedK, 
                      int minK, int legitimateSpacer, unordered_map<string,double>& stats, bool strict, 
-                     bool preStrict, ofstream& logFile);
+                     bool preStrict, ofstream& logFile, int interval);
 
 bool skipThisLine(const string& read, double iligitimateRatio);
 

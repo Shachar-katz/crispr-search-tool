@@ -12,7 +12,8 @@ void findKmersInFile(MultiFormatFileReader& fileReader,
                      unordered_map<string,double>& stats, 
                      bool strict, 
                      bool preStrict, 
-                     ofstream& logFile)
+                     ofstream& logFile,
+                     int interval)
     {
     // line variable temporerally holds the reads
     string line;
@@ -20,9 +21,6 @@ void findKmersInFile(MultiFormatFileReader& fileReader,
     int progressCounter = 0;
     int numReadsWithRepeats = 0;
     int faultyLine = 0;
-    int interval;
-    if (fileReader.getFileType() == FileType::FASTA) { interval = 1000;}
-    else { interval = 100000; }
     // we are looping over every read
     while (fileReader.getNextLine(line)) {
         // statistics and progress managment:

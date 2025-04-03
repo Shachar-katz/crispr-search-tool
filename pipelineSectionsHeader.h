@@ -18,7 +18,7 @@ using namespace std;
 
 
 int identifyingRepeatPatterns(string inputFile, string inputFileType, string outputFile, int seedK, int minK, int legitimateSpacer, 
-            bool strict = false, bool preStrict = false, string inputFileR2 = "");
+            bool strict = false, bool preStrict = false, int interval = 0, string inputFileR2 = "");
 
 int cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha, string inputCatalog2 = "");
 
