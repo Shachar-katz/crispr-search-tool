@@ -15,6 +15,7 @@ int findingKnownRepeats(string inputRead,
             int seedK, 
             int legitimateSpacer,
             int minK,
+            int interval,
             string inputFileR2)
 {
     // open log file
@@ -55,13 +56,13 @@ int findingKnownRepeats(string inputRead,
     unordered_map<string,data_t> globalKmerMap;
     MultiFormatFileReader fileReaderR1(inputRead, inputReadFileType);
     logFile << "reads file opened" << endl;
-    findKmersInFileWithSmap(fileReaderR1, globalKmerMap, smap, seedK, stats, logFile, legitimateSpacer, minK);
+    findKmersInFileWithSmap(fileReaderR1, globalKmerMap, smap, seedK, stats, logFile, legitimateSpacer, minK, interval);
     logFile << globalKmerMap.size() << "Kmers found" << endl;
 
     if (inputReadFileType == "fastq_dual"){
         MultiFormatFileReader fileReaderR2(inputFileR2, inputReadFileType);
         logFile << "reads file R2 opened" << endl;
-        findKmersInFileWithSmap(fileReaderR2, globalKmerMap, smap, seedK, stats, logFile, legitimateSpacer, minK);
+        findKmersInFileWithSmap(fileReaderR2, globalKmerMap, smap, seedK, stats, logFile, legitimateSpacer, minK, interval);
         logFile << globalKmerMap.size() << "Kmers found" << endl;
     }
     

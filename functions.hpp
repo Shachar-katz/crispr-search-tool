@@ -82,7 +82,7 @@ void validateBins(const unordered_map<int, string>& provisionalRepList, const Dy
 int buildSmap(ifstream& inCatalog, unordered_map<string,Kmap_t>& smap, int seedK);
 
 void findKmersInFileWithSmap(MultiFormatFileReader& fileReader, unordered_map<string,data_t>& globalKmerMap, 
-                            unordered_map<string,Kmap_t>& smap, int seedK, unordered_map<string,double>& stats, ofstream& logFile, int legitimateSpacer, int minK);
+                            unordered_map<string,Kmap_t>& smap, int seedK, unordered_map<string,double>& stats, ofstream& logFile, int legitimateSpacer, int minK, int interval);
 void expandSeedToKmerWithSmap(const string& line, const string& smer, int& idxInLine, unordered_map<string,data_t>& globalKmerMap, unordered_map<string,Kmap_t>& smap, bool& activeLine, unordered_map<string,int>& kmerToIdxInLine);
 
 bool willSelfOverlap(const unordered_map<string,int>& kmerToIdxInLine,int startIdexOfKmerInLine, string kmerInLine);

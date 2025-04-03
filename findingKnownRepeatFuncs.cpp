@@ -45,13 +45,18 @@ int buildSmap(ifstream& inCatalog, unordered_map<string,Kmap_t>& smap, int seedK
 }
 
 // this function goes line by line and searches for known Smers to find known Kmers
-void findKmersInFileWithSmap(MultiFormatFileReader& fileReader, unordered_map<string,data_t>& globalKmerMap, unordered_map<string,Kmap_t>& smap, int seedK, unordered_map<string,double>& stats, ofstream& logFile, int legitimateSpacer, int minK){
+void findKmersInFileWithSmap(MultiFormatFileReader& fileReader, 
+                             unordered_map<string,data_t>& globalKmerMap, 
+                             unordered_map<string,Kmap_t>& smap, 
+                             int seedK, 
+                             unordered_map<string,double>& stats, 
+                             ofstream& logFile, 
+                             int legitimateSpacer, 
+                             int minK, 
+                             int interval){
     // stats
     int progressCounter = 0;
     int numReadsWithRepeats = 0;
-    int interval;
-    if (fileReader.getFileType() == FileType::FASTA) { interval = 1000;}
-    else { interval = 100000; }
     // we initilize a line variable and reassign the next line to it using the filereader class untill the file's end
     string line;
     while (fileReader.getNextLine(line)) {
