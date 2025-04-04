@@ -31,7 +31,7 @@ bool isInputFileValid(ifstream& inFS, string fileName);
 
 void findKmersInFile(MultiFormatFileReader& fileReader, unordered_map<string,int>& globalKmerMap, int seedK, 
                      int minK, int legitimateSpacer, unordered_map<string,double>& stats, bool strict, 
-                     bool preStrict, ofstream& logFile, int interval);
+                     bool preStrict, ofstream& logFile, int interval, int maxK);
 
 bool skipThisLine(const string& read, double iligitimateRatio);
 
@@ -40,7 +40,7 @@ void findSeedPattern(string line, unordered_map<string,vector<int>>& singleLineM
 bool notOverlapping(int idxStartPotential, int idxStartCompare, int idxEndPotential, int idxEndCompare, 
                     int legitimateSpacer);
 void expandSeedToKmer(const string& line, string smer, vector<int> smerIdxVect , int minK, 
-                    set<string>& uniqueKmersInLine, int legitimateSpacer, bool strict);
+                    set<string>& uniqueKmersInLine, int legitimateSpacer, bool strict, int maxK);
 
 //step two functions:
 void catalogToSAndKMaps(ifstream& inCatalog, unordered_map<string,vector<string>>& smap, 

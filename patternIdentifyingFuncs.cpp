@@ -13,7 +13,8 @@ void findKmersInFile(MultiFormatFileReader& fileReader,
                      bool strict, 
                      bool preStrict, 
                      ofstream& logFile,
-                     int interval)
+                     int interval,
+                     int maxK)
     {
     // line variable temporerally holds the reads
     string line;
@@ -49,7 +50,7 @@ void findKmersInFile(MultiFormatFileReader& fileReader,
         // we check if it can be expanded to a kmer and if so that kmer is added to the set of unique Kmers
         for (const auto& [smer, idxs] : singleLineMapSeedKToIdx){
             if (singleLineMapSeedKToIdx[smer].size() > 1){
-                expandSeedToKmer(line, smer, idxs, minK, uniqueKmersInLine, legitimateSpacer, strict);
+                expandSeedToKmer(line, smer, idxs, minK, uniqueKmersInLine, legitimateSpacer, strict, maxK);
             }
         }
         // for statistics 
@@ -120,7 +121,7 @@ bool notOverlapping(int idxStartPotential, int idxStartCompare, int idxEndPotent
 }
 
 // this function populates the unique kmer set
-void expandSeedToKmer(const string& line, string smer, vector<int> smerIdxVect , int minK, set<string>& uniqueKmersInLine,int legitimateSpacer, bool strict){
+void expandSeedToKmer(const string& line, string smer, vector<int> smerIdxVect , int minK, set<string>& uniqueKmersInLine,int legitimateSpacer, bool strict, int maxK){
     // Track unique K-mers for this particular smer on this particular line
     set<string> UniqueKmersFromSmer; 
     // we iterate over the index vector of the appearences of this smer, each index gets a turn to be the potential kmer.
@@ -143,8 +144,12 @@ void expandSeedToKmer(const string& line, string smer, vector<int> smerIdxVect ,
             // we set flags = true to represent are the 2 occurances equal at the start and end.
             bool equalAtStart = true;
             bool equalAtEnd = true;
+            // the current Kmer is a size of an smer
+            int kmerLen = smer.length();
             // while the 2 locations are equal at the start or end and the indecies are not overlapping:
-            while((equalAtStart || equalAtEnd) && notOverlapping(idxStartPotential,idxStartCompare,idxEndPotential,idxEndCompare,legitimateSpacer)){
+            while((equalAtStart || equalAtEnd) && 
+                   notOverlapping(idxStartPotential,idxStartCompare,idxEndPotential,idxEndCompare,legitimateSpacer) &&
+                   kmerLen < maxK){
                 // as long as the indecies would valid at the start if we decremented and they are still equal at the start:
                 if (equalAtStart && idxStartPotential > 0 && idxStartCompare > 0){
                     // if the "next" nucleotid is equal on both occurances we decrement the position and continue expending
@@ -177,7 +182,7 @@ void expandSeedToKmer(const string& line, string smer, vector<int> smerIdxVect ,
                 else{
                     equalAtEnd = false;
                 }
-                
+                int kmerLen = idxEndPotential - idxStartPotential + 1;    
             } 
             // if they reached a point where either Kmers overlap, or hit any of the bounds, throw them out
             // if we are strict we also throw out the entire line
@@ -185,7 +190,8 @@ void expandSeedToKmer(const string& line, string smer, vector<int> smerIdxVect ,
                 idxEndPotential >= (line.length() - 1) || 
                 idxEndCompare >= (line.length() - 1) || 
                 idxStartPotential <= 0 || 
-                idxStartCompare <= 0){ 
+                idxStartCompare <= 0 ||
+                kmerLen > maxK){ 
                     if(strict){
                         UniqueKmersFromSmer.clear();
                         return;
@@ -196,8 +202,7 @@ void expandSeedToKmer(const string& line, string smer, vector<int> smerIdxVect ,
             // 1) the nucleotids dont match anymore
             // 2) they haven't reached a point of hitting boundaries or overlapping  (overlap defined as include spacer)
 
-            // we get the length of the (still "potential") kmer and generate it using substring
-            int kmerLen = idxEndPotential - idxStartPotential + 1;
+            // generate Kmer using substring
             string kmer = line.substr(idxStartPotential, kmerLen);
             
             // if this potential kmer follows requirements :
