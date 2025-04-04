@@ -30,7 +30,8 @@ void init_params(const char* name, int argc, const char **argv, Parameters& args
     args.add_parser("inputFileR1", new ParserFilename("Input file R1 (for fastq_dual)")); // for 1 & 3
     args.add_parser("inputFileR2", new ParserFilename("Input file R2 (for fastq_dual)")); // for 1 & 3
     args.add_parser("minK", new ParserInteger("Minimum k", 20)); // for 1 & 3
-    args.add_parser("legitimateSpacer", new ParserInteger("Legitimate spacer length", 10)); // for 1
+    args.add_parser("minLegitimateSpacer", new ParserInteger("min Legitimate spacer length", 10)); // for 1 & 3
+    args.add_parser("maxLegitimateSpacer", new ParserInteger("max Legitimate spacer length", 200)); // for 1
     args.add_parser("inputFileCatalog", new ParserFilename("Input file catalog")); // for 3 and 2
     args.add_parser("secondInputFileCatalog", new ParserFilename("Additional input file catalog for dual fastq")); // for 2
     args.add_parser("alpha", new ParserInteger("Alpha (number of mutations permitted for grouping kmers)")); // for 2
@@ -55,7 +56,8 @@ bool step_1_executor(Parameters& args){
     string outputFile = args.get_string("outputFile");
     int minK = args.get_int("minK");
     int seedK = args.get_int("seedK");
-    int legitimateSpacer = args.get_int("legitimateSpacer");
+    int minLegitimateSpacer = args.get_int("minLegitimateSpacer");
+    int maxLegitimateSpacer = args.get_int("maxLegitimateSpacer");
     int interval = args.get_int("interval");
     int maxK = args.get_int("maxK");
     bool strict = args.get_bool("strictDuring");
@@ -71,7 +73,7 @@ bool step_1_executor(Parameters& args){
         string inputFileR2 = args.get_string("inputFileR2");
         if (interval == 0){ interval = 100000; }
         cout << "repeat finder initialized for R1" << endl;
-        int run = identifyingRepeatPatterns(inputFileR1, inputFileType, outputFile, seedK, minK, legitimateSpacer, strict, preStrict, interval, maxK, inputFileR2);
+        int run = identifyingRepeatPatterns(inputFileR1, inputFileType, outputFile, seedK, minK, minLegitimateSpacer, maxLegitimateSpacer, strict, preStrict, interval, maxK, inputFileR2);
         if (run != 0){
             cerr << "ERROR: could not complete identifying repeat pattern run, please refer to previous error messages for more information." << endl;
             return false;
@@ -86,7 +88,7 @@ bool step_1_executor(Parameters& args){
         string inputFile = args.get_string("inputFile");
         if (interval == 0){ interval = 1000; }
         cout << "repeat finder initialized" << endl;
-        int run = identifyingRepeatPatterns(inputFile, inputFileType, outputFile, seedK, minK, legitimateSpacer, strict, preStrict, interval, maxK);
+        int run = identifyingRepeatPatterns(inputFile, inputFileType, outputFile, seedK, minK, minLegitimateSpacer, maxLegitimateSpacer, strict, preStrict, interval, maxK);
         if (run != 0){
             cerr << "ERROR: could not complete identifying repeat pattern run, please refer to previous error messages for more information." << endl;
             return false;
@@ -115,20 +117,14 @@ bool step_3_executor(Parameters& args){
     string outputFile = args.get_string("outputFile");
     int seedK = args.get_int("seedK");
     int interval = args.get_int("interval");
-    int legitimateSpacer = args.get_int("legitimateSpacer");
+    int minLegitimateSpacer = args.get_int("minLegitimateSpacer");
     int minK = args.get_int("minK");
-    if (args.is_defined("legitimateSpacer")){
-        legitimateSpacer = args.get_int("legitimateSpacer");
-    }
-    if (args.is_defined("minK")){
-        minK = args.get_int("minK");
-    }
     // decide on dual or single fastq
     if (args.is_defined("inputFileR1") && args.is_defined("inputFileR2")) {
         // run for strand 1
         string inputFileR1 = args.get_string("inputFileR1");
         string inputFileR2 = args.get_string("inputFileR2");
-        int run = findingKnownRepeats(inputFileR1, inputFileType, inputFileCatalog, outputFile, seedK, legitimateSpacer, minK, interval, inputFileR2);
+        int run = findingKnownRepeats(inputFileR1, inputFileType, inputFileCatalog, outputFile, seedK, minLegitimateSpacer, minK, interval, inputFileR2);
         if (run != 0){
             cerr << "ERROR: could not complete the finding known repeats run, please refer to previous error messages for more information." << endl;
             return false;
@@ -136,7 +132,7 @@ bool step_3_executor(Parameters& args){
     } 
     else if (args.is_defined("inputFile")) {
         string inputFile = args.get_string("inputFile");
-        int run = findingKnownRepeats(inputFile, inputFileType, inputFileCatalog, outputFile, seedK, legitimateSpacer, minK, interval);
+        int run = findingKnownRepeats(inputFile, inputFileType, inputFileCatalog, outputFile, seedK, minLegitimateSpacer, minK, interval);
         if (run != 0){
             cerr << "ERROR: could not complete the finding known repeats run, please refer to previous error messages for more information." << endl;
             return false;
@@ -163,7 +159,7 @@ int main(int argc, const char * argv[]) {
                 !args.is_defined("outputFile") ||
                 !args.is_defined("minK") ||
                 !args.is_defined("seedK") ||
-                !args.is_defined("legitimateSpacer")) {
+                !args.is_defined("minLegitimateSpacer")) {
                 cerr << "Missing mandatory arguments for step 1." << endl;
                 return 1;
             }

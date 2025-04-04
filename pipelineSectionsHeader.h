@@ -17,12 +17,13 @@
 using namespace std;
 
 
-int identifyingRepeatPatterns(string inputFile, string inputFileType, string outputFile, int seedK, int minK, int legitimateSpacer, 
-            bool strict = false, bool preStrict = false, int interval = 0, int maxK = 70, string inputFileR2 = "");
+int identifyingRepeatPatterns(string inputFile, string inputFileType, string outputFile, int seedK, int minK, int minLegitimateSpacer, 
+                              int maxLegitimateSpacer, bool strict = false, bool preStrict = false, int interval = 0, int maxK = 70, 
+                              string inputFileR2 = "");
 
 int cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha, string inputCatalog2 = "");
 
 int findingKnownRepeats(string inputRead, string inputReadFileType, string inputCatalog, string outputFile, 
-                        int seedK, int legitimateSpacer, int minK, int interval, string inputFileR2 = "");
+                        int seedK, int minLegitimateSpacer, int minK, int interval, string inputFileR2 = "");
 
 #endif /* pipelineSectionsHeader_h */

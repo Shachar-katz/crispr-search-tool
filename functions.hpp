@@ -30,7 +30,7 @@ using namespace std;
 bool isInputFileValid(ifstream& inFS, string fileName);
 
 void findKmersInFile(MultiFormatFileReader& fileReader, unordered_map<string,int>& globalKmerMap, int seedK, 
-                     int minK, int legitimateSpacer, unordered_map<string,double>& stats, bool strict, 
+                     int minK, int minLegitimateSpacer, int maxLegitimateSpacer, unordered_map<string,double>& stats, bool strict, 
                      bool preStrict, ofstream& logFile, int interval, int maxK);
 
 bool skipThisLine(const string& read, double iligitimateRatio);
@@ -38,9 +38,9 @@ bool skipThisLine(const string& read, double iligitimateRatio);
 void findSeedPattern(string line, unordered_map<string,vector<int>>& singleLineMapSeedKToIdx, int seedK);
 
 bool notOverlapping(int idxStartPotential, int idxStartCompare, int idxEndPotential, int idxEndCompare, 
-                    int legitimateSpacer);
+                    int minLegitimateSpacer, int maxLegitimateSpacer);
 void expandSeedToKmer(const string& line, string smer, vector<int> smerIdxVect , int minK, 
-                    set<string>& uniqueKmersInLine, int legitimateSpacer, bool strict, int maxK);
+                    set<string>& uniqueKmersInLine, int minLegitimateSpacer, int maxLegitimateSpacer, bool strict, int maxK);
 
 //step two functions:
 void catalogToSAndKMaps(ifstream& inCatalog, unordered_map<string,vector<string>>& smap, 
@@ -82,7 +82,7 @@ void validateBins(const unordered_map<int, string>& provisionalRepList, const Dy
 int buildSmap(ifstream& inCatalog, unordered_map<string,Kmap_t>& smap, int seedK);
 
 void findKmersInFileWithSmap(MultiFormatFileReader& fileReader, unordered_map<string,data_t>& globalKmerMap, 
-                            unordered_map<string,Kmap_t>& smap, int seedK, unordered_map<string,double>& stats, ofstream& logFile, int legitimateSpacer, int minK, int interval);
+                            unordered_map<string,Kmap_t>& smap, int seedK, unordered_map<string,double>& stats, ofstream& logFile, int minLegitimateSpacer, int minK, int interval);
 void expandSeedToKmerWithSmap(const string& line, const string& smer, int& idxInLine, unordered_map<string,data_t>& globalKmerMap, unordered_map<string,Kmap_t>& smap, bool& activeLine, unordered_map<string,int>& kmerToIdxInLine);
 
 bool willSelfOverlap(const unordered_map<string,int>& kmerToIdxInLine,int startIdexOfKmerInLine, string kmerInLine);

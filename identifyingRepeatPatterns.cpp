@@ -12,7 +12,8 @@ int identifyingRepeatPatterns(string inputFile,
             string outputFile, 
             int seedK, 
             int minK, 
-            int legitimateSpacer, 
+            int minLegitimateSpacer, 
+            int maxLegitimateSpacer,
             bool strict, 
             bool preStrict, 
             int interval,
@@ -33,13 +34,13 @@ int identifyingRepeatPatterns(string inputFile,
     MultiFormatFileReader fileReader(inputFile, inputFileType);
     
     logFile << "finding Kmers in file" << endl;
-    findKmersInFile(fileReader, globalKmerMap, seedK, minK, legitimateSpacer, stats, strict, preStrict, logFile, interval, maxK);
+    findKmersInFile(fileReader, globalKmerMap, seedK, minK, minLegitimateSpacer, maxLegitimateSpacer, stats, strict, preStrict, logFile, interval, maxK);
     logFile << "Number of Kmers found: " << globalKmerMap.size() << endl;
 
     if (inputFileType == "fastq_dual"){
           MultiFormatFileReader fileReader2(inputFileR2, inputFileType);
           logFile << "finding Kmers in file R2" << endl;
-          findKmersInFile(fileReader2, globalKmerMap, seedK, minK, legitimateSpacer, stats, strict, preStrict, logFile, interval, maxK);
+          findKmersInFile(fileReader2, globalKmerMap, seedK, minK, minLegitimateSpacer, maxLegitimateSpacer, stats, strict, preStrict, logFile, interval, maxK);
           logFile << "Number of Kmers found after second round: " << globalKmerMap.size() << endl;
     }
     // writing output file 

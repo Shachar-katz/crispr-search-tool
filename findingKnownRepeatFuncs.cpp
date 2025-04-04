@@ -51,7 +51,7 @@ void findKmersInFileWithSmap(MultiFormatFileReader& fileReader,
                              int seedK, 
                              unordered_map<string,double>& stats, 
                              ofstream& logFile, 
-                             int legitimateSpacer, 
+                             int minLegitimateSpacer, 
                              int minK, 
                              int interval){
     // stats
@@ -65,7 +65,7 @@ void findKmersInFileWithSmap(MultiFormatFileReader& fileReader,
         unordered_map<string,int> kmerToIdxInLine;
         // we iterate over the line (as long as not empty), generating an smer at each index point 
         // untill the point we'd pass the end of the line if we made another smer
-        if (line.length() <= (2 * minK + legitimateSpacer + 2)){
+        if (line.length() <= (2 * minK + minLegitimateSpacer + 2)){
             continue;
         }
         for (int i = 0; i <= (line.size() - seedK); i++){
