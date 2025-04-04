@@ -182,7 +182,7 @@ void expandSeedToKmer(const string& line, string smer, vector<int> smerIdxVect ,
                 else{
                     equalAtEnd = false;
                 }
-                int kmerLen = idxEndPotential - idxStartPotential + 1;    
+                kmerLen = idxEndPotential - idxStartPotential + 1;    
             } 
             // if they reached a point where either Kmers overlap, or hit any of the bounds, throw them out
             // if we are strict we also throw out the entire line
@@ -190,7 +190,8 @@ void expandSeedToKmer(const string& line, string smer, vector<int> smerIdxVect ,
                 idxEndPotential >= (line.length() - 1) || 
                 idxEndCompare >= (line.length() - 1) || 
                 idxStartPotential <= 0 || 
-                idxStartCompare <= 0){ 
+                idxStartCompare <= 0 ||
+                kmerLen >= maxK){ 
                     if(strict){
                         UniqueKmersFromSmer.clear();
                         return;
