@@ -190,8 +190,7 @@ void expandSeedToKmer(const string& line, string smer, vector<int> smerIdxVect ,
                 idxEndPotential >= (line.length() - 1) || 
                 idxEndCompare >= (line.length() - 1) || 
                 idxStartPotential <= 0 || 
-                idxStartCompare <= 0 ||
-                kmerLen > maxK){ 
+                idxStartCompare <= 0){ 
                     if(strict){
                         UniqueKmersFromSmer.clear();
                         return;
@@ -203,6 +202,8 @@ void expandSeedToKmer(const string& line, string smer, vector<int> smerIdxVect ,
             // 2) they haven't reached a point of hitting boundaries or overlapping  (overlap defined as include spacer)
 
             // generate Kmer using substring
+            //if reaches here debugg statement
+            // cout << "accepted Kmer" << endl;
             string kmer = line.substr(idxStartPotential, kmerLen);
             
             // if this potential kmer follows requirements :
