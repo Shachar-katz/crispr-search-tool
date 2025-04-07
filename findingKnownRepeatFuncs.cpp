@@ -173,6 +173,6 @@ void expandSeedToKmerWithSmap(const string& line, const string& smer, int& idxIn
 bool valideHeader(string header){
     istringstream iss(header);
     string columnTitle;
-    if (iss >> columnTitle /* && columnTitle == "repeat"*/) { return true; }
+    if (iss >> columnTitle) { return true; }
     return false;
 }
