@@ -120,10 +120,18 @@ void findSeedPattern(string line, unordered_map<string,vector<int>>& singleLineM
 // varifies that they are not overlapping
 bool notOverlapping(int idxStartPotential, int idxStartCompare, int idxEndPotential, int idxEndCompare, int minLegitimateSpacer, int maxLegitimateSpacer)
 {
-    bool minSpacerValid = ((idxEndPotential + minLegitimateSpacer) < idxStartCompare) || ((idxEndCompare + minLegitimateSpacer) < idxStartPotential);
-    bool maxSpacerValid = ((idxEndPotential + maxLegitimateSpacer) >= idxStartCompare) || ((idxEndCompare + maxLegitimateSpacer) >= idxStartPotential);
-    
-    return minSpacerValid && maxSpacerValid;
+    int spacing;
+    if (idxEndPotential < idxStartCompare) {
+        spacing = idxStartCompare - idxEndPotential -1;
+        
+    } 
+    else if (idxEndCompare < idxStartPotential) {
+        spacing = idxStartPotential - idxEndCompare - 1;
+    }
+    else {
+        return false;
+    }
+    return (spacing >= minLegitimateSpacer && spacing <= maxLegitimateSpacer);
 }
 
 // this function populates the unique kmer set
