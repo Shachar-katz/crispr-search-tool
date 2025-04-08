@@ -68,13 +68,18 @@ void findKmersInFileWithSmap(MultiFormatFileReader& fileReader,
         if (line.length() <= (2 * minK + minLegitimateSpacer + 2)){
             continue;
         }
-        for (int i = 0; i <= (line.size() - seedK); i++){
+        int i = 0;
+        while (i <= (line.size() - seedK)){
             // cout << "start iter: " << i << endl; // debugg
             string smer = line.substr(i,seedK);
             // if this smer appears in our smap we try expanding it to a kmer and checking if its a known kmer
             if (smap.find(smer) != smap.end()){
                 expandSeedToKmerWithSmap(line, smer, i, globalKmerMap, smap, activeLine, kmerToIdxInLine);
+                i++; // for now to keep everything stable !!
                 // if this succeeds the kmer is counted in or added to the global kmer map
+            }
+            else{
+                i += minK - seedK;
             }
             // cout << "end iter: " << i << endl; // debugg
         }
