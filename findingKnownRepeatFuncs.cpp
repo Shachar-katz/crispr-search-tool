@@ -139,16 +139,16 @@ void expandSeedToKmerWithSmap(const string& line, const string& smer, int& idxIn
             if (copyIdxInLine < startIdxInKmer){ continue; }
             // we extract the substring of the potential kmer from the line
             kmerInLine = line.substr(startIdexOfKmerInLine, k);
+            // if the kmer that we extracted is the same kmer as the recorded kmer
+            if (kmer != kmerInLine){ continue; }
             // filter for overlap and to avoid double counting
             if (willSelfOverlap(kmerToIdxInLine, startIdexOfKmerInLine, kmerInLine)){
                 continue;
             }
-            // if the kmer that we extracted is the same kmer as the recorded kmer:
             // 1) we cannonize it so that we dont record both kmer and reverse complement seperatly
             // 2) we count it in the file and in the line
             // 3) we test if its only been counted once in the line, and if so we also count a line it appeared on
             // 4) last we move the iterator of the line in the external function that iterates over the line to pass the kmer
-            if (kmer != kmerInLine){ continue; }
             activeLine = true;
             string canonizedKmer = pickKey(kmer);
             auto& finalData = globalKmerMap[canonizedKmer]; // does not override existing elements
