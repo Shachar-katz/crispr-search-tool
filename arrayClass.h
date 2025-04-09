@@ -17,6 +17,7 @@ public:
         this->repeat = repeat;
         isOpen = true;
     }
+    ~Array(){}
     bool isArrayOpen(){ return this->isOpen; }
     int getStartIndex() { return this->startIndex; }
     int getEndIndex() { return this->endIndex; }
