@@ -89,5 +89,19 @@ bool willSelfOverlap(const unordered_map<string,int>& kmerToIdxInLine,int startI
 
 bool valideHeader(string header);
 
+// Array Dump functions:
+void arrayIdentifior(MultiFormatFileReader& fileReader, 
+                     unordered_map<string,data_t>& globalArrayMap, 
+                     unordered_map<string,Kmap_t>& smap, 
+                     int seedK, 
+                     unordered_map<string,double>& stats, 
+                     ofstream& logFile, 
+                     int minLegitimateSpacer, 
+                     int maxLegitimateSpacer, 
+                     int minK, 
+                     int interval);
+string expandSeedToKmer(const string& line, const string& smer, int& idxInLine, unordered_map<string,Kmap_t>& smap, bool& activeLine, int& tempStartIdx);
+
+
 
 #endif /* functions_hpp */

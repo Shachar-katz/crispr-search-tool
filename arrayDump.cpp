@@ -1,12 +1,14 @@
 #include "pipelineSectionsHeader.h"
 #include "fileReadClass.hpp"
+#include "functions.hpp"
 
-int arrayDump(string inputReads, 
+int arrayDump(string inputRead, 
             string inputReadFileType, 
             string inputCatalog, 
             string outputFile, 
             int seedK, 
             int minLegitimateSpacer,
+            int maxLegitimateSpacer,
             int minK,
             int interval,
             string inputFileR2)
@@ -50,14 +52,14 @@ int arrayDump(string inputReads,
     MultiFormatFileReader fileReaderR1(inputRead, inputReadFileType);
     logFile << "reads file opened" << endl;
     // @Here
-    findKmersInFileWithSmap(fileReaderR1, globalKmerMap, smap, seedK, stats, logFile, minLegitimateSpacer, minK, interval);
-    logFile << globalKmerMap.size() << "Kmers found" << endl;
+    arrayIdentifior(fileReaderR1, globalArrayMap, smap, seedK, stats, logFile, minLegitimateSpacer, maxLegitimateSpacer, minK, interval);
+    logFile << globalArrayMap.size() << "Kmers found" << endl;
 
     if (inputReadFileType == "fastq_dual"){
         MultiFormatFileReader fileReaderR2(inputFileR2, inputReadFileType);
         logFile << "reads file R2 opened" << endl;
-        findKmersInFileWithSmap(fileReaderR2, globalKmerMap, smap, seedK, stats, logFile, minLegitimateSpacer, minK, interval);
-        logFile << globalKmerMap.size() << "Kmers found" << endl;
+        arrayIdentifior(fileReaderR2, globalArrayMap, smap, seedK, stats, logFile, minLegitimateSpacer, maxLegitimateSpacer, minK, interval);
+        logFile << globalArrayMap.size() << "Kmers found" << endl;
     }
     
     // writing output file @to here
@@ -72,7 +74,7 @@ int arrayDump(string inputReads,
     // @here
     logFile << "opened output file named: " << outputFile << endl;
     outFS1 << "repeat" << '\t' << "repeats_in_file" << '\t' << "number_of_lines" << endl;;
-    writeUnorderedMapToFile(globalKmerMap, outFS1);
+    writeUnorderedMapToFile(globalArrayMap, outFS1);
     logFile << "written" << endl;
     outFS1.close();
 
