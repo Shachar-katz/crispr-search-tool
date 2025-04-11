@@ -22,6 +22,7 @@
 #include "DynamicBinsClass.hpp"
 #include "classData.hpp"
 #include "fileReadClass.hpp"
+#include "arrayClass.h"
 
 using namespace std;
 
@@ -91,7 +92,7 @@ bool valideHeader(string header);
 
 // Array Dump functions:
 void arrayIdentifior(MultiFormatFileReader& fileReader, 
-                     unordered_map<string,data_t>& globalArrayMap, 
+                     vector<Array>& globalArrayVect, 
                      unordered_map<string,Kmap_t>& smap, 
                      int seedK, 
                      unordered_map<string,double>& stats, 

@@ -103,6 +103,11 @@ public:
     }
     bool isActive() { return activeArray; }
     vector<Array> getLineArrayVect(){ return lineArrayVect; }
-
+    bool noArrays() {
+        if (lineArrayVect.empty()){
+            return true;
+        }
+        return false;
+    }
     
 };

@@ -48,18 +48,17 @@ int arrayDump(string inputRead,
     
   //potentially add try catch for if file doesnt open
     
-    unordered_map<string,data_t> globalArrayMap;
+    vector<Array> globalArrayVect;
     MultiFormatFileReader fileReaderR1(inputRead, inputReadFileType);
     logFile << "reads file opened" << endl;
-    // @Here
-    arrayIdentifior(fileReaderR1, globalArrayMap, smap, seedK, stats, logFile, minLegitimateSpacer, maxLegitimateSpacer, minK, interval);
-    logFile << globalArrayMap.size() << "Kmers found" << endl;
+    arrayIdentifior(fileReaderR1, globalArrayVect, smap, seedK, stats, logFile, minLegitimateSpacer, maxLegitimateSpacer, minK, interval);
+    logFile << globalArrayVect.size() << "Kmers found" << endl;
 
     if (inputReadFileType == "fastq_dual"){
         MultiFormatFileReader fileReaderR2(inputFileR2, inputReadFileType);
         logFile << "reads file R2 opened" << endl;
-        arrayIdentifior(fileReaderR2, globalArrayMap, smap, seedK, stats, logFile, minLegitimateSpacer, maxLegitimateSpacer, minK, interval);
-        logFile << globalArrayMap.size() << "Kmers found" << endl;
+        arrayIdentifior(fileReaderR2, globalArrayVect, smap, seedK, stats, logFile, minLegitimateSpacer, maxLegitimateSpacer, minK, interval);
+        logFile << globalArrayVect.size() << "Kmers found" << endl;
     }
     
     // writing output file @to here
@@ -74,7 +73,7 @@ int arrayDump(string inputRead,
     // @here
     logFile << "opened output file named: " << outputFile << endl;
     outFS1 << "repeat" << '\t' << "repeats_in_file" << '\t' << "number_of_lines" << endl;;
-    writeUnorderedMapToFile(globalArrayMap, outFS1);
+    writeUnorderedMapToFile(globalArrayVect, outFS1);
     logFile << "written" << endl;
     outFS1.close();
 

@@ -5,7 +5,7 @@
 
 // this function goes line by line and searches for arrays by known repeat identification
 void arrayIdentifior(MultiFormatFileReader& fileReader, 
-                     unordered_map<string,data_t>& globalArrayMap, 
+                     vector<Array>& globalArrayVect, 
                      unordered_map<string,Kmap_t>& smap, 
                      int seedK, 
                      unordered_map<string,double>& stats, 
@@ -42,7 +42,6 @@ void arrayIdentifior(MultiFormatFileReader& fileReader,
             }
         }
         if (arrayHandler.isActive()) { arrayHandler.uploadArray(); }
-        //@Here ?? now what do i do with the line array vect? 
         // stats
         if (activeLine == true){ numReadsWithArrays++; }
         // progress bar
@@ -50,6 +49,12 @@ void arrayIdentifior(MultiFormatFileReader& fileReader,
         if (progressCounter % interval == 0){
             cout << "Procession line: " << progressCounter << endl;
             logFile << "Procession line: " << progressCounter << endl;
+        }
+        // upload line to global
+        if (arrayHandler.noArrays()) { continue; }
+        vector<Array> lineArrayVect = arrayHandler.getLineArrayVect();
+        for (auto& Array : lineArrayVect){
+            globalArrayVect.push_back(Array);
         }
     }
     // check for 0 division (process terminated before it started)

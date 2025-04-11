@@ -13,6 +13,7 @@
 #include "fileReadClass.hpp"
 #include "fileReadClass.hpp"
 #include "globalFunctions.h"
+#include "arrayClass.h"
 
 using namespace std;
 
