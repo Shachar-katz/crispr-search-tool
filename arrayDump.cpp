@@ -60,7 +60,7 @@ int arrayDump(string inputRead,
     MultiFormatFileReader fileReaderR1(inputRead, inputReadFileType);
     logFile << "reads file opened" << endl;
     arrayIdentifior(fileReaderR1, globalArrayMap, smap, kmerToId, seedK, stats, logFile, minLegitimateSpacer, maxLegitimateSpacer, minK, interval);
-    logFile << globalArrayMap.size() << "Kmers found" << endl;
+    logFile << globalArrayMap.size() << "Arrays found" << endl;
 
     if (inputReadFileType == "fastq_dual"){
         MultiFormatFileReader fileReaderR2(inputFileR2, inputReadFileType);
