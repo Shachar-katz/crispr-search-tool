@@ -145,6 +145,40 @@ bool step_3_executor(Parameters& args){
     return true;
 }
 
+bool array_dump_executor(Parameters& args){
+    string inputFileType = args.get_string("inputFileType");
+    string inputFileCatalog = args.get_string("inputFileCatalog");
+    string outputFile = args.get_string("outputFile");
+    int seedK = args.get_int("seedK");
+    int interval = args.get_int("interval");
+    int minLegitimateSpacer = args.get_int("minLegitimateSpacer");
+    int maxLegitimateSpacer = args.get_int("maxLegitimateSpacer");
+    int minK = args.get_int("minK");
+    // decide on dual or single fastq
+    if (args.is_defined("inputFileR1") && args.is_defined("inputFileR2")) {
+        string inputFileR1 = args.get_string("inputFileR1");
+        string inputFileR2 = args.get_string("inputFileR2");
+        int run = arrayDump(inputFileR1, inputFileType, inputFileCatalog, outputFile, seedK, minLegitimateSpacer, maxLegitimateSpacer, minK, interval, inputFileR2);
+        if (run != 0){
+            cerr << "ERROR: could not complete the array dump run, please refer to previous error messages for more information." << endl;
+            return false;
+        }
+    } 
+    else if (args.is_defined("inputFile")) {
+        string inputFile = args.get_string("inputFile");
+        int run = arrayDump(inputFile, inputFileType, inputFileCatalog, outputFile, seedK, minLegitimateSpacer, maxLegitimateSpacer, minK, interval);
+        if (run != 0){
+            cerr << "ERROR: could not complete the array dump run, please refer to previous error messages for more information." << endl;
+            return false;
+        }
+    } 
+    else {
+        cerr << "Missing mandatory input file for array dump" << endl;
+        return false;
+    }
+    return true;
+}
+
 
 int main(int argc, const char * argv[]) {
     Parameters args;
@@ -186,6 +220,17 @@ int main(int argc, const char * argv[]) {
                 return 1;
             }
             if(!step_3_executor(args)){ return 1; }
+            break;
+        }
+        case 4:{
+            if (!args.is_defined("inputFileType") ||
+                !args.is_defined("inputFileCatalog") ||
+                !args.is_defined("outputFile") ||
+                !args.is_defined("seedK")) {
+                cerr << "Missing mandatory arguments for array dump." << endl;
+                return 1;
+            }
+            if(!array_dump_executor(args)){ return 1; }
             break;
         }
         default:{

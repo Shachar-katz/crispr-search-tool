@@ -24,7 +24,24 @@ int identifyingRepeatPatterns(string inputFile, string inputFileType, string out
 
 int cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha, string inputCatalog2 = "");
 
-int findingKnownRepeats(string inputRead, string inputReadFileType, string inputCatalog, string outputFile, 
-                        int seedK, int minLegitimateSpacer, int minK, int interval, string inputFileR2 = "");
+int findingKnownRepeats(string inputRead, 
+                        string inputReadFileType, 
+                        string inputCatalog, 
+                        string outputFile, 
+                        int seedK, 
+                        int minLegitimateSpacer, 
+                        int minK, 
+                        int interval, 
+                        string inputFileR2 = "");
+int arrayDump(string inputRead, 
+            string inputReadFileType, 
+            string inputCatalog, 
+            string outputFile, 
+            int seedK, 
+            int minLegitimateSpacer,
+            int maxLegitimateSpacer,
+            int minK,
+            int interval,
+            string inputFileR2 = "");
 
 #endif /* pipelineSectionsHeader_h */
