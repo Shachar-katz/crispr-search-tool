@@ -81,7 +81,7 @@ int arrayDump(string inputRead,
     }
 
     logFile << "opened output file named: " << tableFile << endl;
-    outFS1 << "array_id" << '\t' << "repeat_id" << '\t' << "spacer_count" << endl;;
+    outFS1 << "array_id" << '\t' << "repeat_id" << '\t' << "spacer_count" << '\t' << "array_len" << endl;;
     writeUnorderedMapToFile(globalArrayMap, outFS1);
     logFile << "written" << endl;
     outFS1.close();
