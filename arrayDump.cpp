@@ -66,7 +66,7 @@ int arrayDump(string inputRead,
         MultiFormatFileReader fileReaderR2(inputFileR2, inputReadFileType);
         logFile << "reads file R2 opened" << endl;
         arrayIdentifior(fileReaderR2, globalArrayMap, smap, kmerToId, seedK, stats, logFile, minLegitimateSpacer, maxLegitimateSpacer, minK, interval);
-        logFile << globalArrayMap.size() << "Kmers found" << endl;
+        logFile << globalArrayMap.size() << "Arrays found" << endl;
     }
     
     // writing output file 

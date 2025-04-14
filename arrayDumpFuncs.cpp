@@ -60,7 +60,7 @@ void arrayIdentifior(MultiFormatFileReader& fileReader,
         while (i <= (line.size() - seedK)){
             string smer = line.substr(i,seedK);
             // if this smer appears in our smap we try expanding it to a kmer and checking if its a known kmer
-            if (smap.find(smer) == smap.end()){ 
+            if (smap.find(smer) != smap.end()){ 
                 int tempStartIdx;
                 string repeat = expandSeedToKmer(line, smer, i, smap, activeLine, tempStartIdx);
                 i++; // for now to keep everything stable !!
