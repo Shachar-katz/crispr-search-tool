@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include <string>
 using namespace std;
@@ -5,23 +6,23 @@ using namespace std;
 class Array{
 private:
     string repeat;
+    string repeatId;
     vector<int> inLineCoordinatesVect;
-    vector<int> inArrayRepeatCoordinatesVect;
+    vector<int> inArrayRepeatCoordinatesVect; // might not need?
     vector<string> array;
-    int arrayLen;
-    bool isOpen; // might not need 
+    int arrayLen; // might not need?
+    int numSpacers;
 public:
     Array(){}
     Array(string repeat)
     {
         this->repeat = repeat;
-        isOpen = true; // might not need 
     }
     ~Array(){}
-    void openArray(string repeat, int startIdxInLine)
+    void openArray(string repeat, int startIdxInLine, string repeatId)
     {
         this->repeat = repeat;
-        isOpen = true; // might not need 
+        this->repeatId = repeatId;
         addRepeat(startIdxInLine);
     }
     void addRepeat(int startIdxInLine)
@@ -35,11 +36,22 @@ public:
         if (spacerLen <= maxValidSpacer){ return true; }
         return false;
     }
-    bool isArrayOpen(){ return this->isOpen; } // might not need 
     string getRepeat() { return repeat; }
+    string getRepeatId() const { return repeatId; }
+    int getNumSpacers() const { return numSpacers; }
+    int getArrayLen() const { return arrayLen; }
+    vector<string> getArrayVect() { return this->array; }
+    string getArrayStr() 
+    {
+        string array;
+        for (int i = 0; i < this->array.size(); i++)
+        {
+            array += this->array[i] + "|";
+        }
+        return array;
+    }
     bool closeArray(string line) 
     {   
-        isOpen = false; // might not need 
         if (inLineCoordinatesVect.size() < 4) { return false; }
         arrayLen = inLineCoordinatesVect.back() - inLineCoordinatesVect.at(0);
         for (int i = 0; i < inLineCoordinatesVect.size() - 1; i++)
@@ -49,8 +61,12 @@ public:
             array.push_back(arraySegment);
             // potentially populate repeat in array coordinate vect
         }
+        // calculate num spacers
+        int numRepeats = inLineCoordinatesVect.size() / 2;
+        numSpacers = numRepeats - 1;
         return true;
     }
+
 
 };
 
@@ -68,10 +84,10 @@ public:
         this->maxAllowedSpacer = maxAllowedSpacer;
     }
     ~LineArrayHandler(){}
-    void manageState(string repeat, int startIdxInLine)
+    void manageState(string repeat, int startIdxInLine, string repeatId)
     {
         if(!activeArray){
-            tempArray.openArray(repeat, startIdxInLine);
+            tempArray.openArray(repeat, startIdxInLine, repeatId);
             activeArray = true;
         }
         else if(tempArray.getRepeat() == repeat){
@@ -79,7 +95,7 @@ public:
         }
         else if(tempArray.getRepeat() != repeat){
             this->uploadArray(); // should I use return value for anything?
-            tempArray.openArray(repeat, startIdxInLine);
+            tempArray.openArray(repeat, startIdxInLine, repeatId);
             activeArray = true;
         }
     }
@@ -111,3 +127,5 @@ public:
     }
     
 };
+
+ostream& operator<<(ostream& out, const Array& obj);

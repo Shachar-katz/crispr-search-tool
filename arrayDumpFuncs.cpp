@@ -3,10 +3,39 @@
 #include "fileReadClass.hpp"
 #include "arrayClass.h"
 
+int buildKmap(ifstream& inCatalog, unordered_map<string,string>& kmerToId){
+    // create a variable for a temp line and a kmer to extract the kmer from the catalog output
+    string tempLine;
+    string kmer;
+    // dump the header line
+    getline(inCatalog, tempLine);
+    if (!valideHeader(tempLine)){ return 1; }
+    while (!inCatalog.eof() && inCatalog.good()) {
+        // while the file is good and doesnt reach its end we keep pulling lines and extracting the first string (the kmer)
+        getline(inCatalog, tempLine);
+        istringstream iss(tempLine);
+        string kmer;                // "repeat" column in your data
+        int number_of_lines;
+        string binId;               // "bin_identifier" column
+        int palindromic;
+        int lengthK;
+        // Attempt to parse them
+        if (!(iss >> kmer >> number_of_lines >> binId >> palindromic >> lengthK)) {
+            cerr << "Could not parse line: " << tempLine << endl;
+            continue;
+        }
+        // we also want to extract the reverse of the kmer so that we can search for both
+        string reverseComp = reverseComplement(kmer);
+        kmerToId[kmer]    = binId + "_a";
+        kmerToId[reverseComp] = binId + "_b";
+    }
+    return 0;
+}
 // this function goes line by line and searches for arrays by known repeat identification
 void arrayIdentifior(MultiFormatFileReader& fileReader, 
-                     vector<Array>& globalArrayVect, 
-                     unordered_map<string,Kmap_t>& smap, 
+                     unordered_map<string,Array>& globalArrayMap, 
+                     unordered_map<string,Kmap_t>& smap,
+                     unordered_map<string,string>& kmerToId, 
                      int seedK, 
                      unordered_map<string,double>& stats, 
                      ofstream& logFile, 
@@ -19,6 +48,7 @@ void arrayIdentifior(MultiFormatFileReader& fileReader,
     int progressCounter = 0;
     int numReadsWithArrays = 0; // ?? potentially add numReads with array from a particular repeat
     // line variable and filereader class used to iterate over lines in the file
+    int arrayId = 1;
     string line;
     while (fileReader.getNextLine(line)) {
         bool activeLine = false; // stats
@@ -35,7 +65,8 @@ void arrayIdentifior(MultiFormatFileReader& fileReader,
                 string repeat = expandSeedToKmer(line, smer, i, smap, activeLine, tempStartIdx);
                 i++; // for now to keep everything stable !!
                 if (repeat == "") { continue; }
-                arrayHandler.manageState(repeat, tempStartIdx);
+                string id = kmerToId.at(repeat);
+                arrayHandler.manageState(repeat, tempStartIdx, id);
             }
             else{
                 i += seedK;
@@ -54,7 +85,9 @@ void arrayIdentifior(MultiFormatFileReader& fileReader,
         if (arrayHandler.noArrays()) { continue; }
         vector<Array> lineArrayVect = arrayHandler.getLineArrayVect();
         for (auto& Array : lineArrayVect){
-            globalArrayVect.push_back(Array);
+            string arrId = "A_" + to_string(arrayId);
+            globalArrayMap[arrId] = Array;
+            arrayId++;
         }
     }
     // check for 0 division (process terminated before it started)

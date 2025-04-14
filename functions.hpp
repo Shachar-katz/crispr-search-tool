@@ -91,9 +91,11 @@ bool willSelfOverlap(const unordered_map<string,int>& kmerToIdxInLine,int startI
 bool valideHeader(string header);
 
 // Array Dump functions:
+int buildKmap(ifstream& inCatalog, unordered_map<string,string>& kmerToId);
 void arrayIdentifior(MultiFormatFileReader& fileReader, 
-                     vector<Array>& globalArrayVect, 
-                     unordered_map<string,Kmap_t>& smap, 
+                     unordered_map<string,Array>& globalArrayVect, 
+                     unordered_map<string,Kmap_t>& smap,
+                     unordered_map<string,string>& kmerToId, 
                      int seedK, 
                      unordered_map<string,double>& stats, 
                      ofstream& logFile, 

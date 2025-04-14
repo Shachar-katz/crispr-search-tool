@@ -37,6 +37,7 @@ int arrayDump(string inputRead,
     unordered_map<string,Kmap_t> smap;
     int validSmap = buildSmap(catalogFile, smap, seedK);
 
+
     if (validSmap == 1){
         logFile << "header error: no header or incorrect header in the catalog file provided" << endl;
         cerr << "header error: no header or incorrect header in the catalog file provided" << endl;
@@ -44,53 +45,78 @@ int arrayDump(string inputRead,
     }
     
     logFile << "smap built" << endl;
+
+    catalogFile.clear();
+    catalogFile.seekg(0, std::ios::beg);
+
+    unordered_map<string,string> kmerToId;
+    int validKmap = buildKmap(catalogFile, kmerToId);
+
     catalogFile.close();
     
   //potentially add try catch for if file doesnt open
     
-    vector<Array> globalArrayVect;
+    unordered_map<string,Array> globalArrayMap;
     MultiFormatFileReader fileReaderR1(inputRead, inputReadFileType);
     logFile << "reads file opened" << endl;
-    arrayIdentifior(fileReaderR1, globalArrayVect, smap, seedK, stats, logFile, minLegitimateSpacer, maxLegitimateSpacer, minK, interval);
-    logFile << globalArrayVect.size() << "Kmers found" << endl;
+    arrayIdentifior(fileReaderR1, globalArrayMap, smap, kmerToId, seedK, stats, logFile, minLegitimateSpacer, maxLegitimateSpacer, minK, interval);
+    logFile << globalArrayMap.size() << "Kmers found" << endl;
 
     if (inputReadFileType == "fastq_dual"){
         MultiFormatFileReader fileReaderR2(inputFileR2, inputReadFileType);
         logFile << "reads file R2 opened" << endl;
-        arrayIdentifior(fileReaderR2, globalArrayVect, smap, seedK, stats, logFile, minLegitimateSpacer, maxLegitimateSpacer, minK, interval);
-        logFile << globalArrayVect.size() << "Kmers found" << endl;
+        arrayIdentifior(fileReaderR2, globalArrayMap, smap, kmerToId, seedK, stats, logFile, minLegitimateSpacer, maxLegitimateSpacer, minK, interval);
+        logFile << globalArrayMap.size() << "Kmers found" << endl;
     }
     
-    // writing output file @to here
+    // writing output file 
     
     ofstream outFS1;
-    outFS1.open(outputFile);
+    string tableFile = outputFile + "_table";
+    outFS1.open(tableFile);
     if (!outFS1.is_open()){
          logFile << "Error: Could not open output file." << endl;
          cerr << "Error: Could not open output file." << endl;
          return -1;
     }
-    // @here
-    logFile << "opened output file named: " << outputFile << endl;
-    outFS1 << "repeat" << '\t' << "repeats_in_file" << '\t' << "number_of_lines" << endl;;
-    writeUnorderedMapToFile(globalArrayVect, outFS1);
+
+    logFile << "opened output file named: " << tableFile << endl;
+    outFS1 << "array_id" << '\t' << "repeat_id" << '\t' << "spacer_count" << endl;;
+    writeUnorderedMapToFile(globalArrayMap, outFS1);
     logFile << "written" << endl;
     outFS1.close();
 
-        // writing statistics file @to here
-
     ofstream outFS2;
-    string statsOutput = outputFile + "_stats_step_3";
-    outFS2.open(statsOutput);
+    string viewFile = outputFile + "_view";
+    outFS2.open(viewFile);
     if (!outFS2.is_open()){
+         logFile << "Error: Could not open output file." << endl;
+         cerr << "Error: Could not open output file." << endl;
+         return -1;
+    }
+
+    logFile << "opened output file named: " << viewFile << endl;
+    for (auto& [id, array] : globalArrayMap){
+        outFS2 << ">" << id << endl;
+        outFS2 << array.getArrayStr() << endl;
+    }
+    logFile << "written" << endl;
+    outFS2.close();
+
+    // writing statistics file @to here
+
+    ofstream outFS3;
+    string statsOutput = outputFile + "_stats_step_3";
+    outFS3.open(statsOutput);
+    if (!outFS3.is_open()){
          logFile << "Error: Could not open stats output file." << endl;
          cerr << "Error: Could not open stats output file." << endl;
          return -1;
     }
     
     logFile << "opened output file named: " << statsOutput << endl;
-    writeUnorderedMapToFile(stats, outFS2);
+    writeUnorderedMapToFile(stats, outFS3);
     logFile << "written" << endl;
-    outFS2.close();
+    outFS3.close();
     return 0;
 }
