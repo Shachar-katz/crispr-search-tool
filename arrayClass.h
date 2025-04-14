@@ -10,7 +10,7 @@ private:
     vector<int> inLineCoordinatesVect;
     vector<int> inArrayRepeatCoordinatesVect; // might not need?
     vector<string> array;
-    int arrayLen; // might not need?
+    int arrayLen = 0; // might not need?
     int numSpacers;
 public:
     Array(){}
@@ -31,9 +31,9 @@ public:
         inLineCoordinatesVect.push_back(startIdxInLine);
         inLineCoordinatesVect.push_back(endIdxInLine);
     }
-    bool stillValid(int startIdxInLine, int maxValidSpacer){
+    bool stillValid(int startIdxInLine, int maxValidSpacer, int minValidSpacer){
         int spacerLen = startIdxInLine - inLineCoordinatesVect.back();
-        if (spacerLen <= maxValidSpacer){ return true; }
+        if (spacerLen <= maxValidSpacer && startIdxInLine > (inLineCoordinatesVect.back() + minValidSpacer)){ return true; }
         return false;
     }
     string getRepeat() { return repeat; }
@@ -50,13 +50,12 @@ public:
         }
         return array;
     }
-    bool closeArray(string line) 
-    {   
+    bool closeArray(string line){
         if (inLineCoordinatesVect.size() < 4) { return false; }
-        arrayLen = inLineCoordinatesVect.back() - inLineCoordinatesVect.at(0);
+        arrayLen = inLineCoordinatesVect.back() - inLineCoordinatesVect[0];
         for (int i = 0; i < inLineCoordinatesVect.size() - 1; i++)
         {
-            int segmentLen = inLineCoordinatesVect.at(i + 1) - inLineCoordinatesVect.at(i);
+            int segmentLen = inLineCoordinatesVect[i + 1] - inLineCoordinatesVect[i];
             string arraySegment = line.substr(inLineCoordinatesVect.at(i), segmentLen);
             array.push_back(arraySegment);
             // potentially populate repeat in array coordinate vect
@@ -74,14 +73,16 @@ class LineArrayHandler{
 private:
     string line;
     int maxAllowedSpacer;
+    int minAllowedSpacer;
     vector<Array> lineArrayVect;
     bool activeArray = false;
     Array tempArray;
 public:
-    LineArrayHandler(const string& line, int maxAllowedSpacer)
+    LineArrayHandler(const string& line, int maxAllowedSpacer, int minAllowedSpacer)
     {
         this->line = line;
         this->maxAllowedSpacer = maxAllowedSpacer;
+        this->minAllowedSpacer = minAllowedSpacer;
     }
     ~LineArrayHandler(){}
     void manageState(string repeat, int startIdxInLine, string repeatId)
@@ -91,7 +92,11 @@ public:
             activeArray = true;
         }
         else if(tempArray.getRepeat() == repeat){
-            this->expandArray(startIdxInLine);
+            bool wasExpanded = this->expandArray(startIdxInLine);
+            if (!wasExpanded){
+                tempArray.openArray(repeat, startIdxInLine, repeatId);
+                activeArray = true;
+            }
         }
         else if(tempArray.getRepeat() != repeat){
             this->uploadArray(); // should I use return value for anything?
@@ -101,11 +106,12 @@ public:
     }
     bool expandArray(int startIdxInLine)
     {
-        if (tempArray.stillValid(startIdxInLine, maxAllowedSpacer)){
+        if (tempArray.stillValid(startIdxInLine, maxAllowedSpacer, minAllowedSpacer)){
             tempArray.addRepeat(startIdxInLine);
             return true;
         }
-        return uploadArray();
+        bool uploaded = uploadArray();
+        return false;
     }
     bool uploadArray()
     {

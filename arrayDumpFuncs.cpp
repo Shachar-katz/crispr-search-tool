@@ -52,7 +52,7 @@ void arrayIdentifior(MultiFormatFileReader& fileReader,
     string line;
     while (fileReader.getNextLine(line)) {
         bool activeLine = false; // stats
-        LineArrayHandler arrayHandler(line, maxLegitimateSpacer);        
+        LineArrayHandler arrayHandler(line, maxLegitimateSpacer, minLegitimateSpacer);        
         // untill the point we'd pass the end of the line if we made another smer
         if (line.length() <= (2 * minK + minLegitimateSpacer + 2)){ continue; }
         // iterate over the line in jumps of s, and generate an smer at each index point 
