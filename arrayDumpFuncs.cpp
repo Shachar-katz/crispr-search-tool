@@ -18,7 +18,7 @@ int buildKmap(ifstream& inCatalog, unordered_map<string,string>& kmerToId, int m
         int palindromic;
         int lengthK;
         // Attempt to parse
-        if (!(iss >> kmer >> number_of_lines >> binId >> palindromic >> lengthK && !tempLine.empty())) {
+        if (!(iss >> kmer >> number_of_lines >> binId >> palindromic >> lengthK) && !tempLine.empty()) {
             cerr << "Could not parse line: " << tempLine << endl;
             continue;
         }
