@@ -31,6 +31,7 @@ void init_params(const char* name, int argc, const char **argv, Parameters& args
     args.add_parser("inputFileR2", new ParserFilename("Input file R2 (for fastq_dual)")); // for 1 & 3
     args.add_parser("minK", new ParserInteger("Minimum k", 20)); // for 1 & 3
     args.add_parser("minLegitimateSpacer", new ParserInteger("min Legitimate spacer length", 10)); // for 1 & 3
+    args.add_parser("maxMismatchesForKmers", new ParserInteger("max mismatches when identifying a known kmer", 1)); // for array dump
     args.add_parser("maxLegitimateSpacer", new ParserInteger("max Legitimate spacer length", 200)); // for 1
     args.add_parser("inputFileCatalog", new ParserFilename("Input file catalog")); // for 3 and 2
     args.add_parser("secondInputFileCatalog", new ParserFilename("Additional input file catalog for dual fastq")); // for 2
@@ -152,11 +153,12 @@ bool array_dump_executor(Parameters& args){
     int minLegitimateSpacer = args.get_int("minLegitimateSpacer");
     int maxLegitimateSpacer = args.get_int("maxLegitimateSpacer");
     int minK = args.get_int("minK");
+    int maxMismatches = args.get_int("maxMismatchesForKmers");
     // decide on dual or single fastq
     if (args.is_defined("inputFileR1") && args.is_defined("inputFileR2")) {
         string inputFileR1 = args.get_string("inputFileR1");
         string inputFileR2 = args.get_string("inputFileR2");
-        int run = arrayDump(inputFileR1, inputFileType, inputFileCatalog, outputFile, minLegitimateSpacer, maxLegitimateSpacer, minK, interval, inputFileR2);
+        int run = arrayDump(inputFileR1, inputFileType, inputFileCatalog, outputFile, minLegitimateSpacer, maxLegitimateSpacer, minK, interval, maxMismatches, inputFileR2);
         if (run != 0){
             cerr << "ERROR: could not complete the array dump run, please refer to previous error messages for more information." << endl;
             return false;
@@ -164,7 +166,7 @@ bool array_dump_executor(Parameters& args){
     } 
     else if (args.is_defined("inputFile")) {
         string inputFile = args.get_string("inputFile");
-        int run = arrayDump(inputFile, inputFileType, inputFileCatalog, outputFile, minLegitimateSpacer, maxLegitimateSpacer, minK, interval);
+        int run = arrayDump(inputFile, inputFileType, inputFileCatalog, outputFile, minLegitimateSpacer, maxLegitimateSpacer, minK, interval, maxMismatches);
         if (run != 0){
             cerr << "ERROR: could not complete the array dump run, please refer to previous error messages for more information." << endl;
             return false;

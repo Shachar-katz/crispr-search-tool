@@ -10,6 +10,7 @@ int arrayDump(string inputRead,
             int maxLegitimateSpacer,
             int minK,
             int interval,
+            int maxMismatches,
             string inputFileR2)
 {
     // generating a seedK
@@ -61,13 +62,13 @@ int arrayDump(string inputRead,
     logFile << "reads file opened" << endl;
 
     // run the array identifior function
-    arrayIdentifior(fileReaderR1, globalArrayMap, smap, kmerToId, seedK, stats, logFile, minLegitimateSpacer, maxLegitimateSpacer, minK, interval);
+    arrayIdentifior(fileReaderR1, globalArrayMap, smap, kmerToId, seedK, stats, logFile, minLegitimateSpacer, maxLegitimateSpacer, minK, interval, maxMismatches);
     logFile << globalArrayMap.size() << "Arrays found" << endl;
 
     if (inputReadFileType == "fastq_dual"){
         MultiFormatFileReader fileReaderR2(inputFileR2, inputReadFileType);
         logFile << "reads file R2 opened" << endl;
-        arrayIdentifior(fileReaderR2, globalArrayMap, smap, kmerToId, seedK, stats, logFile, minLegitimateSpacer, maxLegitimateSpacer, minK, interval);
+        arrayIdentifior(fileReaderR2, globalArrayMap, smap, kmerToId, seedK, stats, logFile, minLegitimateSpacer, maxLegitimateSpacer, minK, interval, maxMismatches);
         logFile << globalArrayMap.size() << "Arrays found" << endl;
     }
     

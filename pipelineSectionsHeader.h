@@ -40,6 +40,7 @@ int arrayDump(string inputRead,
             int maxLegitimateSpacer,
             int minK,
             int interval,
+            int maxMismatches,
             string inputFileR2 = "");
 
 #endif /* pipelineSectionsHeader_h */

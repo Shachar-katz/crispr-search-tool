@@ -102,8 +102,9 @@ void arrayIdentifior(MultiFormatFileReader& fileReader,
                      int minLegitimateSpacer, 
                      int maxLegitimateSpacer, 
                      int minK, 
-                     int interval);
-string expandSeedToKmer(const string& line, const string& smer, int& idxInLine, unordered_map<string,Kmap_t>& smap, bool& activeLine, int& tempStartIdx);
+                     int interval,
+                     int maxMismatches);
+string expandSeedToKmer(const string& line, const string& smer, int& idxInLine, unordered_map<string,Kmap_t>& smap, bool& activeLine, int& tempStartIdx, int maxMismatches);
 
 
 

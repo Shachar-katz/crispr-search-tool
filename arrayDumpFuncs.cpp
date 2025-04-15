@@ -41,7 +41,8 @@ void arrayIdentifior(MultiFormatFileReader& fileReader,
                      int minLegitimateSpacer, 
                      int maxLegitimateSpacer, 
                      int minK, 
-                     int interval)
+                     int interval,
+                     int maxMismatches)
 {
     // stats
     int progressCounter = 0;
@@ -61,7 +62,7 @@ void arrayIdentifior(MultiFormatFileReader& fileReader,
             // if this smer appears in our smap we try expanding it to a kmer and checking if its a known kmer
             if (smap.find(smer) != smap.end()){ 
                 int tempStartIdx;
-                string repeat = expandSeedToKmer(line, smer, i, smap, activeLine, tempStartIdx);
+                string repeat = expandSeedToKmer(line, smer, i, smap, activeLine, tempStartIdx, maxMismatches);
                 i++; // for now to keep everything stable !! (expand seed to Kmer also skips k nucleotides)
                 if (repeat == "") { continue; }
                 // if a known Kmer was found:
@@ -108,8 +109,19 @@ void arrayIdentifior(MultiFormatFileReader& fileReader,
     stats["precent_reads_in_file_with_array: "] += precentReadsWithRepeat;
 }
 
+inline bool isKmerAtPos(const string& line, const string& kmer, int start, int len, int max_mismatches = 0) {
+    if (kmer.size() != len || line.size() < start + len) { return false; }
+    int mismatches = 0;
+    for (int i = 0; i < len; ++i) {
+        if (line[start + i] != kmer[i]) {
+            if (++mismatches > max_mismatches) { return false; }
+        }
+    }
+    return true;
+}
+
 // this function checks if the known smer occurance means a known kmer occurance 
-string expandSeedToKmer(const string& line, const string& smer, int& idxInLine, unordered_map<string,Kmap_t>& smap, bool& activeLine, int& tempStartIdx){
+string expandSeedToKmer(const string& line, const string& smer, int& idxInLine, unordered_map<string,Kmap_t>& smap, bool& activeLine, int& tempStartIdx, int maxMismatches){
     // we acess the Kmers that the smer of interest appears in
     auto& kmap = smap[smer];
     // we iterate over all the Kmers that this smer is associated to
@@ -126,8 +138,10 @@ string expandSeedToKmer(const string& line, const string& smer, int& idxInLine, 
             // a check to prevent substring out of bounds error
             if (idxInLine < startIdxInKmer){ continue; }
             // extract the substring of the potential kmer from the line
-            kmerInLine = line.substr(startIdexOfKmerInLine, k);
-            if (kmer != kmerInLine){ continue; } // early rejection if kmer not a match
+            // kmerInLine = line.substr(startIdexOfKmerInLine, k);
+            // if (kmer != kmerInLine){ continue; } // early rejection if kmer not a match
+            
+            if (!isKmerAtPos(line, kmer, startIdexOfKmerInLine, k, maxMismatches)) { continue; }
 
             activeLine = true;
             idxInLine += (kmer.length() - startIdxInKmer); // update index
