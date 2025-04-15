@@ -80,7 +80,7 @@ void validateBins(const unordered_map<int, string>& provisionalRepList, const Dy
 // bool isKmer(string maybeKmer);
 
 // step three functions:
-int buildSmap(ifstream& inCatalog, unordered_map<string,Kmap_t>& smap, int seedK);
+int buildSmap(ifstream& inCatalog, unordered_map<string,Kmap_t>& smap, int seedK, int minPalindromic = 0);
 
 void findKmersInFileWithSmap(MultiFormatFileReader& fileReader, unordered_map<string,data_t>& globalKmerMap, 
                             unordered_map<string,Kmap_t>& smap, int seedK, unordered_map<string,double>& stats, ofstream& logFile, int minLegitimateSpacer, int minK, int interval);
@@ -91,7 +91,7 @@ bool willSelfOverlap(const unordered_map<string,int>& kmerToIdxInLine,int startI
 bool valideHeader(string header);
 
 // Array Dump functions:
-int buildKmap(ifstream& inCatalog, unordered_map<string,string>& kmerToId);
+int buildKmap(ifstream& inCatalog, unordered_map<string,string>& kmerToId, int minPalindromic = 0);
 void arrayIdentifior(MultiFormatFileReader& fileReader, 
                      unordered_map<string,Array>& globalArrayVect, 
                      unordered_map<string,Kmap_t>& smap,

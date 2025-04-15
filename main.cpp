@@ -21,10 +21,10 @@ void init_params(const char* name, int argc, const char **argv, Parameters& args
 {
       //global args
     args.add_parser("step", new ParserInteger("Step (1, 2, or 3)"), true);
-    args.add_parser("seedK", new ParserInteger("Seed k"), true);
     args.add_parser("outputFile", new ParserFilename("Output file name"), true);
 
     // args maked based on step usage:
+    args.add_parser("seedK", new ParserInteger("Seed k")); // for 1 & 2
     args.add_parser("inputFileType", new ParserString("Input file type")); // for 1 & 3
     args.add_parser("inputFile", new ParserFilename("Input file name (for single fastq)")); // for 1 & 3
     args.add_parser("inputFileR1", new ParserFilename("Input file R1 (for fastq_dual)")); // for 1 & 3
@@ -115,7 +115,6 @@ bool step_3_executor(Parameters& args){
     string inputFileType = args.get_string("inputFileType");
     string inputFileCatalog = args.get_string("inputFileCatalog");
     string outputFile = args.get_string("outputFile");
-    int seedK = args.get_int("seedK");
     int interval = args.get_int("interval");
     int minLegitimateSpacer = args.get_int("minLegitimateSpacer");
     int minK = args.get_int("minK");
@@ -124,7 +123,7 @@ bool step_3_executor(Parameters& args){
         // run for strand 1
         string inputFileR1 = args.get_string("inputFileR1");
         string inputFileR2 = args.get_string("inputFileR2");
-        int run = findingKnownRepeats(inputFileR1, inputFileType, inputFileCatalog, outputFile, seedK, minLegitimateSpacer, minK, interval, inputFileR2);
+        int run = findingKnownRepeats(inputFileR1, inputFileType, inputFileCatalog, outputFile, minLegitimateSpacer, minK, interval, inputFileR2);
         if (run != 0){
             cerr << "ERROR: could not complete the finding known repeats run, please refer to previous error messages for more information." << endl;
             return false;
@@ -132,7 +131,7 @@ bool step_3_executor(Parameters& args){
     } 
     else if (args.is_defined("inputFile")) {
         string inputFile = args.get_string("inputFile");
-        int run = findingKnownRepeats(inputFile, inputFileType, inputFileCatalog, outputFile, seedK, minLegitimateSpacer, minK, interval);
+        int run = findingKnownRepeats(inputFile, inputFileType, inputFileCatalog, outputFile, minLegitimateSpacer, minK, interval);
         if (run != 0){
             cerr << "ERROR: could not complete the finding known repeats run, please refer to previous error messages for more information." << endl;
             return false;
@@ -149,7 +148,6 @@ bool array_dump_executor(Parameters& args){
     string inputFileType = args.get_string("inputFileType");
     string inputFileCatalog = args.get_string("inputFileCatalog");
     string outputFile = args.get_string("outputFile");
-    int seedK = args.get_int("seedK");
     int interval = args.get_int("interval");
     int minLegitimateSpacer = args.get_int("minLegitimateSpacer");
     int maxLegitimateSpacer = args.get_int("maxLegitimateSpacer");
@@ -158,7 +156,7 @@ bool array_dump_executor(Parameters& args){
     if (args.is_defined("inputFileR1") && args.is_defined("inputFileR2")) {
         string inputFileR1 = args.get_string("inputFileR1");
         string inputFileR2 = args.get_string("inputFileR2");
-        int run = arrayDump(inputFileR1, inputFileType, inputFileCatalog, outputFile, seedK, minLegitimateSpacer, maxLegitimateSpacer, minK, interval, inputFileR2);
+        int run = arrayDump(inputFileR1, inputFileType, inputFileCatalog, outputFile, minLegitimateSpacer, maxLegitimateSpacer, minK, interval, inputFileR2);
         if (run != 0){
             cerr << "ERROR: could not complete the array dump run, please refer to previous error messages for more information." << endl;
             return false;
@@ -166,7 +164,7 @@ bool array_dump_executor(Parameters& args){
     } 
     else if (args.is_defined("inputFile")) {
         string inputFile = args.get_string("inputFile");
-        int run = arrayDump(inputFile, inputFileType, inputFileCatalog, outputFile, seedK, minLegitimateSpacer, maxLegitimateSpacer, minK, interval);
+        int run = arrayDump(inputFile, inputFileType, inputFileCatalog, outputFile, minLegitimateSpacer, maxLegitimateSpacer, minK, interval);
         if (run != 0){
             cerr << "ERROR: could not complete the array dump run, please refer to previous error messages for more information." << endl;
             return false;

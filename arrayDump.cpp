@@ -6,13 +6,15 @@ int arrayDump(string inputRead,
             string inputReadFileType, 
             string inputCatalog, 
             string outputFile, 
-            int seedK, 
             int minLegitimateSpacer,
             int maxLegitimateSpacer,
             int minK,
             int interval,
             string inputFileR2)
 {
+    // generating a seedK
+    int seedK = minK / 2 ;
+    int minPalindromic = 4; // turn into arg
     // open log file
     ofstream logFile;
     string logFileName = outputFile + "_run_log";
@@ -28,15 +30,14 @@ int arrayDump(string inputRead,
     stats["number_of_reads_in_file_with_arrays: "] = 0;
     stats["precent_reads_in_file_with_arrays: "] = 0;
 
-    
+    // building Smap and Kmer -> id map
     ifstream catalogFile;
     catalogFile.open(inputCatalog);
     if (!isInputFileValid(catalogFile, inputCatalog)){ return -1; }
     logFile << "catalog file opened" << endl;
 
     unordered_map<string,Kmap_t> smap;
-    int validSmap = buildSmap(catalogFile, smap, seedK);
-
+    int validSmap = buildSmap(catalogFile, smap, seedK, minPalindromic);
 
     if (validSmap == 1){
         logFile << "header error: no header or incorrect header in the catalog file provided" << endl;
@@ -50,15 +51,16 @@ int arrayDump(string inputRead,
     catalogFile.seekg(0, std::ios::beg);
 
     unordered_map<string,string> kmerToId;
-    int validKmap = buildKmap(catalogFile, kmerToId);
+    int validKmap = buildKmap(catalogFile, kmerToId, minPalindromic);
 
     catalogFile.close();
-    
-  //potentially add try catch for if file doesnt open
-    
+
+    // setting up data structure for the arrays and the file reader    
     unordered_map<string,Array> globalArrayMap;
     MultiFormatFileReader fileReaderR1(inputRead, inputReadFileType);
     logFile << "reads file opened" << endl;
+
+    // run the array identifior function
     arrayIdentifior(fileReaderR1, globalArrayMap, smap, kmerToId, seedK, stats, logFile, minLegitimateSpacer, maxLegitimateSpacer, minK, interval);
     logFile << globalArrayMap.size() << "Arrays found" << endl;
 
@@ -103,7 +105,7 @@ int arrayDump(string inputRead,
     logFile << "written" << endl;
     outFS2.close();
 
-    // writing statistics file @to here
+    // writing statistics file
 
     ofstream outFS3;
     string statsOutput = outputFile + "_stats_step_3";

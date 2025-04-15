@@ -5,11 +5,10 @@
 
 // this function initilizes and builds and smap that maps from Smers to 
 // and the indecies / positions where they appear in in the Kmers
-int buildSmap(ifstream& inCatalog, unordered_map<string,Kmap_t>& smap, int seedK) 
+int buildSmap(ifstream& inCatalog, unordered_map<string,Kmap_t>& smap, int seedK, int minPalindromic) 
 {
     // create a variable for a temp line and a kmer to extract the kmer from the catalog output
     string tempLine;
-    string kmer;
     int lineNum = 1;
     // dump the header line
     getline(inCatalog, tempLine);
@@ -18,10 +17,18 @@ int buildSmap(ifstream& inCatalog, unordered_map<string,Kmap_t>& smap, int seedK
         // while the file is good and doesnt reach its end we keep pulling lines and extracting the first string (the kmer)
         getline(inCatalog, tempLine);
         istringstream iss(tempLine);
-        if (!(iss >> kmer) && !tempLine.empty()) { 
-            cerr << "could not read kmer on line: " << lineNum << endl; 
+        string kmer; // we keep
+        int number_of_lines;
+        string binId;
+        int palindromic; // potentially keep 
+        int lengthK;
+        // Attempt to parse
+        if (!(iss >> kmer >> number_of_lines >> binId >> palindromic >> lengthK) && !tempLine.empty()) {
+            cerr << "Could not parse line: " << tempLine << endl;
             continue;
         }
+        // skip none crispr if minPalindromic is entered
+        if (palindromic < minPalindromic){ continue; }
         // we also want to extract the reverse of the kmer so that we can search for both
         string reverseComp = reverseComplement(kmer);
         // we iterate over the kmer or reverse complemet 

@@ -12,12 +12,12 @@ int findingKnownRepeats(string inputRead,
             string inputReadFileType, 
             string inputCatalog, 
             string outputFile, 
-            int seedK, 
             int minLegitimateSpacer,
             int minK,
             int interval,
             string inputFileR2)
 {
+    int seedK = minK / 2;
     // open log file
     ofstream logFile;
     string logFileName = outputFile + "_run_log";
