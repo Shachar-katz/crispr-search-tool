@@ -17,38 +17,42 @@
 
 using namespace std;
 
-
-int identifyingRepeatPatterns(string inputFile, 
-                              string inputFileType, 
-                              string outputFile, 
-                              int minK, 
-                              int minLegitimateSpacer, 
-                              int maxLegitimateSpacer, 
-                              bool strict = false, 
-                              bool preStrict = false, 
-                              int interval = 0, 
-                              int maxK = 70, 
+int identifyingRepeatPatterns(string inputFile,
+                              string inputFileType,
+                              string outputFile,
+                              int minK,
+                              int minLegitimateSpacer,
+                              int maxLegitimateSpacer,
+                              bool strict = false,
+                              bool preStrict = false,
+                              int interval = 0,
+                              int maxK = 70,
                               string inputFileR2 = "");
 
-int cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha, string inputCatalog2 = "");
+int cleaningKmers(string inputCatalog,
+                  string outputFile,
+                  int seedK,
+                  int alpha,
+                  string inputCatalog2 = "");
 
-int findingKnownRepeats(string inputRead, 
-                        string inputReadFileType, 
-                        string inputCatalog, 
-                        string outputFile, 
-                        int minLegitimateSpacer, 
-                        int minK, 
-                        int interval, 
+int findingKnownRepeats(string inputRead,
+                        string inputReadFileType,
+                        string inputCatalog,
+                        string outputFile,
+                        int minLegitimateSpacer,
+                        int minK,
+                        int interval,
                         string inputFileR2 = "");
-int arrayDump(string inputRead, 
-            string inputReadFileType, 
-            string inputCatalog, 
-            string outputFile, 
-            int minLegitimateSpacer,
-            int maxLegitimateSpacer,
-            int minK,
-            int interval,
-            int maxMismatches,
-            string inputFileR2 = "");
+
+int arrayDump(string inputRead,
+              string inputReadFileType,
+              string inputCatalog,
+              string outputFile,
+              int minLegitimateSpacer,
+              int maxLegitimateSpacer,
+              int minK,
+              int interval,
+              int maxMismatches,
+              string inputFileR2 = "");
 
 #endif /* pipelineSectionsHeader_h */

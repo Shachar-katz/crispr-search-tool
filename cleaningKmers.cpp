@@ -7,7 +7,11 @@
 
 #include "pipelineSectionsHeader.h"
 
-int cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha, string inputCatalog2)
+int cleaningKmers(string inputCatalog, 
+                  string outputFile, 
+                  int seedK, 
+                  int alpha, 
+                  string inputCatalog2)
 {
     // open log file
     ofstream logFile;

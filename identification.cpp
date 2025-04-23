@@ -8,16 +8,16 @@
 #include "pipelineSectionsHeader.h"
 
 int identifyingRepeatPatterns(string inputFile, 
-            string inputFileType, 
-            string outputFile, 
-            int minK, 
-            int minLegitimateSpacer, 
-            int maxLegitimateSpacer,
-            bool strict, 
-            bool preStrict, 
-            int interval,
-            int maxK,
-            string inputFileR2)
+                              string inputFileType, 
+                              string outputFile, 
+                              int minK, 
+                              int minLegitimateSpacer, 
+                              int maxLegitimateSpacer,
+                              bool strict, 
+                              bool preStrict, 
+                              int interval,
+                              int maxK,
+                              string inputFileR2)
 {
     // open log file
     ofstream logFile;
