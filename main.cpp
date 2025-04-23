@@ -24,7 +24,7 @@ void init_params(const char* name, int argc, const char **argv, Parameters& args
     args.add_parser("outputFile", new ParserFilename("Output file name"), true);
 
     // args maked based on step usage:
-    args.add_parser("seedK", new ParserInteger("Seed k")); // for 1 & 2
+    args.add_parser("seedK", new ParserInteger("Seed k"),0); // for 1 & 2
     args.add_parser("inputFileType", new ParserString("Input file type")); // for 1 & 3
     args.add_parser("inputFile", new ParserFilename("Input file name (for single fastq)")); // for 1 & 3
     args.add_parser("inputFileR1", new ParserFilename("Input file R1 (for fastq_dual)")); // for 1 & 3
@@ -56,7 +56,8 @@ bool step_1_executor(Parameters& args){
     string inputFileType = args.get_string("inputFileType");
     string outputFile = args.get_string("outputFile");
     int minK = args.get_int("minK");
-    int seedK = args.get_int("seedK");
+    // int seedK = args.get_int("seedK");
+    // if (seedK == 0) { seedK = minK / 2 };
     int minLegitimateSpacer = args.get_int("minLegitimateSpacer");
     int maxLegitimateSpacer = args.get_int("maxLegitimateSpacer");
     int interval = args.get_int("interval");
@@ -74,7 +75,7 @@ bool step_1_executor(Parameters& args){
         string inputFileR2 = args.get_string("inputFileR2");
         if (interval == 0){ interval = 100000; }
         cout << "repeat finder initialized for R1" << endl;
-        int run = identifyingRepeatPatterns(inputFileR1, inputFileType, outputFile, seedK, minK, minLegitimateSpacer, maxLegitimateSpacer, strict, preStrict, interval, maxK, inputFileR2);
+        int run = identifyingRepeatPatterns(inputFileR1, inputFileType, outputFile, minK, minLegitimateSpacer, maxLegitimateSpacer, strict, preStrict, interval, maxK, inputFileR2);
         if (run != 0){
             cerr << "ERROR: could not complete identifying repeat pattern run, please refer to previous error messages for more information." << endl;
             return false;
@@ -89,7 +90,7 @@ bool step_1_executor(Parameters& args){
         string inputFile = args.get_string("inputFile");
         if (interval == 0){ interval = 1000; }
         cout << "repeat finder initialized" << endl;
-        int run = identifyingRepeatPatterns(inputFile, inputFileType, outputFile, seedK, minK, minLegitimateSpacer, maxLegitimateSpacer, strict, preStrict, interval, maxK);
+        int run = identifyingRepeatPatterns(inputFile, inputFileType, outputFile, minK, minLegitimateSpacer, maxLegitimateSpacer, strict, preStrict, interval, maxK);
         if (run != 0){
             cerr << "ERROR: could not complete identifying repeat pattern run, please refer to previous error messages for more information." << endl;
             return false;

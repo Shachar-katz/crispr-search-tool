@@ -18,8 +18,16 @@
 using namespace std;
 
 
-int identifyingRepeatPatterns(string inputFile, string inputFileType, string outputFile, int seedK, int minK, int minLegitimateSpacer, 
-                              int maxLegitimateSpacer, bool strict = false, bool preStrict = false, int interval = 0, int maxK = 70, 
+int identifyingRepeatPatterns(string inputFile, 
+                              string inputFileType, 
+                              string outputFile, 
+                              int minK, 
+                              int minLegitimateSpacer, 
+                              int maxLegitimateSpacer, 
+                              bool strict = false, 
+                              bool preStrict = false, 
+                              int interval = 0, 
+                              int maxK = 70, 
                               string inputFileR2 = "");
 
 int cleaningKmers(string inputCatalog, string outputFile, int seedK, int alpha, string inputCatalog2 = "");

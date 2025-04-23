@@ -10,7 +10,6 @@
 int identifyingRepeatPatterns(string inputFile, 
             string inputFileType, 
             string outputFile, 
-            int seedK, 
             int minK, 
             int minLegitimateSpacer, 
             int maxLegitimateSpacer,
@@ -33,6 +32,7 @@ int identifyingRepeatPatterns(string inputFile,
     unordered_map<string,double> stats;
     MultiFormatFileReader fileReader(inputFile, inputFileType);
     
+    int seedK = minK / 2;
     logFile << "finding Kmers in file" << endl;
     findKmersInFile(fileReader, globalKmerMap, seedK, minK, minLegitimateSpacer, maxLegitimateSpacer, stats, strict, preStrict, logFile, interval, maxK);
     logFile << "Number of Kmers found: " << globalKmerMap.size() << endl;
