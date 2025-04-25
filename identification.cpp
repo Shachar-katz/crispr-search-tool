@@ -33,9 +33,11 @@ int identifyingRepeatPatterns(string inputFile,
     unordered_map<string,double> stats;
     MultiFormatFileReader fileReader(inputFile, inputFileType);
 
+     // calculate seedK and horizon
     int seedK = minK / 2;
     int horizon = (maxK + maxLegitimateSpacer) * numRepeatUnits + maxK;
 
+     // populate the global Kmer map (identify repeats)
     logFile << "finding Kmers in file" << endl;
     findKmersInFile(fileReader, globalKmerMap, seedK, minK, minLegitimateSpacer, maxLegitimateSpacer, horizon, stats, strict, preStrict, logFile, interval, maxK);
     logFile << "Number of Kmers found: " << globalKmerMap.size() << endl;
@@ -46,6 +48,7 @@ int identifyingRepeatPatterns(string inputFile,
           findKmersInFile(fileReader2, globalKmerMap, seedK, minK, minLegitimateSpacer, maxLegitimateSpacer, horizon, stats, strict, preStrict, logFile, interval, maxK);
           logFile << "Number of Kmers found after second round: " << globalKmerMap.size() << endl;
     }
+
     // writing output file
 
     ofstream outFS1;
@@ -57,7 +60,7 @@ int identifyingRepeatPatterns(string inputFile,
     }
 
     logFile << "opened output file named: " << outputFile << endl;
-    outFS1 << left << "repeat" << '\t' << "number_of_lines" << endl;
+    outFS1 << left << "repeat" << '\t' << "abundance" << endl;
     writeUnorderedMapToFile(globalKmerMap, outFS1);
     logFile << "written" << endl;
     outFS1.close();

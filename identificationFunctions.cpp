@@ -24,7 +24,7 @@ void findKmersInFile(MultiFormatFileReader& fileReader,
     int progressCounter = 0;
     int numReadsWithRepeats = 0;
     int faultyLine = 0;
-    // we are looping over every read
+    // loop over every read
     while (fileReader.getNextLine(line)) {
         // statistics and progress managment:
         progressCounter++;
@@ -44,13 +44,14 @@ void findKmersInFile(MultiFormatFileReader& fileReader,
             continue;
         }
         
-        // every line we create an empty smap that maps from an smer to vect of indecies in the line.
+        // every line we create and populate an smap that maps from an smer to vect of indecies in the line.
         unordered_map<string,vector<int>> singleLineMapSeedKToIdx;
-        // we also create an empty set of unique pre "vetted" Kmers in this line.
-        unordered_map<string,set<int>> uniqueKmersInLine;
-        // populating smap for this line.
         findSeedPattern(line, singleLineMapSeedKToIdx, seedK);
-        // for every smer in the map, if it appears more then once in the line:
+
+        // we also create an empty map of unique repeats -> set of their positions in this line.
+        unordered_map<string,set<int>> uniqueKmersInLine;
+
+        // iterate over line, at each point: generate an Smer -> retrive it's index vector 
         // we check if it can be expanded to a kmer and if so that kmer is added to the set of unique Kmers
         for (int i = 0; i < line.length(); i++){
             string smer = line.substr(i,seedK);
@@ -154,18 +155,23 @@ void expandSeedToKmer(const string& line,
     // create range
     int lowerBound = startIdx - horizion;
     int upperBound = startIdx + horizion;
-    // we iterate over the index vector of the appearences of this smer, each index gets a turn to be the potential kmer.
+
+    auto lowerIt = lower_bound(smerIdxVect.begin(), smerIdxVect.end(), lowerBound);
+    auto upperIt = upper_bound(smerIdxVect.begin(), smerIdxVect.end(), lowerBound);
+
     pair<string,int> bestK = {"", -1};
+
     // then we iterate over all the other indecies comparing the smer appearance there to our "Potential kmer"
-    for (int comparisionKmer = 0; comparisionKmer < smerIdxVect.size(); comparisionKmer++ ){
-        if (comparisionKmer == startIdx){ continue; }
-        if (comparisionKmer < lowerBound) { continue; }
-        if (comparisionKmer > upperBound) { break; }
+    for(auto it = lowerIt; it != upperIt; it++){
+
+        int comparisionPos = distance(smerIdxVect.begin(), it);
+        if (comparisionPos == startIdx){ continue; }
+        
         // we set the indecies of the start and end at our potential kmer and our comparision
         int idxEnd = startIdx + smer.length() - 1;
         
-        int idxStartCompare = smerIdxVect.at(comparisionKmer);
-        int idxEndCompare = smerIdxVect.at(comparisionKmer) + smer.length() - 1;
+        int idxStartCompare = smerIdxVect.at(comparisionPos);
+        int idxEndCompare = smerIdxVect.at(comparisionPos) + smer.length() - 1;
         
         // we set flags = true to represent are the 2 occurances equal at the start and end.
         bool equalAtStart = true;
