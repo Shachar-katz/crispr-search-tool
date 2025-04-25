@@ -27,6 +27,7 @@ int identifyingRepeatPatterns(string inputFile,
                               bool preStrict = false,
                               int interval = 0,
                               int maxK = 70,
+                              int numRepeatUnits = 4,
                               string inputFileR2 = "");
 
 int cleaningKmers(string inputCatalog,

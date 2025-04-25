@@ -28,22 +28,49 @@ using namespace std;
 
 
 // step one functions:
-bool isInputFileValid(ifstream& inFS, string fileName);
+bool isInputFileValid(ifstream& inFS, 
+                      string fileName);
 
-void findKmersInFile(MultiFormatFileReader& fileReader, unordered_map<string,int>& globalKmerMap, int seedK, 
-                     int minK, int minLegitimateSpacer, int maxLegitimateSpacer, unordered_map<string,double>& stats, bool strict, 
-                     bool preStrict, ofstream& logFile, int interval, int maxK);
+void findKmersInFile(MultiFormatFileReader& fileReader, 
+                     unordered_map<string,int>& globalKmerMap, 
+                     int seedK, 
+                     int minK, 
+                     int minLegitimateSpacer,
+                     int maxLegitimateSpacer,
+                     int horizon,
+                     unordered_map<string,double>& stats, 
+                     bool strict, 
+                     bool preStrict, 
+                     ofstream& logFile,
+                     int interval,
+                     int maxK);
 
 bool skipThisLine(const string& read, double iligitimateRatio);
 
 void findSeedPattern(string line, unordered_map<string,vector<int>>& singleLineMapSeedKToIdx, int seedK);
 
-bool notOverlapping(int idxStartPotential, int idxStartCompare, int idxEndPotential, int idxEndCompare, 
-                    int minLegitimateSpacer, int maxLegitimateSpacer);
-void expandSeedToKmer(const string& line, string smer, vector<int> smerIdxVect , int minK, 
-                    set<string>& uniqueKmersInLine, int minLegitimateSpacer, int maxLegitimateSpacer, bool strict, int maxK);
+bool notOverlapping(int idxStartPotential, 
+                    int idxStartCompare, 
+                    int idxEndPotential, 
+                    int idxEndCompare, 
+                    int minLegitimateSpacer, 
+                    int maxLegitimateSpacer);
+
+void expandSeedToKmer(const string& line, 
+                      string smer, 
+                      int startIdx, 
+                      vector<int> smerIdxVect, 
+                      int minK, 
+                      unordered_map<string, set<int>>& uniqueKmersInLine,
+                      int minLegitimateSpacer, 
+                      int maxLegitimateSpacer, 
+                      bool strict, 
+                      int maxK, 
+                      int horizion);
+
 
 //step two functions:
+
 void catalogToSAndKMaps(ifstream& inCatalog, unordered_map<string,vector<string>>& smap, 
                         unordered_map<string,data_t>& kmap, int seedK, ofstream& logFile);
 void findSmersVect(string shortestKmer, vector<string>& smerVect, int seedK);
