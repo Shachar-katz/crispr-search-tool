@@ -109,7 +109,7 @@ int arrayDump(string inputRead,
     // writing statistics file
 
     ofstream outFS3;
-    string statsOutput = outputFile + "_stats_step_3";
+    string statsOutput = outputFile + "_stats_step_4";
     outFS3.open(statsOutput);
     if (!outFS3.is_open()){
          logFile << "Error: Could not open stats output file." << endl;

@@ -62,9 +62,11 @@ void arrayIdentifior(MultiFormatFileReader& fileReader,
             // if this smer appears in our smap we try expanding it to a kmer and checking if its a known kmer
             if (smap.find(smer) != smap.end()){ 
                 int tempStartIdx;
-                string repeat = expandSeedToKmer(line, smer, i, smap, activeLine, tempStartIdx, maxMismatches);
+                int numMissmatches;
+                string repeat = expandSeedToKmer(line, smer, i, smap, activeLine, tempStartIdx, maxMismatches, numMissmatches);
                 i++; // for now to keep everything stable !! (expand seed to Kmer also skips k nucleotides)
                 if (repeat == "") { continue; }
+                cout << "found repeat" << endl;
                 // if a known Kmer was found:
                 // a) search for its ID
                 // b) feed it to the array handler to either:
@@ -72,7 +74,7 @@ void arrayIdentifior(MultiFormatFileReader& fileReader,
                     // ii) create a new array
                     // iii) close the existing array and reopen a new array
                 string id = kmerToId.at(repeat);
-                arrayHandler.manageState(repeat, tempStartIdx, id);
+                arrayHandler.manageState(repeat, tempStartIdx, id, numMissmatches);
             }
             else{
                 i += seedK;
@@ -120,8 +122,33 @@ inline bool isKmerAtPos(const string& line, const string& kmer, int start, int l
     return true;
 }
 
+inline bool isKmerMatch(const string& line, 
+                        const string& kmer, 
+                        int start, 
+                        const vector<string>& smerVect, 
+                        int seedK, 
+                        int& missmatches, 
+                        int maxMismatches){
+    int iter = 0;
+    int dissimilarity = 0;
+    for (int i = start; start < (kmer.size() - seedK); i++){
+        if (dissimilarity > maxMismatches) { return false; }
+        string smerInLine = kmer.substr(i,seedK);
+        if (smerInLine != smerVect[iter]) { dissimilarity++; }
+    }
+    missmatches = dissimilarity;
+    return true;
+}
+
 // this function checks if the known smer occurance means a known kmer occurance 
-string expandSeedToKmer(const string& line, const string& smer, int& idxInLine, unordered_map<string,Kmap_t>& smap, bool& activeLine, int& tempStartIdx, int maxMismatches){
+string expandSeedToKmer(const string& line, 
+                        const string& smer, 
+                        int& idxInLine, 
+                        unordered_map<string,Kmap_t>& smap, 
+                        bool& activeLine, 
+                        int& tempStartIdx, 
+                        int maxMismatches, 
+                        int& numMissmatches){
     // we acess the Kmers that the smer of interest appears in
     auto& kmap = smap[smer];
     // we iterate over all the Kmers that this smer is associated to
@@ -130,6 +157,9 @@ string expandSeedToKmer(const string& line, const string& smer, int& idxInLine, 
         string kmerInLine;
         // we record the recorded kmer's length
         int k = kmer.size();
+        //do i need top 2 lines ?? ^^
+        vector<string> smerVect;
+        findSmersVect(kmer, smerVect, smer.size());
         // iterate over all the indecies that the smer of interest appears at in this particular recorded kmer 
         for (int i = 0; i < idxs.size(); i++){
             // an index where this smer appears in the kmer
@@ -137,16 +167,17 @@ string expandSeedToKmer(const string& line, const string& smer, int& idxInLine, 
             int startIdexOfKmerInLine = idxInLine - startIdxInKmer;
             // a check to prevent substring out of bounds error
             if (idxInLine < startIdxInKmer){ continue; }
+
+            
             // extract the substring of the potential kmer from the line
             // kmerInLine = line.substr(startIdexOfKmerInLine, k);
             // if (kmer != kmerInLine){ continue; } // early rejection if kmer not a match
-            
-            if (!isKmerAtPos(line, kmer, startIdexOfKmerInLine, k, maxMismatches)) { continue; }
+            if (!isKmerMatch(line, kmer, startIdexOfKmerInLine, smerVect, smer.size(), numMissmatches, maxMismatches)) { continue; }
 
             activeLine = true;
             idxInLine += (kmer.length() - startIdxInKmer); // update index
             tempStartIdx = startIdexOfKmerInLine; // update start idx for array
-            return kmer;
+            return kmer; //@here - should i just have it return all of this and log the missmatches and not change the array handler and just have it cut the sections from the line the same way?
         }
     }
     return "";

@@ -119,6 +119,7 @@ bool valideHeader(string header);
 
 // Array Dump functions:
 int buildKmap(ifstream& inCatalog, unordered_map<string,string>& kmerToId, int minPalindromic = 0);
+
 void arrayIdentifior(MultiFormatFileReader& fileReader, 
                      unordered_map<string,Array>& globalArrayVect, 
                      unordered_map<string,Kmap_t>& smap,
@@ -131,8 +132,23 @@ void arrayIdentifior(MultiFormatFileReader& fileReader,
                      int minK, 
                      int interval,
                      int maxMismatches);
-string expandSeedToKmer(const string& line, const string& smer, int& idxInLine, unordered_map<string,Kmap_t>& smap, bool& activeLine, int& tempStartIdx, int maxMismatches);
 
+string expandSeedToKmer(const string& line, 
+                        const string& smer, 
+                        int& idxInLine, 
+                        unordered_map<string,Kmap_t>& smap, 
+                        bool& activeLine, 
+                        int& tempStartIdx, 
+                        int maxMismatches, 
+                        int& numMissmatches);
+
+inline bool isKmerMatch(const string& line, 
+                        const string& kmer, 
+                        int start, 
+                        const vector<string>& smerVect, 
+                        int seedK, 
+                        int& missmatches, 
+                        int maxMismatches = 0);
 
 
 #endif /* functions_hpp */

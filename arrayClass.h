@@ -10,6 +10,7 @@ private:
     vector<int> inLineCoordinatesVect;
     vector<int> inArrayRepeatCoordinatesVect; // might not need?
     vector<string> array;
+    vector <int> repeatIdxToNumMissmatches;
     int arrayLen = 0; // might not need?
     int numSpacers;
 public:
@@ -19,17 +20,18 @@ public:
         this->repeat = repeat;
     }
     ~Array(){}
-    void openArray(string repeat, int startIdxInLine, string repeatId)
+    void openArray(string repeat, int startIdxInLine, string repeatId, int numMissmatches)
     {
         this->repeat = repeat;
         this->repeatId = repeatId;
-        addRepeat(startIdxInLine);
+        addRepeat(startIdxInLine, numMissmatches);
     }
-    void addRepeat(int startIdxInLine)
+    void addRepeat(int startIdxInLine, int numMissmatches)
     {   
         int endIdxInLine = startIdxInLine + repeat.length();
         inLineCoordinatesVect.push_back(startIdxInLine);
         inLineCoordinatesVect.push_back(endIdxInLine);
+        repeatIdxToNumMissmatches.push_back(numMissmatches);
     }
     bool stillValid(int startIdxInLine, int maxValidSpacer, int minValidSpacer){
         int spacerLen = startIdxInLine - inLineCoordinatesVect.back();
@@ -50,6 +52,8 @@ public:
         }
         return array;
     }
+    int getNumMissmatchForRepeat(int idx) { return repeatIdxToNumMissmatches[idx]; }
+
     bool closeArray(string line){
         if (inLineCoordinatesVect.size() < 4) { return false; }
         arrayLen = inLineCoordinatesVect.back() - inLineCoordinatesVect[0];
@@ -85,29 +89,29 @@ public:
         this->minAllowedSpacer = minAllowedSpacer;
     }
     ~LineArrayHandler(){}
-    void manageState(string repeat, int startIdxInLine, string repeatId)
+    void manageState(string repeat, int startIdxInLine, string repeatId, int numMissmatches)
     {
         if(!activeArray){
-            tempArray.openArray(repeat, startIdxInLine, repeatId);
+            tempArray.openArray(repeat, startIdxInLine, repeatId, numMissmatches);
             activeArray = true;
         }
         else if(tempArray.getRepeat() == repeat){
-            bool wasExpanded = this->expandArray(startIdxInLine);
+            bool wasExpanded = this->expandArray(startIdxInLine, numMissmatches);
             if (!wasExpanded){
-                tempArray.openArray(repeat, startIdxInLine, repeatId);
+                tempArray.openArray(repeat, startIdxInLine, repeatId, numMissmatches);
                 activeArray = true;
             }
         }
         else if(tempArray.getRepeat() != repeat){
             this->uploadArray(); // should I use return value for anything?
-            tempArray.openArray(repeat, startIdxInLine, repeatId);
+            tempArray.openArray(repeat, startIdxInLine, repeatId, numMissmatches);
             activeArray = true;
         }
     }
-    bool expandArray(int startIdxInLine)
+    bool expandArray(int startIdxInLine, int numMissmatches)
     {
         if (tempArray.stillValid(startIdxInLine, maxAllowedSpacer, minAllowedSpacer)){
-            tempArray.addRepeat(startIdxInLine);
+            tempArray.addRepeat(startIdxInLine, numMissmatches);
             return true;
         }
         bool uploaded = uploadArray();

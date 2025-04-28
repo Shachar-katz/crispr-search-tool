@@ -56,11 +56,10 @@ void findKmersInFile(MultiFormatFileReader& fileReader,
         for (int i = 0; i < line.length(); i++){
             string smer = line.substr(i,seedK);
             auto& idxs = singleLineMapSeedKToIdx[smer];
-            if (singleLineMapSeedKToIdx[smer].size() > 1){
+            if (idxs.size() > 1){
                 expandSeedToKmer(line, smer, i, idxs, minK, uniqueKmersInLine, minLegitimateSpacer, maxLegitimateSpacer, strict, maxK, horizon);
             }
         }
-        // @here
         // for statistics 
         if (!uniqueKmersInLine.empty()){
             numReadsWithRepeats++;
@@ -157,16 +156,16 @@ void expandSeedToKmer(const string& line,
     int upperBound = startIdx + horizion;
 
     auto lowerIt = lower_bound(smerIdxVect.begin(), smerIdxVect.end(), lowerBound);
-    auto upperIt = upper_bound(smerIdxVect.begin(), smerIdxVect.end(), lowerBound);
+    auto upperIt = upper_bound(smerIdxVect.begin(), smerIdxVect.end(), upperBound);
 
     pair<string,int> bestK = {"", -1};
 
     // then we iterate over all the other indecies comparing the smer appearance there to our "Potential kmer"
     for(auto it = lowerIt; it != upperIt; it++){
-
+        // cout << "entered loop" << endl; // debugg
         int comparisionPos = distance(smerIdxVect.begin(), it);
         if (comparisionPos == startIdx){ continue; }
-        
+
         // we set the indecies of the start and end at our potential kmer and our comparision
         int idxEnd = startIdx + smer.length() - 1;
         
