@@ -38,7 +38,7 @@ public:
         if (spacerLen <= maxValidSpacer && startIdxInLine > (inLineCoordinatesVect.back() + minValidSpacer)){ return true; }
         return false;
     }
-    string getRepeat() { return repeat; }
+    string getRepeat() const { return repeat; }
     string getRepeatId() const { return repeatId; }
     int getNumSpacers() const { return numSpacers; }
     int getArrayLen() const { return arrayLen; }
@@ -52,8 +52,7 @@ public:
         }
         return array;
     }
-    int getNumMissmatchForRepeat(int idx) { return repeatIdxToNumMissmatches[idx]; }
-
+    vector<int> getErrorVect() const { return repeatIdxToNumMissmatches; }
     bool closeArray(string line){
         if (inLineCoordinatesVect.size() < 4) { return false; }
         arrayLen = inLineCoordinatesVect.back() - inLineCoordinatesVect[0];
@@ -139,3 +138,14 @@ public:
 };
 
 ostream& operator<<(ostream& out, const Array& obj);
+
+class RepeatData{
+public:
+    string arrayID;
+    string repeatID;
+    int repeatIdx;
+    int numMissmatches;
+    int repeatLen;
+};
+
+ostream& operator<<(ostream& out, const RepeatData& obj);

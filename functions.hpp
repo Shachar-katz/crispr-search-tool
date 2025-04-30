@@ -17,6 +17,7 @@
 #include <set>
 #include <sstream>
 #include <unordered_map>
+#include <unordered_set>
 #include <stdexcept>
 #include <algorithm>
 #include "DynamicBinsClass.hpp"
@@ -142,13 +143,18 @@ string expandSeedToKmer(const string& line,
                         int maxMismatches, 
                         int& numMissmatches);
 
-inline bool isKmerMatch(const string& line, 
-                        const string& kmer, 
-                        int start, 
-                        const vector<string>& smerVect, 
+inline void findSmerSet(string kmer, unordered_set<string>& smerSet, int seedK);
+
+inline bool isKmerMatch(const string& line,  
+                        int start,
+                        int end, 
+                        const unordered_set<string>& smerSet, 
                         int seedK, 
                         int& missmatches, 
                         int maxMismatches = 0);
+
+void constructRepeatMap(const unordered_map<string,Array>& globalArrayMap, 
+                        unordered_map<string,RepeatData>& repeatMap);
 
 
 #endif /* functions_hpp */

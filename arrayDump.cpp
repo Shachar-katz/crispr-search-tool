@@ -78,8 +78,8 @@ int arrayDump(string inputRead,
     string tableFile = outputFile + "_table";
     outFS1.open(tableFile);
     if (!outFS1.is_open()){
-         logFile << "Error: Could not open output file." << endl;
-         cerr << "Error: Could not open output file." << endl;
+         logFile << "Error: Could not open table output file." << endl;
+         cerr << "Error: Could not open table output file." << endl;
          return -1;
     }
 
@@ -93,8 +93,8 @@ int arrayDump(string inputRead,
     string viewFile = outputFile + "_view";
     outFS2.open(viewFile);
     if (!outFS2.is_open()){
-         logFile << "Error: Could not open output file." << endl;
-         cerr << "Error: Could not open output file." << endl;
+         logFile << "Error: Could not open view output file." << endl;
+         cerr << "Error: Could not open view output file." << endl;
          return -1;
     }
 
@@ -106,20 +106,38 @@ int arrayDump(string inputRead,
     logFile << "written" << endl;
     outFS2.close();
 
+    ofstream outFS3;
+    string tableFile2 = outputFile + "_table_error";
+    outFS3.open(tableFile2);
+    if (!outFS3.is_open()){
+         logFile << "Error: Could not open table output 2 file." << endl;
+         cerr << "Error: Could not open table output 2 file." << endl;
+         return -1;
+    }
+
+    unordered_map<string,RepeatData> repeatMap;
+    constructRepeatMap(globalArrayMap, repeatMap);
+
+    logFile << "opened output file named: " << tableFile << endl;
+    outFS3 << "array_id" << '\t' << "repeat_id" << '\t' << "repeatIdx" << '\t' << "nun_mismatches" << '\t' << "repeat_len" << endl;;
+    writeUnorderedMapToFile(repeatMap, outFS3);
+    logFile << "written" << endl;
+    outFS3.close();
+
     // writing statistics file
 
-    ofstream outFS3;
+    ofstream outFS4;
     string statsOutput = outputFile + "_stats_step_4";
-    outFS3.open(statsOutput);
-    if (!outFS3.is_open()){
+    outFS4.open(statsOutput);
+    if (!outFS4.is_open()){
          logFile << "Error: Could not open stats output file." << endl;
          cerr << "Error: Could not open stats output file." << endl;
          return -1;
     }
     
     logFile << "opened output file named: " << statsOutput << endl;
-    writeUnorderedMapToFile(stats, outFS3);
+    writeUnorderedMapToFile(stats, outFS4);
     logFile << "written" << endl;
-    outFS3.close();
+    outFS4.close();
     return 0;
 }
