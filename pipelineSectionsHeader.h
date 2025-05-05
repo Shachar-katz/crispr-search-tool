@@ -45,6 +45,7 @@ int findingKnownRepeats(string inputRead,
                         int minLegitimateSpacer,
                         int minK,
                         int interval,
+                        double seedPercentage = 0.5,
                         string inputFileR2 = "");
 
 int arrayDump(string inputRead,
@@ -56,6 +57,7 @@ int arrayDump(string inputRead,
               int minK,
               int interval,
               int maxMismatches,
+              double seedPercentage = 0.5,
               string inputFileR2 = "");
 
 #endif /* pipelineSectionsHeader_h */

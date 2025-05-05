@@ -15,9 +15,10 @@ int findingKnownRepeats(string inputRead,
                         int minLegitimateSpacer,
                         int minK,
                         int interval,
+                        double seedPercentage,
                         string inputFileR2)
 {
-    int seedK = minK / 2;
+    int seedK = minK * seedPercentage;
     // open log file
     ofstream logFile;
     string logFileName = outputFile + "_run_log";

@@ -24,7 +24,7 @@ void init_params(const char* name, int argc, const char **argv, Parameters& args
     args.add_parser("outputFile", new ParserFilename("Output file name"), true);
 
     // args maked based on step usage:
-    args.add_parser("seedK", new ParserInteger("Seed k"),0); // for 1 & 2
+    args.add_parser("seedPercentage", new ParserDouble("precentage of min k that makes up the length of the seed", 0.5)); // for 1 & 2
     args.add_parser("inputFileType", new ParserString("Input file type")); // for 1 & 3
     args.add_parser("inputFile", new ParserFilename("Input file name (for single fastq)")); // for 1 & 3
     args.add_parser("inputFileR1", new ParserFilename("Input file R1 (for fastq_dual)")); // for 1 & 3
@@ -58,8 +58,6 @@ bool step_1_executor(Parameters& args){
     string outputFile = args.get_string("outputFile");
     double seedPercentage = args.get_double("seedPercentage");
     int minK = args.get_int("minK");
-    // int seedK = args.get_int("seedK");
-    // if (seedK == 0) { seedK = minK / 2 };
     int minLegitimateSpacer = args.get_int("minLegitimateSpacer");
     int maxLegitimateSpacer = args.get_int("maxLegitimateSpacer");
     int interval = args.get_int("interval");
@@ -106,7 +104,7 @@ bool step_2_executor(Parameters& args){
     string inputFileCatalog = args.get_string("inputFileCatalog");
     string inputFileCatalog2 = args.get_string("secondInputFileCatalog");
     string outputFile = args.get_string("outputFile");
-    double seedPercentage = args.get_double("seedK");
+    double seedPercentage = args.get_double("seedPercentage");
     int minK =  args.get_int("minK");
     int alpha = args.get_int("alpha");
     int run = cleaningKmers(inputFileCatalog, outputFile, minK, alpha, seedPercentage, inputFileCatalog2);
@@ -124,12 +122,13 @@ bool step_3_executor(Parameters& args){
     int interval = args.get_int("interval");
     int minLegitimateSpacer = args.get_int("minLegitimateSpacer");
     int minK = args.get_int("minK");
+    double seedPercentage = args.get_double("seedPercentage");
     // decide on dual or single fastq
     if (args.is_defined("inputFileR1") && args.is_defined("inputFileR2")) {
         // run for strand 1
         string inputFileR1 = args.get_string("inputFileR1");
         string inputFileR2 = args.get_string("inputFileR2");
-        int run = findingKnownRepeats(inputFileR1, inputFileType, inputFileCatalog, outputFile, minLegitimateSpacer, minK, interval, inputFileR2);
+        int run = findingKnownRepeats(inputFileR1, inputFileType, inputFileCatalog, outputFile, minLegitimateSpacer, minK, interval, seedPercentage, inputFileR2);
         if (run != 0){
             cerr << "ERROR: could not complete the finding known repeats run, please refer to previous error messages for more information." << endl;
             return false;
@@ -137,7 +136,7 @@ bool step_3_executor(Parameters& args){
     } 
     else if (args.is_defined("inputFile")) {
         string inputFile = args.get_string("inputFile");
-        int run = findingKnownRepeats(inputFile, inputFileType, inputFileCatalog, outputFile, minLegitimateSpacer, minK, interval);
+        int run = findingKnownRepeats(inputFile, inputFileType, inputFileCatalog, outputFile, minLegitimateSpacer, minK, interval, seedPercentage);
         if (run != 0){
             cerr << "ERROR: could not complete the finding known repeats run, please refer to previous error messages for more information." << endl;
             return false;
@@ -159,11 +158,12 @@ bool array_dump_executor(Parameters& args){
     int maxLegitimateSpacer = args.get_int("maxLegitimateSpacer");
     int minK = args.get_int("minK");
     int maxMismatches = args.get_int("maxMismatchesForKmers");
+    double seedPercentage = args.get_double("seedPercentage");
     // decide on dual or single fastq
     if (args.is_defined("inputFileR1") && args.is_defined("inputFileR2")) {
         string inputFileR1 = args.get_string("inputFileR1");
         string inputFileR2 = args.get_string("inputFileR2");
-        int run = arrayDump(inputFileR1, inputFileType, inputFileCatalog, outputFile, minLegitimateSpacer, maxLegitimateSpacer, minK, interval, maxMismatches, inputFileR2);
+        int run = arrayDump(inputFileR1, inputFileType, inputFileCatalog, outputFile, minLegitimateSpacer, maxLegitimateSpacer, minK, interval, maxMismatches, seedPercentage, inputFileR2);
         if (run != 0){
             cerr << "ERROR: could not complete the array dump run, please refer to previous error messages for more information." << endl;
             return false;
@@ -171,7 +171,7 @@ bool array_dump_executor(Parameters& args){
     } 
     else if (args.is_defined("inputFile")) {
         string inputFile = args.get_string("inputFile");
-        int run = arrayDump(inputFile, inputFileType, inputFileCatalog, outputFile, minLegitimateSpacer, maxLegitimateSpacer, minK, interval, maxMismatches);
+        int run = arrayDump(inputFile, inputFileType, inputFileCatalog, outputFile, minLegitimateSpacer, maxLegitimateSpacer, minK, interval, maxMismatches, seedPercentage);
         if (run != 0){
             cerr << "ERROR: could not complete the array dump run, please refer to previous error messages for more information." << endl;
             return false;
@@ -197,7 +197,6 @@ int main(int argc, const char * argv[]) {
             if (!args.is_defined("inputFileType") ||
                 !args.is_defined("outputFile") ||
                 !args.is_defined("minK") ||
-                !args.is_defined("seedK") ||
                 !args.is_defined("minLegitimateSpacer")) {
                 cerr << "Missing mandatory arguments for step 1." << endl;
                 return 1;
@@ -208,7 +207,6 @@ int main(int argc, const char * argv[]) {
         case 2:{
             if (!args.is_defined("inputFileCatalog") ||
                 !args.is_defined("outputFile") ||
-                !args.is_defined("seedK") ||
                 !args.is_defined("alpha")) {
                 cerr << "Missing mandatory arguments for step 2." << endl;
                 return 1;
@@ -219,8 +217,7 @@ int main(int argc, const char * argv[]) {
         case 3:{
             if (!args.is_defined("inputFileType") ||
                 !args.is_defined("inputFileCatalog") ||
-                !args.is_defined("outputFile") ||
-                !args.is_defined("seedK")) {
+                !args.is_defined("outputFile")) {
                 cerr << "Missing mandatory arguments for step 3." << endl;
                 return 1;
             }
@@ -230,8 +227,7 @@ int main(int argc, const char * argv[]) {
         case 4:{
             if (!args.is_defined("inputFileType") ||
                 !args.is_defined("inputFileCatalog") ||
-                !args.is_defined("outputFile") ||
-                !args.is_defined("seedK")) {
+                !args.is_defined("outputFile")) {
                 cerr << "Missing mandatory arguments for array dump." << endl;
                 return 1;
             }
