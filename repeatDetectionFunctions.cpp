@@ -23,8 +23,10 @@ int buildSmap(ifstream& inCatalog, unordered_map<string,Kmap_t>& smap, int seedK
         int palindromic; // potentially keep 
         int lengthK;
         // Attempt to parse
-        if (!(iss >> kmer >> number_of_lines >> binId >> palindromic >> lengthK) && !tempLine.empty()) {
-            cerr << "Could not parse line: " << tempLine << endl;
+        if (!(iss >> kmer >> number_of_lines >> binId >> palindromic >> lengthK)) {
+            if (!tempLine.empty()){
+                cerr << "Could not parse line: " << tempLine << endl;
+            }
             continue;
         }
         // skip none crispr if minPalindromic is entered
