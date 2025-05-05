@@ -8,9 +8,10 @@
 #include "pipelineSectionsHeader.h"
 
 int cleaningKmers(string inputCatalog, 
-                  string outputFile, 
-                  int seedK, 
+                  string outputFile,
+                  int minK, 
                   int alpha, 
+                  double seedPercentage,
                   string inputCatalog2)
 {
     // open log file
@@ -29,6 +30,8 @@ int cleaningKmers(string inputCatalog,
     ifstream catalogFile;
     catalogFile.open(inputCatalog);
     if (!isInputFileValid(catalogFile, inputCatalog)){ return -1; }
+
+    int seedK = minK * seedPercentage;
     
     catalogToSAndKMaps(catalogFile, smap, kmap, seedK, logFile);
     

@@ -18,6 +18,7 @@ int identifyingRepeatPatterns(string inputFile,
                               int interval,
                               int maxK,
                               int numRepeatUnits,
+                              double seedPercentage,
                               string inputFileR2)
 {
     // open log file

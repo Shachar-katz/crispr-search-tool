@@ -56,6 +56,7 @@ bool step_1_executor(Parameters& args){
     // setting all the variables from args
     string inputFileType = args.get_string("inputFileType");
     string outputFile = args.get_string("outputFile");
+    double seedPercentage = args.get_double("seedPercentage");
     int minK = args.get_int("minK");
     // int seedK = args.get_int("seedK");
     // if (seedK == 0) { seedK = minK / 2 };
@@ -77,7 +78,7 @@ bool step_1_executor(Parameters& args){
         string inputFileR2 = args.get_string("inputFileR2");
         if (interval == 0){ interval = 100000; }
         cout << "repeat finder initialized for R1" << endl;
-        int run = identifyingRepeatPatterns(inputFileR1, inputFileType, outputFile, minK, minLegitimateSpacer, maxLegitimateSpacer, strict, preStrict, interval, maxK, numRepetativeUnits, inputFileR2);
+        int run = identifyingRepeatPatterns(inputFileR1, inputFileType, outputFile, minK, minLegitimateSpacer, maxLegitimateSpacer, strict, preStrict, interval, maxK, numRepetativeUnits, seedPercentage, inputFileR2);
         if (run != 0){
             cerr << "ERROR: could not complete identifying repeat pattern run, please refer to previous error messages for more information." << endl;
             return false;
@@ -92,7 +93,7 @@ bool step_1_executor(Parameters& args){
         string inputFile = args.get_string("inputFile");
         if (interval == 0){ interval = 1000; }
         cout << "repeat finder initialized" << endl;
-        int run = identifyingRepeatPatterns(inputFile, inputFileType, outputFile, minK, minLegitimateSpacer, maxLegitimateSpacer, strict, preStrict, interval, maxK, numRepetativeUnits);
+        int run = identifyingRepeatPatterns(inputFile, inputFileType, outputFile, minK, minLegitimateSpacer, maxLegitimateSpacer, strict, preStrict, interval, maxK, numRepetativeUnits, seedPercentage);
         if (run != 0){
             cerr << "ERROR: could not complete identifying repeat pattern run, please refer to previous error messages for more information." << endl;
             return false;
@@ -105,9 +106,10 @@ bool step_2_executor(Parameters& args){
     string inputFileCatalog = args.get_string("inputFileCatalog");
     string inputFileCatalog2 = args.get_string("secondInputFileCatalog");
     string outputFile = args.get_string("outputFile");
-    int seedK = args.get_int("seedK");
+    double seedPercentage = args.get_double("seedK");
+    int minK =  args.get_int("minK");
     int alpha = args.get_int("alpha");
-    int run = cleaningKmers(inputFileCatalog, outputFile, seedK, alpha, inputFileCatalog2);
+    int run = cleaningKmers(inputFileCatalog, outputFile, minK, alpha, seedPercentage, inputFileCatalog2);
     if (run != 0){
         cerr << "ERROR: could not complete the catalog cleaning run, please refer to previous error messages for more information." << endl;
         return false;

@@ -28,12 +28,14 @@ int identifyingRepeatPatterns(string inputFile,
                               int interval = 0,
                               int maxK = 70,
                               int numRepeatUnits = 4,
+                              double seedPercentage = 0.5,
                               string inputFileR2 = "");
 
 int cleaningKmers(string inputCatalog,
                   string outputFile,
-                  int seedK,
+                  int minK,
                   int alpha,
+                  double seedPercentage = 0.5,
                   string inputCatalog2 = "");
 
 int findingKnownRepeats(string inputRead,
