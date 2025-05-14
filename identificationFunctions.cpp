@@ -53,7 +53,7 @@ void findKmersInFile(MultiFormatFileReader& fileReader,
 
         // iterate over line, at each point: generate an Smer -> retrive it's index vector 
         // we check if it can be expanded to a kmer and if so that kmer is added to the set of unique Kmers
-        for (int i = 0; i < line.length(); i++){
+        for (int i = 0; i <= (line.length() - seedK) ; i++){
             string smer = line.substr(i,seedK);
             auto& idxs = singleLineMapSeedKToIdx[smer];
             if (idxs.size() > 1){
@@ -111,10 +111,10 @@ bool skipThisLine(const string& read, double iligitimateRatio){
 
 // this function populates the smap
 void findSeedPattern(string line, unordered_map<string,vector<int>>& singleLineMapSeedKToIdx, int seedK){
-    for (int j = 0; j < (line.size() - seedK); j++){
+    for (int j = 0; j <= (line.size() - seedK); j++){
         string key = line.substr(j,seedK);
         if (key.size() < seedK){
-            break;
+            break; // throw error
         }
         singleLineMapSeedKToIdx[key].emplace_back(j);
     }
@@ -135,7 +135,7 @@ bool notOverlapping(int startIdx, int idxStartCompare, int idxEnd, int idxEndCom
     else {
         return false;
     }
-    return (spacing >= minLegitimateSpacer && spacing <= maxLegitimateSpacer);
+    return (spacing >= minLegitimateSpacer);
 }
 
 // this function populates the unique kmer set
@@ -158,19 +158,19 @@ void expandSeedToKmer(const string& line,
     auto lowerIt = lower_bound(smerIdxVect.begin(), smerIdxVect.end(), lowerBound);
     auto upperIt = upper_bound(smerIdxVect.begin(), smerIdxVect.end(), upperBound);
 
-    pair<string,int> bestK = {"", -1};
+    string bestK = "";
+    int bestKPos = -1;
 
     // then we iterate over all the other indecies comparing the smer appearance there to our "Potential kmer"
     for(auto it = lowerIt; it != upperIt; it++){
-        // cout << "entered loop" << endl; // debugg
-        int comparisionPos = distance(smerIdxVect.begin(), it);
-        if (comparisionPos == startIdx){ continue; }
+        if (*it == startIdx){ continue; }
 
         // we set the indecies of the start and end at our potential kmer and our comparision
+        int startIdxCopy = startIdx;
         int idxEnd = startIdx + smer.length() - 1;
         
-        int idxStartCompare = smerIdxVect.at(comparisionPos);
-        int idxEndCompare = smerIdxVect.at(comparisionPos) + smer.length() - 1;
+        int idxStartCompare = *it;
+        int idxEndCompare = idxStartCompare + smer.length() - 1;
         
         // we set flags = true to represent are the 2 occurances equal at the start and end.
         bool equalAtStart = true;
@@ -179,13 +179,13 @@ void expandSeedToKmer(const string& line,
         int kmerLen = smer.length();
         // while the 2 locations are equal at the start or end and the indecies are not overlapping:
         while((equalAtStart || equalAtEnd) && 
-                notOverlapping(startIdx, idxStartCompare, idxEnd, idxEndCompare, minLegitimateSpacer, maxLegitimateSpacer) &&
+                notOverlapping(startIdxCopy, idxStartCompare, idxEnd, idxEndCompare, minLegitimateSpacer, maxLegitimateSpacer) &&
                 kmerLen < maxK){
             // as long as the indecies would valid at the start if we decremented and they are still equal at the start:
-            if (equalAtStart && startIdx > 0 && idxStartCompare > 0){
+            if (equalAtStart && startIdxCopy > 0 && idxStartCompare > 0){
                 // if the "next" nucleotid is equal on both occurances we decrement the position and continue expending
-                if (line[startIdx - 1] == line[idxStartCompare - 1]){
-                    startIdx-- ;
+                if (line[startIdxCopy - 1] == line[idxStartCompare - 1]){
+                    startIdxCopy-- ;
                     idxStartCompare-- ;
                 }
                 // else we turn the equal at start flag to false.
@@ -197,7 +197,7 @@ void expandSeedToKmer(const string& line,
                 equalAtStart = false;
             }
             // after one end expansion if they overlapp we want to stop
-            if(!notOverlapping(startIdx,idxStartCompare,idxEnd,idxEndCompare,minLegitimateSpacer, maxLegitimateSpacer)) {break;}
+            if(!notOverlapping(startIdxCopy,idxStartCompare,idxEnd,idxEndCompare,minLegitimateSpacer, maxLegitimateSpacer)) {break;}
             // as long as the indecies would be valid at the end if we incremented and they are still equal at the end:
             if (equalAtEnd && (idxEnd + 1) < line.length() && (idxEndCompare + 1) < line.length()){
                 // if the "next" nucleotid is equal on both occurances we increment the position and continue expending
@@ -213,14 +213,14 @@ void expandSeedToKmer(const string& line,
             else{
                 equalAtEnd = false;
             }
-            kmerLen = idxEnd - startIdx + 1;    
+            kmerLen = idxEnd - startIdxCopy + 1;    
         } 
         // if they reached a point where either Kmers overlap, or hit any of the bounds, throw them out
         // if we are strict we also throw out the entire line
-        if (!notOverlapping(startIdx,idxStartCompare,idxEnd,idxEndCompare,minLegitimateSpacer, maxLegitimateSpacer) || 
+        if (!notOverlapping(startIdxCopy,idxStartCompare,idxEnd,idxEndCompare,minLegitimateSpacer, maxLegitimateSpacer) || 
             idxEnd >= (line.length() - 1) || 
             idxEndCompare >= (line.length() - 1) || 
-            startIdx <= 0 || 
+            startIdxCopy <= 0 || 
             idxStartCompare <= 0 ||
             kmerLen >= maxK){ 
                 if(strict){
@@ -235,16 +235,16 @@ void expandSeedToKmer(const string& line,
         // if this potential kmer follows requirements :
         // (is indeed a kmer and is longer then the best kmer so far)
         // we make it the best kmer
-        if(kmerLen >= minK && kmerLen > bestK.first.length()){
-            string kmer = line.substr(startIdx, kmerLen);
-            bestK.first = kmer;
-            bestK.second = startIdx;
+        if(kmerLen >= minK && kmerLen > bestK.length()){
+            string kmer = line.substr(startIdxCopy, kmerLen);
+            bestK = kmer;
+            bestKPos = startIdxCopy;
         }   
     }
     // once we have compared every smer to all the other Smers:
     // We add the best match for each instance (a kmer) to the unique Kmers in line Set.
-    if(bestK.second != -1){
-        auto& positions = uniqueKmersInLine[bestK.first];
-        positions.insert(bestK.second);
+    if(bestKPos != -1){
+        auto& positions = uniqueKmersInLine[bestK];
+        positions.insert(bestKPos);
     }
 }
