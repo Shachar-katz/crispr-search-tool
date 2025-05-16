@@ -161,9 +161,12 @@ void expandSeedToKmer(const string& line,
     string bestK = "";
     int bestKPos = -1;
 
+    // cout << "expanded for s = " << smer << " at location i = " << startIdx;
+
     // then we iterate over all the other indecies comparing the smer appearance there to our "Potential kmer"
     for(auto it = lowerIt; it != upperIt; it++){
         if (*it == startIdx){ continue; }
+        // cout << " Against " << *it << endl;
 
         // we set the indecies of the start and end at our potential kmer and our comparision
         int startIdxCopy = startIdx;
@@ -237,6 +240,7 @@ void expandSeedToKmer(const string& line,
         // we make it the best kmer
         if(kmerLen >= minK && kmerLen > bestK.length()){
             string kmer = line.substr(startIdxCopy, kmerLen);
+            // cout << "bestK for s = " << smer << " at location i = " << startIdxCopy << " resulted in k= " << kmer << endl; //db
             bestK = kmer;
             bestKPos = startIdxCopy;
         }   

@@ -37,7 +37,7 @@ void init_params(const char* name, int argc, const char **argv, Parameters& args
     args.add_parser("secondInputFileCatalog", new ParserFilename("Additional input file catalog for dual fastq")); // for 2
     args.add_parser("alpha", new ParserInteger("Alpha (number of mutations permitted for grouping kmers)")); // for 2
     args.add_parser("interval", new ParserInteger("interval for reporting progress through the file", 0)); // for 1 & 3
-    args.add_parser("maxK", new ParserInteger("maximum allowed length for a repeat", 100)); // for 1
+    args.add_parser("maxK", new ParserInteger("maximum allowed length for a repeat", 75)); // for 1
     args.add_parser("horizonCoefficient", new ParserInteger("the coefficient to generate a search window w/i line (used to multiply the num repetative units AKA spacer-repeat sets)", 4)); // for 1
     args.add_parser("preStrict", new ParserBoolean("Should we throw suspected tandam lines before processing", false)); //for 1
     args.add_parser("strictDuring", new ParserBoolean("Should we throw suspected tandam lines during processing", false)); //for 1

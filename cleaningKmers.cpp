@@ -33,6 +33,8 @@ int cleaningKmers(string inputCatalog,
 
     int seedK = minK * seedPercentage;
     
+    cout << seedK << endl; 
+    
     catalogToSAndKMaps(catalogFile, smap, kmap, seedK, logFile);
     
     catalogFile.close();
