@@ -32,9 +32,7 @@ int cleaningKmers(string inputCatalog,
     if (!isInputFileValid(catalogFile, inputCatalog)){ return -1; }
 
     int seedK = minK * seedPercentage;
-    
-    cout << seedK << endl; 
-    
+        
     catalogToSAndKMaps(catalogFile, smap, kmap, seedK, logFile);
     
     catalogFile.close();
