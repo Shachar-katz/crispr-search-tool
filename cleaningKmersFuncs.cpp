@@ -254,6 +254,68 @@ void selectReps(unordered_map<int, string>& provisionalRepList, const unordered_
     logFile << "selected final reps" << endl; // debugging
 }
 
+void selectRepsWeight(unordered_map<int, string>& provisionalRepList, const unordered_map<int, vector<string>>& reverseBins, const unordered_map<string,data_t>& kmap, int seedK, ofstream& logFile){
+    logFile << "begining selecting reps" << endl;
+    for (const auto& [binNum, kVect] : reverseBins){
+        string rep = findRepUsingWeight(kVect, kmap, seedK);
+        provisionalRepList[binNum] = rep;
+    }
+    logFile << "selected reps" << endl;
+}
+
+inline string findRepUsingWeight(const vector<string>& kVect, 
+                                 const unordered_map<string,data_t>& kmap, 
+                                 int seedK)
+{
+    int bestWeight = -1;
+    string bestK = "";
+    for (int i = 0; i < kVect.size(); i++){
+        string kmerI = kVect.at(i);
+        int weightI;
+        // calculate weight for the current kmer
+        for (int j = 0; j < kVect.size(); j++){
+            if (i == j) { continue; }
+            string kmerJ = kVect.at(j);
+            int D = distance(kmerI, kmerJ, seedK);
+            weightI += D * kmap.at(kmerJ).countInFile; 
+        }
+        // if weight is better ( aka lower )
+        if (weightI < bestWeight || bestWeight == -1){
+            bestWeight = weightI;
+            bestK = kmerI;
+        }
+        // if tie weight we decide using pal score-> if pal score ties, we decide based on cannonic tie breaker
+        else if ( weightI == bestWeight ){
+            int palScoreI = kmap.at(kmerI).palindromicScore;
+            int palScoreBest = kmap.at(bestK).palindromicScore;
+            if (palScoreI > palScoreBest) { 
+                bestWeight = weightI;
+                bestK = kmerI;
+            }
+            else if (palScoreI == palScoreBest){
+                bestK = tieBreaker(bestK, kmerI);
+            }
+        }
+    }
+    return bestK;
+}
+
+inline int distance(string kmerI, string kmerJ , int seedK){
+    int distance = 0;
+    unordered_set <string> smerSetI;
+    unordered_set <string> smerSetJ;
+    findSmerSet(kmerI, smerSetI, seedK);
+    findSmerSet(kmerJ, smerSetJ, seedK);
+    for (auto& currSmer : smerSetI){
+        if (smerSetJ.count(currSmer) == 0) { distance++; }
+    }
+    for (auto& currSmer : smerSetJ){
+        if (smerSetI.count(currSmer) == 0) { distance++; }
+    }
+    return distance;
+}
+
+
 // a function to cannonize reps
 unordered_map<int, string> reCannonization(const unordered_map<int, string>& provisionalRepList, const DynamicBins& bins, ofstream& logFile) {
     

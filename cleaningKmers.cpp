@@ -10,7 +10,8 @@
 int cleaningKmers(string inputCatalog, 
                   string outputFile,
                   int minK, 
-                  int alpha, 
+                  int alpha,
+                  bool weightSelector,
                   double seedPercentage,
                   string inputCatalog2)
 {
@@ -61,7 +62,13 @@ int cleaningKmers(string inputCatalog,
     unordered_map<int,vector<string>> reverseBins = bins.getReBins();
     unordered_map<int,string> provisionalReps;
     
-    selectReps(provisionalReps, reverseBins, kmap, logFile);
+    if (weightSelector == true){
+        selectRepsWeight(provisionalReps, reverseBins, kmap, seedK, logFile);
+    }
+    else{
+        selectReps(provisionalReps, reverseBins, kmap, logFile);
+    }
+    
     logFile << "size of choosen reps before cannonization: " << provisionalReps.size() << endl; // debugg
     try{
         validateBins(provisionalReps,bins,reverseBins,logFile);

@@ -35,6 +35,7 @@ int cleaningKmers(string inputCatalog,
                   string outputFile,
                   int minK,
                   int alpha,
+                  bool weightSelector,
                   double seedPercentage = 0.5,
                   string inputCatalog2 = "");
 

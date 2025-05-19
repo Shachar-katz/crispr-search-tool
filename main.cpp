@@ -41,6 +41,7 @@ void init_params(const char* name, int argc, const char **argv, Parameters& args
     args.add_parser("horizonCoefficient", new ParserInteger("the coefficient to generate a search window w/i line (used to multiply the num repetative units AKA spacer-repeat sets)", 4)); // for 1
     args.add_parser("preStrict", new ParserBoolean("Should we throw suspected tandam lines before processing", false)); //for 1
     args.add_parser("strictDuring", new ParserBoolean("Should we throw suspected tandam lines during processing", false)); //for 1
+    args.add_parser("repSelectWithWeight", new ParserBoolean("Should we select reps with weight (true) or with abundance", true)); //for 2
     
      if (argc == 1) {
         args.usage(name);
@@ -107,7 +108,8 @@ bool step_2_executor(Parameters& args){
     double seedPercentage = args.get_double("seedPercentage");
     int minK =  args.get_int("minK");
     int alpha = args.get_int("alpha");
-    int run = cleaningKmers(inputFileCatalog, outputFile, minK, alpha, seedPercentage, inputFileCatalog2);
+    bool weightSelector = args.get_bool("repSelectWithWeight");
+    int run = cleaningKmers(inputFileCatalog, outputFile, minK, alpha, weightSelector, seedPercentage, inputFileCatalog2);
     if (run != 0){
         cerr << "ERROR: could not complete the catalog cleaning run, please refer to previous error messages for more information." << endl;
         return false;

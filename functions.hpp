@@ -94,6 +94,19 @@ void binSingles(const unordered_map<string,vector<string>>& smap, DynamicBins& b
 void selectReps(unordered_map<int, string>& provisionalRepList, const unordered_map<int,
                 vector<string>>& reverseBins, const unordered_map<string,data_t>& kmap, ofstream& logFile);
 
+void selectRepsWeight(unordered_map<int, string>& provisionalRepList, 
+                      const unordered_map<int, 
+                      vector<string>>& reverseBins, 
+                      const unordered_map<string,data_t>& kmap, 
+                      int seedK, 
+                      ofstream& logFile);
+                    
+inline string findRepUsingWeight(const vector<string>& kVect, 
+                                 const unordered_map<string,data_t>& kmap, 
+                                 int seedK);
+
+inline int distance(string kmerI, string kmerJ , int seedK);
+
 unordered_map<int, string> reCannonization(const unordered_map<int, string>& provisionalRepList, const DynamicBins& bins, ofstream& logFile);
 
 void creatingOutputMap(unordered_map<string,data_t>& outputMap, unordered_map<string,data_t>& binsOutputMap, 
@@ -143,7 +156,12 @@ string expandSeedToKmer(const string& line,
                         int maxMismatches, 
                         int& numMissmatches);
 
-inline void findSmerSet(string kmer, unordered_set<string>& smerSet, int seedK);
+inline void findSmerSet(string kmer, unordered_set<string>& smerSet, int seedK){
+    for (int j = 0; j <= (kmer.size() - seedK); j++){
+        string smerForSearch = kmer.substr(j,seedK);
+        smerSet.insert(smerForSearch);
+    }
+}
 
 inline bool isKmerMatch(const string& line,  
                         int start,

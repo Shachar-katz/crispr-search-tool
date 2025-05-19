@@ -112,13 +112,6 @@ void arrayIdentifior(MultiFormatFileReader& fileReader,
     stats["precent_reads_in_file_with_array: "] += precentReadsWithRepeat;
 }
 
-inline void findSmerSet(string kmer, unordered_set<string>& smerSet, int seedK){
-    for (int j = 0; j <= (kmer.size() - seedK); j++){
-        string smerForSearch = kmer.substr(j,seedK);
-        smerSet.insert(smerForSearch);
-    }
-}
-
 inline bool isKmerMatch(const string& line,  
                         int start,
                         int end, 
