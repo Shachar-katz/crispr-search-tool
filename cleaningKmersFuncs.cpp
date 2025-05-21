@@ -214,7 +214,7 @@ string tieBreaker(string currentRep, string auditioningKmer){
 // this function iterates over the reverse bins and assigns exactly one representative for each bin (the one with the highest abundance).
 // the end result is a list of representatives and bin numbers in the repList structure
 void selectReps(unordered_map<int, string>& provisionalRepList, const unordered_map<int, vector<string>>& reverseBins, const unordered_map<string,data_t>& kmap, ofstream& logFile){
-    logFile << "begining selecting reps" << endl;
+    logFile << "begining selecting reps using abundance" << endl;
     // we iterate over the reverse bins structure that points from bin number to a vector of Kmers in that bin.
     for (const auto& [binNum, kVect] : reverseBins){
         vector <string> sortedKVect = kVect;
@@ -255,9 +255,11 @@ void selectReps(unordered_map<int, string>& provisionalRepList, const unordered_
 }
 
 void selectRepsWeight(unordered_map<int, string>& provisionalRepList, const unordered_map<int, vector<string>>& reverseBins, const unordered_map<string,data_t>& kmap, int seedK, ofstream& logFile){
-    logFile << "begining selecting reps" << endl;
+    logFile << "begining selecting reps using weight" << endl;
     for (const auto& [binNum, kVect] : reverseBins){
+        cout << "size of bin: " << kVect.size() << endl;
         string rep = findRepUsingWeight(kVect, kmap, seedK);
+        cout << "found rep for bin" << binNum << endl;
         provisionalRepList[binNum] = rep;
     }
     logFile << "selected reps" << endl;
@@ -267,6 +269,7 @@ inline string findRepUsingWeight(const vector<string>& kVect,
                                  const unordered_map<string,data_t>& kmap, 
                                  int seedK)
 {
+    cout << "entered" << endl;
     int bestWeight = -1;
     string bestK = "";
     for (int i = 0; i < kVect.size(); i++){
@@ -367,6 +370,7 @@ void creatingOutputMap(unordered_map<string,data_t>& outputMap, unordered_map<st
         for (string subKmer : subKmersVect){
             auto& dataBins = binsOutputMap[subKmer];
             dataBins.binNum = "K_" + to_string(newBinNum);
+            dataBins.numLines = kmap.at(subKmer).numLines; 
             dataBins.palindromicScore = kmap.at(subKmer).palindromicScore;
             dataBins.kLen = kmap.at(subKmer).kLen;
         }

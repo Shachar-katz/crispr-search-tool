@@ -116,6 +116,7 @@ int cleaningKmers(string inputCatalog,
 
     outFS2 << 
      left << "repeat" <<
+     '\t' << "number_of_lines" <<
      '\t' << "bin_identifier" <<
      '\t' << "num_palindromic_nucleotides" <<
      '\t' << "kmer_Length" << endl;
