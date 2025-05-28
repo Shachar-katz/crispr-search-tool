@@ -35,7 +35,7 @@ bool notOverlapping(int startIdx, int idxStartCompare, int idxEnd, int idxEndCom
 }
 
 // this function populates the unique kmer set
-void expandSeedTesting(const string& line, 
+int expandSeedTesting(const string& line, 
                       string smer, 
                       int startIdx, 
                       vector<int> smerIdxVect, 
@@ -142,7 +142,9 @@ void expandSeedTesting(const string& line,
     if(bestKPos != -1){
         auto& repeat = uniqueKmersInLine[bestKPos];
         repeat = bestK;
+        return 1;
     }
+    return 0;
 }
 
 void generateRepeatition(MultiFormatFileReader& fileReader, 
@@ -175,27 +177,25 @@ void generateRepeatition(MultiFormatFileReader& fileReader,
 
         // we also create an empty map of unique repeats -> set of their positions in this line.
         unordered_map<int,string> posToKmerInLine;
+        unordered_map<int,double> inLineSegmentToRepetition;
 
         // iterate over line, at each point: generate an Smer -> retrive it's index vector 
         // we check if it can be expanded to a kmer and if so that kmer is added to the set of unique Kmers
+        int currSegment = 0;
+        double currRepitionScore = 0;
+        int segmentsSize = 100;
         for (int i = 0; i <= (line.length() - seedK) ; i++){
             string smer = line.substr(i,seedK);
             auto& idxs = singleLineMapSeedKToIdx[smer];
             if (idxs.size() > 1){
-                expandSeedTesting(line, smer, i, idxs, minK, posToKmerInLine, minLegitimateSpacer, maxLegitimateSpacer, maxK, horizon);
+                currRepitionScore += expandSeedTesting(line, smer, i, idxs, minK, posToKmerInLine, minLegitimateSpacer, maxLegitimateSpacer, maxK, horizon);
+            }
+            if (i % segmentsSize == 0){
+                inLineSegmentToRepetition[currSegment] = currRepitionScore;
+                currSegment = i; 
+                currRepitionScore = 0.0;
             }
         }
-        unordered_map<int,double> inLineSegmentToRepetition;
-        int segmentsSize = 100;
-        for (int i = 0; i <= (line.length() - segmentsSize) ; i += segmentsSize){
-            double repetitionScore = 0.0;
-            for(int j = i; j < (i + segmentsSize) ; j ++){
-                if (posToKmerInLine.count(j) == 0){ continue; }
-                repetitionScore ++;
-            }
-            inLineSegmentToRepetition[i] = repetitionScore;
-        }
-        unordered_map<string,set<int>> uniqueKmersInLine;
         for (const auto& [location, repetiton] : inLineSegmentToRepetition) {
             repitionChart << '\t' << progressCounter << '\t' << location << '\t' << (repetiton / 100) << endl;;
         }
@@ -206,7 +206,7 @@ void generateRepeatition(MultiFormatFileReader& fileReader,
 int main(){
     // open log file
     ofstream repitionChart;
-    string repitionChartFile = "/Users/sarahkatz/relman_lab/L1_V4/repeatition_chart_bad_lines";
+    string repitionChartFile = "/Users/sarahkatz/relman_lab/L1_V4/repeatition_chart_array_lines";
     repitionChart.open(repitionChartFile);
     if (!repitionChart.is_open()){
          cerr << "Error: Could not open log output file." << endl;
@@ -214,8 +214,8 @@ int main(){
     }
     repitionChart << "read_num" << '\t' << "block_coordinations" << '\t' << "repeatition" << endl;
 
-    string inputFile = "/Users/sarahkatz/relman_lab/PacBio/badLines.fa";
-    MultiFormatFileReader fileReader(inputFile, "fasta");
+    string inputFile = "/Users/sarahkatz/relman_lab/PacBio/ideating.txt";
+    MultiFormatFileReader fileReader(inputFile, "txt");
 
      // calculate seedK and horizon
     int seedK = 10;
@@ -231,3 +231,31 @@ int main(){
     repitionChart.close();
     return 0;
 }
+// int main(){
+//     // open log file
+//     ofstream repitionChart;
+//     string repitionChartFile = "/Users/sarahkatz/relman_lab/L1_V4/repeatition_chart_bad_lines";
+//     repitionChart.open(repitionChartFile);
+//     if (!repitionChart.is_open()){
+//          cerr << "Error: Could not open log output file." << endl;
+//          return -1;
+//     }
+//     repitionChart << "read_num" << '\t' << "block_coordinations" << '\t' << "repeatition" << endl;
+
+//     string inputFile = "/Users/sarahkatz/relman_lab/PacBio/badLines.fa";
+//     MultiFormatFileReader fileReader(inputFile, "fasta");
+
+//      // calculate seedK and horizon
+//     int seedK = 10;
+//     int minK = 20;
+//     int maxK = 70;
+//     int minLegitSpace = 10;
+//     int maxLegitSpace = 100;
+//     int interval = 1;
+//     int horizon = (maxK + maxLegitSpace) * 4 + maxK;
+//     int L = 150;
+//      // populate the global Kmer map (identify repeats)
+//     generateRepeatition(fileReader, seedK, minK, minLegitSpace, maxLegitSpace, horizon, repitionChart, interval, maxK);    
+//     repitionChart.close();
+//     return 0;
+// }
