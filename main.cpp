@@ -37,8 +37,10 @@ void init_params(const char* name, int argc, const char **argv, Parameters& args
     args.add_parser("secondInputFileCatalog", new ParserFilename("Additional input file catalog for dual fastq")); // for 2
     args.add_parser("alpha", new ParserInteger("Alpha (number of mutations permitted for grouping kmers)")); // for 2
     args.add_parser("interval", new ParserInteger("interval for reporting progress through the file", 0)); // for 1 & 3
-    args.add_parser("maxK", new ParserInteger("maximum allowed length for a repeat", 75)); // for 1
+    args.add_parser("maxK", new ParserInteger("maximum allowed length for a repeat", 70)); // for 1
     args.add_parser("horizonCoefficient", new ParserInteger("the coefficient to generate a search window w/i line (used to multiply the num repetative units AKA spacer-repeat sets)", 4)); // for 1
+    args.add_parser("segmentSize", new ParserInteger("the size of the segments for calculating repeatition score.)", 100)); // for 1
+    args.add_parser("smoothingWindow", new ParserInteger("the number of segemnts used for smoothing the repeatition score.)", 2)); // for 1
     args.add_parser("preStrict", new ParserBoolean("Should we throw suspected tandam lines before processing", false)); //for 1
     args.add_parser("strictDuring", new ParserBoolean("Should we throw suspected tandam lines during processing", false)); //for 1
     args.add_parser("repSelectWithWeight", new ParserBoolean("Should we select reps with weight (true) or with abundance", true)); //for 2
@@ -64,39 +66,33 @@ bool step_1_executor(Parameters& args){
     int interval = args.get_int("interval");
     int maxK = args.get_int("maxK");
     int numRepetativeUnits = args.get_int("horizonCoefficient");
+    int segmentSize = args.get_int("segmentSize");
+    int smoothingWindow = args.get_int("smoothingWindow");
     bool strict = args.get_bool("strictDuring");
     bool preStrict = args.get_bool("preStrict");
-    // a case for either dual fastq
-    if (inputFileType == "fastq_dual") {
-        if (!args.is_defined("inputFileR1") || !args.is_defined("inputFileR2")) {
-            cerr << "Missing mandatory fastq_dual input files for step 1." << endl;
-            return false;
-        }
-        // run for strand 1
-        string inputFileR1 = args.get_string("inputFileR1");
-        string inputFileR2 = args.get_string("inputFileR2");
+    string inputFileR1 = "";
+    string inputFileR2 = "";
+    // a case for dual fastq
+    if (args.is_defined("inputFileR1") && args.is_defined("inputFileR2")) {
+        inputFileR1 = args.get_string("inputFileR1");
+        inputFileR2 = args.get_string("inputFileR2");
         if (interval == 0){ interval = 100000; }
         cout << "repeat finder initialized for R1" << endl;
-        int run = identifyingRepeatPatterns(inputFileR1, inputFileType, outputFile, minK, minLegitimateSpacer, maxLegitimateSpacer, strict, preStrict, interval, maxK, numRepetativeUnits, seedPercentage, inputFileR2);
-        if (run != 0){
-            cerr << "ERROR: could not complete identifying repeat pattern run, please refer to previous error messages for more information." << endl;
-            return false;
-        }
     } 
-    // a case for all other file types
-    else {
-        if (!args.is_defined("inputFile")) {
-            cerr << "Missing mandatory inputFile for step 1." << endl;
-            return false;
-        }
-        string inputFile = args.get_string("inputFile");
+    else if (args.is_defined("inputFile")) {
+        inputFileR1 = args.get_string("inputFile");
+        inputFileR2 = "";
         if (interval == 0){ interval = 1000; }
         cout << "repeat finder initialized" << endl;
-        int run = identifyingRepeatPatterns(inputFile, inputFileType, outputFile, minK, minLegitimateSpacer, maxLegitimateSpacer, strict, preStrict, interval, maxK, numRepetativeUnits, seedPercentage);
-        if (run != 0){
-            cerr << "ERROR: could not complete identifying repeat pattern run, please refer to previous error messages for more information." << endl;
-            return false;
-        }
+    } 
+    else {
+        cerr << "Missing mandatory input file/s for step 1" << endl;
+        return false;
+    }
+    int run = identifyingRepeatPatterns(inputFileR1, inputFileType, outputFile, minK, minLegitimateSpacer, maxLegitimateSpacer, strict, preStrict, interval, maxK, segmentSize, smoothingWindow, numRepetativeUnits, seedPercentage, inputFileR2);
+    if (run != 0){
+        cerr << "ERROR: could not complete identifying repeat pattern run, please refer to previous error messages for more information." << endl;
+        return false;
     }
     return true;
 }
@@ -125,27 +121,30 @@ bool step_3_executor(Parameters& args){
     int minLegitimateSpacer = args.get_int("minLegitimateSpacer");
     int minK = args.get_int("minK");
     double seedPercentage = args.get_double("seedPercentage");
+    string inputFileR1 = "";
+    string inputFileR2 = "";
     // decide on dual or single fastq
     if (args.is_defined("inputFileR1") && args.is_defined("inputFileR2")) {
         // run for strand 1
-        string inputFileR1 = args.get_string("inputFileR1");
-        string inputFileR2 = args.get_string("inputFileR2");
-        int run = findingKnownRepeats(inputFileR1, inputFileType, inputFileCatalog, outputFile, minLegitimateSpacer, minK, interval, seedPercentage, inputFileR2);
-        if (run != 0){
-            cerr << "ERROR: could not complete the finding known repeats run, please refer to previous error messages for more information." << endl;
-            return false;
-        }
+        inputFileR1 = args.get_string("inputFileR1");
+        inputFileR2 = args.get_string("inputFileR2");
+        if (interval == 0){ interval = 100000; }
+        cout << "repeat finder initialized for R1" << endl;
     } 
     else if (args.is_defined("inputFile")) {
-        string inputFile = args.get_string("inputFile");
-        int run = findingKnownRepeats(inputFile, inputFileType, inputFileCatalog, outputFile, minLegitimateSpacer, minK, interval, seedPercentage);
-        if (run != 0){
-            cerr << "ERROR: could not complete the finding known repeats run, please refer to previous error messages for more information." << endl;
-            return false;
-        }
+        inputFileR1 = args.get_string("inputFile");
+        inputFileR2 = "";
+        if (interval == 0){ interval = 1000; }
+        cout << "repeat finder initialized" << endl;
     } 
     else {
-        cerr << "Missing mandatory input file for step 3" << endl;
+        cerr << "Missing mandatory input file/s for step 3" << endl;
+        return false;
+    }
+
+    int run = findingKnownRepeats(inputFileR1, inputFileType, inputFileCatalog, outputFile, minLegitimateSpacer, minK, interval, seedPercentage, inputFileR2);
+    if (run != 0){
+        cerr << "ERROR: could not complete the finding known repeats run, please refer to previous error messages for more information." << endl;
         return false;
     }
     return true;
@@ -161,26 +160,28 @@ bool array_dump_executor(Parameters& args){
     int minK = args.get_int("minK");
     int maxMismatches = args.get_int("maxMismatchesForKmers");
     double seedPercentage = args.get_double("seedPercentage");
+    string inputFileR1 = "";
+    string inputFileR2 = "";
     // decide on dual or single fastq
     if (args.is_defined("inputFileR1") && args.is_defined("inputFileR2")) {
-        string inputFileR1 = args.get_string("inputFileR1");
-        string inputFileR2 = args.get_string("inputFileR2");
-        int run = arrayDump(inputFileR1, inputFileType, inputFileCatalog, outputFile, minLegitimateSpacer, maxLegitimateSpacer, minK, interval, maxMismatches, seedPercentage, inputFileR2);
-        if (run != 0){
-            cerr << "ERROR: could not complete the array dump run, please refer to previous error messages for more information." << endl;
-            return false;
-        }
+        inputFileR1 = args.get_string("inputFileR1");
+        inputFileR2 = args.get_string("inputFileR2");
+        if (interval == 0){ interval = 100000; }
+        cout << "repeat finder initialized for R1" << endl;
     } 
     else if (args.is_defined("inputFile")) {
-        string inputFile = args.get_string("inputFile");
-        int run = arrayDump(inputFile, inputFileType, inputFileCatalog, outputFile, minLegitimateSpacer, maxLegitimateSpacer, minK, interval, maxMismatches, seedPercentage);
-        if (run != 0){
-            cerr << "ERROR: could not complete the array dump run, please refer to previous error messages for more information." << endl;
-            return false;
-        }
+        inputFileR1 = args.get_string("inputFile");
+        inputFileR2 = "";
+        if (interval == 0){ interval = 1000; }
+        cout << "repeat finder initialized" << endl;
     } 
     else {
         cerr << "Missing mandatory input file for array dump" << endl;
+        return false;
+    }
+    int run = arrayDump(inputFileR1, inputFileType, inputFileCatalog, outputFile, minLegitimateSpacer, maxLegitimateSpacer, minK, interval, maxMismatches, seedPercentage, inputFileR2);
+    if (run != 0){
+        cerr << "ERROR: could not complete the array dump run, please refer to previous error messages for more information." << endl;
         return false;
     }
     return true;

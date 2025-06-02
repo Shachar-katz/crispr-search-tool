@@ -9,8 +9,9 @@ void findKmersInFile(MultiFormatFileReader& fileReader,
                      int seedK, 
                      int minK, 
                      int minLegitimateSpacer,
-                     int maxLegitimateSpacer,
                      int horizon,
+                     int segmentSize,
+                     int smoothingWindow,
                      unordered_map<string,double>& stats, 
                      bool strict, 
                      bool preStrict, 
@@ -48,18 +49,24 @@ void findKmersInFile(MultiFormatFileReader& fileReader,
         unordered_map<string,vector<int>> singleLineMapSeedKToIdx;
         findSeedPattern(line, singleLineMapSeedKToIdx, seedK);
 
+        unordered_map<int,double> inLineSmoothRepetition;
+        unordered_map<int, string> posToKmersInLine;
+        generateRepeatition(line, segmentSize, seedK, minK, maxK, minLegitimateSpacer, horizon, smoothingWindow, strict, singleLineMapSeedKToIdx, inLineSmoothRepetition, posToKmersInLine);
+
         // we also create an empty map of unique repeats -> set of their positions in this line.
         unordered_map<string,set<int>> uniqueKmersInLine;
-
-        // iterate over line, at each point: generate an Smer -> retrive it's index vector 
-        // we check if it can be expanded to a kmer and if so that kmer is added to the set of unique Kmers
-        for (int i = 0; i <= (line.length() - seedK) ; i++){
-            string smer = line.substr(i,seedK);
-            auto& idxs = singleLineMapSeedKToIdx[smer];
-            if (idxs.size() > 1){
-                expandSeedToKmer(line, smer, i, idxs, minK, uniqueKmersInLine, minLegitimateSpacer, maxLegitimateSpacer, strict, maxK, horizon);
+        for(auto& [segment, repScore] : inLineSmoothRepetition){
+            if (repScore > 0.6) { continue; }
+            int lowEnd = segment;
+            int highEnd = segment + segmentSize;
+            for (int i = lowEnd; i <= highEnd; i++){
+                if (posToKmersInLine.count(i) == 0) { continue; }
+                string kmer = posToKmersInLine.at(i);
+                auto& positions = uniqueKmersInLine[kmer];
+                positions.insert(i);
             }
         }
+
         // for statistics 
         if (!uniqueKmersInLine.empty()){
             numReadsWithRepeats++;
@@ -122,7 +129,7 @@ void findSeedPattern(string line, unordered_map<string,vector<int>>& singleLineM
 
 // this function recives start and end location of 2 Kmers in expansion and 
 // varifies that they are not overlapping
-bool notOverlapping(int startIdx, int idxStartCompare, int idxEnd, int idxEndCompare, int minLegitimateSpacer, int maxLegitimateSpacer)
+bool notOverlapping(int startIdx, int idxStartCompare, int idxEnd, int idxEndCompare, int minLegitimateSpacer)
 {
     int spacing;
     if (idxEnd < idxStartCompare) {
@@ -139,14 +146,13 @@ bool notOverlapping(int startIdx, int idxStartCompare, int idxEnd, int idxEndCom
 }
 
 // this function populates the unique kmer set
-void expandSeedToKmer(const string& line, 
+int expandSeedToKmer(const string& line, 
                       string smer, 
                       int startIdx, 
                       vector<int> smerIdxVect, 
                       int minK, 
-                      unordered_map<string, set<int>>& uniqueKmersInLine,
+                      unordered_map<int, string>& PosToKmersInLine,
                       int minLegitimateSpacer, 
-                      int maxLegitimateSpacer, 
                       bool strict, 
                       int maxK, 
                       int horizion){
@@ -182,7 +188,7 @@ void expandSeedToKmer(const string& line,
         int kmerLen = smer.length();
         // while the 2 locations are equal at the start or end and the indecies are not overlapping:
         while((equalAtStart || equalAtEnd) && 
-                notOverlapping(startIdxCopy, idxStartCompare, idxEnd, idxEndCompare, minLegitimateSpacer, maxLegitimateSpacer) &&
+                notOverlapping(startIdxCopy, idxStartCompare, idxEnd, idxEndCompare, minLegitimateSpacer) &&
                 kmerLen < maxK){
             // as long as the indecies would valid at the start if we decremented and they are still equal at the start:
             if (equalAtStart && startIdxCopy > 0 && idxStartCompare > 0){
@@ -200,7 +206,7 @@ void expandSeedToKmer(const string& line,
                 equalAtStart = false;
             }
             // after one end expansion if they overlapp we want to stop
-            if(!notOverlapping(startIdxCopy,idxStartCompare,idxEnd,idxEndCompare,minLegitimateSpacer, maxLegitimateSpacer)) {break;}
+            if(!notOverlapping(startIdxCopy,idxStartCompare,idxEnd,idxEndCompare,minLegitimateSpacer)) {break;}
             // as long as the indecies would be valid at the end if we incremented and they are still equal at the end:
             if (equalAtEnd && (idxEnd + 1) < line.length() && (idxEndCompare + 1) < line.length()){
                 // if the "next" nucleotid is equal on both occurances we increment the position and continue expending
@@ -220,14 +226,14 @@ void expandSeedToKmer(const string& line,
         } 
         // if they reached a point where either Kmers overlap, or hit any of the bounds, throw them out
         // if we are strict we also throw out the entire line
-        if (!notOverlapping(startIdxCopy,idxStartCompare,idxEnd,idxEndCompare,minLegitimateSpacer, maxLegitimateSpacer) || 
+        if (!notOverlapping(startIdxCopy,idxStartCompare,idxEnd,idxEndCompare,minLegitimateSpacer) || 
             idxEnd >= (line.length() - 1) || 
             idxEndCompare >= (line.length() - 1) || 
             startIdxCopy <= 0 || 
             idxStartCompare <= 0 ||
             kmerLen >= maxK){ 
                 if(strict){
-                    return;
+                    return 0;
                 }
                 continue; 
         }
@@ -248,7 +254,65 @@ void expandSeedToKmer(const string& line,
     // once we have compared every smer to all the other Smers:
     // We add the best match for each instance (a kmer) to the unique Kmers in line Set.
     if(bestKPos != -1){
-        auto& positions = uniqueKmersInLine[bestK];
-        positions.insert(bestKPos);
+        // auto& positions = uniqueKmersInLine[bestK]; old!!
+        // positions.insert(bestKPos); old!!
+        auto& repeat = PosToKmersInLine[bestKPos];
+        repeat = bestK;
+        return 1;
+    }
+    return 0;
+}
+
+void generateRepeatition(const string& line,
+                         int segmentSize,
+                         int seedK, 
+                         int minK,
+                         int maxK,
+                         int minLegitimateSpacer,
+                         int horizon,
+                         int smoothingWindow,
+                         bool strict,
+                         const unordered_map<string,vector<int>>& singleLineMapSeedKToIdx, 
+                         unordered_map<int,double>& inLineSmoothRepetition,
+                         unordered_map<int,string>& posToKmerInLine)
+{
+    vector<int> inLineSegments;
+    vector<double> inLineRepetitionScores;
+    unordered_map<int,double> inLineSegmentToRepetition;
+
+    int currSegment = 0;
+    double currRepitionScore = 0;
+
+    for (int i = 0; i <= (line.length() - seedK) ; i++){
+        string smer = line.substr(i,seedK);
+        auto& idxs = singleLineMapSeedKToIdx.at(smer);
+        if (idxs.size() > 1){
+            currRepitionScore += expandSeedToKmer(line, smer, i, idxs, minK, posToKmerInLine, minLegitimateSpacer, strict, maxK, horizon);
+        }
+        if (i % segmentSize == 0){
+            inLineSegments.emplace_back(currSegment);
+            inLineRepetitionScores.emplace_back(currRepitionScore / segmentSize);
+            currSegment = i; 
+            currRepitionScore = 0.0;
+        }
+    }
+
+    if (inLineSegments.size() != inLineRepetitionScores.size()) { cout << "error" << endl;/* throw error*/}
+    const int numSegments = static_cast<int>(inLineRepetitionScores.size());
+
+    for (int j = 0; j < numSegments; j++)
+    {
+        int lowIdx = std::max(j - smoothingWindow, 0);
+        int highIdx = std::min(j + smoothingWindow, numSegments - 1);
+        double smoothedScore = 0.0;
+        double sumA = 0.0;
+        for (int i = lowIdx; i <= highIdx; i++){
+            int aI = 2 * smoothingWindow - abs(i - j);
+            double weightI = static_cast<double>(aI);
+            smoothedScore += weightI * inLineRepetitionScores[i];
+            sumA += aI;
+        }
+        int pos = inLineSegments.at(j);
+        inLineSmoothRepetition[pos] = smoothedScore / sumA;
     }
 }

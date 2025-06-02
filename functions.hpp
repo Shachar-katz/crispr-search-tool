@@ -37,8 +37,9 @@ void findKmersInFile(MultiFormatFileReader& fileReader,
                      int seedK, 
                      int minK, 
                      int minLegitimateSpacer,
-                     int maxLegitimateSpacer,
                      int horizon,
+                     int segmentSize,
+                     int smoothingWindow,
                      unordered_map<string,double>& stats, 
                      bool strict, 
                      bool preStrict, 
@@ -54,20 +55,31 @@ bool notOverlapping(int idxStartPotential,
                     int idxStartCompare, 
                     int idxEndPotential, 
                     int idxEndCompare, 
-                    int minLegitimateSpacer, 
-                    int maxLegitimateSpacer);
+                    int minLegitimateSpacer);
 
-void expandSeedToKmer(const string& line, 
+int expandSeedToKmer(const string& line, 
                       string smer, 
                       int startIdx, 
                       vector<int> smerIdxVect, 
                       int minK, 
-                      unordered_map<string, set<int>>& uniqueKmersInLine,
+                      unordered_map<int, string>& PosToKmersInLine,
                       int minLegitimateSpacer, 
-                      int maxLegitimateSpacer, 
                       bool strict, 
                       int maxK, 
                       int horizion);
+
+void generateRepeatition(const string& line,
+                         int segmentSize,
+                         int seedK, 
+                         int minK,
+                         int maxK,
+                         int minLegitimateSpacer,
+                         int horizon,
+                         int smoothingWindow,
+                         bool strict,
+                         const unordered_map<string,vector<int>>& singleLineMapSeedKToIdx, 
+                         unordered_map<int,double>& inLineSmoothRepetition,
+                         unordered_map<int,string>& posToKmerInLine);
 
 
 //step two functions:
