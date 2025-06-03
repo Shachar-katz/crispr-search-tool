@@ -68,7 +68,7 @@ int expandSeedToKmer(const string& line,
                       int maxK, 
                       int horizion);
 
-void generateRepeatition(const string& line,
+int generateRepeatition(const string& line,
                          int segmentSize,
                          int seedK, 
                          int minK,
@@ -80,6 +80,11 @@ void generateRepeatition(const string& line,
                          const unordered_map<string,vector<int>>& singleLineMapSeedKToIdx, 
                          unordered_map<int,double>& inLineSmoothRepetition,
                          unordered_map<int,string>& posToKmerInLine);
+
+void smoothRepScore(const vector<double>& inLineRepetitionScores, 
+                    const vector<int>& inLineSegments, 
+                    unordered_map<int,double>& inLineSmoothRepetition, 
+                    int smoothingWindow);
 
 
 //step two functions:

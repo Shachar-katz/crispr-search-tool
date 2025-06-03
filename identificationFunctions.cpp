@@ -51,15 +51,19 @@ void findKmersInFile(MultiFormatFileReader& fileReader,
 
         unordered_map<int,double> inLineSmoothRepetition;
         unordered_map<int, string> posToKmersInLine;
-        generateRepeatition(line, segmentSize, seedK, minK, maxK, minLegitimateSpacer, horizon, smoothingWindow, strict, singleLineMapSeedKToIdx, inLineSmoothRepetition, posToKmersInLine);
-
+        int masking = generateRepeatition(line, segmentSize, seedK, minK, maxK, minLegitimateSpacer, horizon, smoothingWindow, strict, singleLineMapSeedKToIdx, inLineSmoothRepetition, posToKmersInLine);
+        if (masking != 0){
+            cerr << "Error in masking for bad repeats. Could not complete run." << endl;
+            return;
+        }
         // we also create an empty map of unique repeats -> set of their positions in this line.
         unordered_map<string,set<int>> uniqueKmersInLine;
         for(auto& [segment, repScore] : inLineSmoothRepetition){
-            if (repScore > 0.6) { continue; }
+            if (repScore > 0.6) 
+            { continue; }
             int lowEnd = segment;
             int highEnd = segment + segmentSize;
-            for (int i = lowEnd; i <= highEnd; i++){
+            for (int i = lowEnd; i < highEnd; i++){
                 if (posToKmersInLine.count(i) == 0) { continue; }
                 string kmer = posToKmersInLine.at(i);
                 auto& positions = uniqueKmersInLine[kmer];
@@ -263,7 +267,7 @@ int expandSeedToKmer(const string& line,
     return 0;
 }
 
-void generateRepeatition(const string& line,
+int generateRepeatition(const string& line,
                          int segmentSize,
                          int seedK, 
                          int minK,
@@ -278,28 +282,41 @@ void generateRepeatition(const string& line,
 {
     vector<int> inLineSegments;
     vector<double> inLineRepetitionScores;
-    unordered_map<int,double> inLineSegmentToRepetition;
 
     int currSegment = 0;
     double currRepitionScore = 0;
 
     for (int i = 0; i <= (line.length() - seedK) ; i++){
-        string smer = line.substr(i,seedK);
-        auto& idxs = singleLineMapSeedKToIdx.at(smer);
-        if (idxs.size() > 1){
-            currRepitionScore += expandSeedToKmer(line, smer, i, idxs, minK, posToKmerInLine, minLegitimateSpacer, strict, maxK, horizon);
-        }
-        if (i % segmentSize == 0){
+        if (i % segmentSize == 0 && i != 0){
             inLineSegments.emplace_back(currSegment);
             inLineRepetitionScores.emplace_back(currRepitionScore / segmentSize);
             currSegment = i; 
             currRepitionScore = 0.0;
         }
+        string smer = line.substr(i,seedK);
+        auto& idxs = singleLineMapSeedKToIdx.at(smer);
+        if (idxs.size() > 1){
+            currRepitionScore += expandSeedToKmer(line, smer, i, idxs, minK, posToKmerInLine, minLegitimateSpacer, strict, maxK, horizon);
+        }
+    }
+    if (currSegment < line.length()) {
+        inLineSegments.emplace_back(currSegment);
+        int remainingPositions = (line.length() - seedK + 1) - currSegment; // Positions actually processed
+        double finalScore = (remainingPositions > 0) ? currRepitionScore / remainingPositions : 0.0;
+        inLineRepetitionScores.emplace_back(finalScore);
     }
 
-    if (inLineSegments.size() != inLineRepetitionScores.size()) { cout << "error" << endl;/* throw error*/}
-    const int numSegments = static_cast<int>(inLineRepetitionScores.size());
+    if (inLineSegments.size() != inLineRepetitionScores.size()) { return 1; }
+    smoothRepScore(inLineRepetitionScores, inLineSegments, inLineSmoothRepetition, smoothingWindow);
+    return 0;
+}
 
+void smoothRepScore(const vector<double>& inLineRepetitionScores, 
+                    const vector<int>& inLineSegments, 
+                    unordered_map<int,double>& inLineSmoothRepetition, 
+                    int smoothingWindow){
+    
+    int numSegments = static_cast<int>(inLineRepetitionScores.size());
     for (int j = 0; j < numSegments; j++)
     {
         int lowIdx = std::max(j - smoothingWindow, 0);
@@ -307,7 +324,7 @@ void generateRepeatition(const string& line,
         double smoothedScore = 0.0;
         double sumA = 0.0;
         for (int i = lowIdx; i <= highIdx; i++){
-            int aI = 2 * smoothingWindow - abs(i - j);
+            int aI = (2 * smoothingWindow + 1) - abs(i - j);
             double weightI = static_cast<double>(aI);
             smoothedScore += weightI * inLineRepetitionScores[i];
             sumA += aI;
