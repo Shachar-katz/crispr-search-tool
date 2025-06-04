@@ -68,7 +68,7 @@ int expandSeedToKmer(const string& line,
                       int maxK, 
                       int horizion);
 
-int generateRepeatition(const string& line,
+void generateRepeatition(const string& line,
                          int segmentSize,
                          int seedK, 
                          int minK,

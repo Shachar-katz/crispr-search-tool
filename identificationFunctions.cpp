@@ -49,17 +49,17 @@ void findKmersInFile(MultiFormatFileReader& fileReader,
         unordered_map<string,vector<int>> singleLineMapSeedKToIdx;
         findSeedPattern(line, singleLineMapSeedKToIdx, seedK);
 
+        // we map the entire line to segments of equal size that each recive a repetition score defined mathmatically 
         vector<double> smoothScores;
         unordered_map<int, string> posToKmersInLine;
-        int repetition = generateRepeatition(line, segmentSize, seedK, minK, maxK, minLegitimateSpacer, horizon, smoothingWindow, strict, singleLineMapSeedKToIdx, smoothScores, posToKmersInLine);
-        if (repetition != 0){
-            cerr << "Error in masking for bad repeats. Could not complete run." << endl;
-            return;
-        }
+        generateRepeatition(line, segmentSize, seedK, minK, maxK, minLegitimateSpacer, horizon, smoothingWindow, strict, singleLineMapSeedKToIdx, smoothScores, posToKmersInLine);
+
+        // then we mask the segments with a repition score of over 0.6 and their neighboring 2 segments on each side
         vector<bool> maskedSegments;
         int exclusionWindow = 2;
         createExclusionMask(smoothScores, exclusionWindow, maskedSegments);
-        // we also create an empty map of unique repeats -> set of their positions in this line.
+
+        // then we populate a map of unique repeats -> set of their positions in this line based only on repeats found in the unmasked areas
         unordered_map<string,set<int>> uniqueKmersInLine;
         for(int i = 0; i < smoothScores.size(); i++){
             if (maskedSegments[i] == true) { continue; }
@@ -260,8 +260,6 @@ int expandSeedToKmer(const string& line,
     // once we have compared every smer to all the other Smers:
     // We add the best match for each instance (a kmer) to the unique Kmers in line Set.
     if(bestKPos != -1){
-        // auto& positions = uniqueKmersInLine[bestK]; old!!
-        // positions.insert(bestKPos); old!!
         auto& repeat = PosToKmersInLine[bestKPos];
         repeat = bestK;
         return 1;
@@ -269,7 +267,9 @@ int expandSeedToKmer(const string& line,
     return 0;
 }
 
-int generateRepeatition(const string& line,
+// calculates repeatition score that is defined as: the number of positions from which an smer successfully extended into a repeat
+// returns a smoothed rep score ( bins and calculates a weighted avg of the 2 bins before and afer a bin + the bin itself )
+void generateRepeatition(const string& line,
                          int segmentSize,
                          int seedK, 
                          int minK,
@@ -282,7 +282,6 @@ int generateRepeatition(const string& line,
                          vector<double>& smoothedScores,
                          unordered_map<int,string>& posToKmerInLine)
 {
-    vector<int> inLineSegments;
     vector<double> inLineRepetitionScores;
 
     int currSegment = 0;
@@ -290,7 +289,6 @@ int generateRepeatition(const string& line,
 
     for (int i = 0; i <= (line.length() - seedK) ; i++){
         if (i % segmentSize == 0 && i != 0){
-            inLineSegments.emplace_back(currSegment);
             inLineRepetitionScores.emplace_back(currRepitionScore / segmentSize);
             currSegment = i; 
             currRepitionScore = 0.0;
@@ -302,15 +300,12 @@ int generateRepeatition(const string& line,
         }
     }
     if (currSegment < line.length()) {
-        inLineSegments.emplace_back(currSegment);
         int remainingPositions = (line.length() - seedK + 1) - currSegment; // Positions actually processed
         double finalScore = (remainingPositions > 0) ? currRepitionScore / remainingPositions : 0.0;
         inLineRepetitionScores.emplace_back(finalScore);
     }
 
-    if (inLineSegments.size() != inLineRepetitionScores.size()) { return 1; }
     smoothRepScore(inLineRepetitionScores, smoothingWindow, smoothedScores);
-    return 0;
 }
 
 void smoothRepScore(const vector<double>& inLineRepetitionScores, 
