@@ -49,25 +49,27 @@ void findKmersInFile(MultiFormatFileReader& fileReader,
         unordered_map<string,vector<int>> singleLineMapSeedKToIdx;
         findSeedPattern(line, singleLineMapSeedKToIdx, seedK);
 
-        unordered_map<int,double> inLineSmoothRepetition;
+        vector<double> smoothScores;
         unordered_map<int, string> posToKmersInLine;
-        int masking = generateRepeatition(line, segmentSize, seedK, minK, maxK, minLegitimateSpacer, horizon, smoothingWindow, strict, singleLineMapSeedKToIdx, inLineSmoothRepetition, posToKmersInLine);
-        if (masking != 0){
+        int repetition = generateRepeatition(line, segmentSize, seedK, minK, maxK, minLegitimateSpacer, horizon, smoothingWindow, strict, singleLineMapSeedKToIdx, smoothScores, posToKmersInLine);
+        if (repetition != 0){
             cerr << "Error in masking for bad repeats. Could not complete run." << endl;
             return;
         }
+        vector<bool> maskedSegments;
+        int exclusionWindow = 2;
+        createExclusionMask(smoothScores, exclusionWindow, maskedSegments);
         // we also create an empty map of unique repeats -> set of their positions in this line.
         unordered_map<string,set<int>> uniqueKmersInLine;
-        for(auto& [segment, repScore] : inLineSmoothRepetition){
-            if (repScore > 0.6) 
-            { continue; }
-            int lowEnd = segment;
-            int highEnd = segment + segmentSize;
-            for (int i = lowEnd; i < highEnd; i++){
-                if (posToKmersInLine.count(i) == 0) { continue; }
-                string kmer = posToKmersInLine.at(i);
+        for(int i = 0; i < smoothScores.size(); i++){
+            if (maskedSegments[i] == true) { continue; }
+            int segment = i * segmentSize;
+            int segmentEnd = segment + segmentSize;
+            for (int j = segment; j < segmentEnd; j++){
+                if (posToKmersInLine.count(j) == 0) { continue; }
+                string kmer = posToKmersInLine.at(j);
                 auto& positions = uniqueKmersInLine[kmer];
-                positions.insert(i);
+                positions.insert(j);
             }
         }
 
@@ -277,7 +279,7 @@ int generateRepeatition(const string& line,
                          int smoothingWindow,
                          bool strict,
                          const unordered_map<string,vector<int>>& singleLineMapSeedKToIdx, 
-                         unordered_map<int,double>& inLineSmoothRepetition,
+                         vector<double>& smoothedScores,
                          unordered_map<int,string>& posToKmerInLine)
 {
     vector<int> inLineSegments;
@@ -307,14 +309,13 @@ int generateRepeatition(const string& line,
     }
 
     if (inLineSegments.size() != inLineRepetitionScores.size()) { return 1; }
-    smoothRepScore(inLineRepetitionScores, inLineSegments, inLineSmoothRepetition, smoothingWindow);
+    smoothRepScore(inLineRepetitionScores, smoothingWindow, smoothedScores);
     return 0;
 }
 
 void smoothRepScore(const vector<double>& inLineRepetitionScores, 
-                    const vector<int>& inLineSegments, 
-                    unordered_map<int,double>& inLineSmoothRepetition, 
-                    int smoothingWindow){
+                    int smoothingWindow,
+                    vector<double>& smoothedScores){
     
     int numSegments = static_cast<int>(inLineRepetitionScores.size());
     for (int j = 0; j < numSegments; j++)
@@ -329,7 +330,28 @@ void smoothRepScore(const vector<double>& inLineRepetitionScores,
             smoothedScore += weightI * inLineRepetitionScores[i];
             sumA += aI;
         }
-        int pos = inLineSegments.at(j);
-        inLineSmoothRepetition[pos] = smoothedScore / sumA;
+        smoothedScores.emplace_back( smoothedScore / sumA );
+    }
+}
+
+void createExclusionMask(const vector<double>& smoothedScores,
+                         int exclusionWindow,
+                         vector<bool>& excludedSegments) {
+    int numSegments = smoothedScores.size();
+    excludedSegments.resize(numSegments, false);
+    // Find and exclude segments adjacent to high repetition areas (> 0.6)
+    int i = 0;
+    while (i < numSegments) {
+        if (smoothedScores[i] < 0.6)
+        { 
+            i++;
+            continue; 
+        }
+        int lowIdx = std::max(i - exclusionWindow, 0);
+        int highIdx = std::min(i + exclusionWindow, numSegments - 1);
+        for (int j = lowIdx; j <= highIdx; j++){
+            excludedSegments[j] = true;
+        }
+        i += exclusionWindow;
     }
 }

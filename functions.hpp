@@ -78,13 +78,16 @@ int generateRepeatition(const string& line,
                          int smoothingWindow,
                          bool strict,
                          const unordered_map<string,vector<int>>& singleLineMapSeedKToIdx, 
-                         unordered_map<int,double>& inLineSmoothRepetition,
+                         vector<double>& smoothedScores,
                          unordered_map<int,string>& posToKmerInLine);
 
 void smoothRepScore(const vector<double>& inLineRepetitionScores, 
-                    const vector<int>& inLineSegments, 
-                    unordered_map<int,double>& inLineSmoothRepetition, 
-                    int smoothingWindow);
+                    int smoothingWindow,
+                    vector<double>& smoothedScores);
+
+void createExclusionMask(const vector<double>& smoothedScores,
+                         int exclusionWindow,
+                         vector<bool>& excludedSegments);
 
 
 //step two functions:
