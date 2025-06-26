@@ -10,6 +10,8 @@
 
 #include <stdio.h>
 #include <unordered_map>
+#include <map>
+#include <unordered_set>
 #include <string>
 #include <vector>
 #include <set>
@@ -22,7 +24,7 @@ using namespace std;
 
 class DynamicBins {
 public:
-    DynamicBins();
+    DynamicBins(int maxClusterSize = 1000, int seedK = 10);
     void addAutoSingle(const string &kmer);
     void autoGroup(const string &kmer1, const string &kmer2);
     void addToExistingBin(const string &kmer, int binNumber);
@@ -37,12 +39,31 @@ public:
     // void iterReBins(const unordered_map<string,int>& Kmap, function<void(const vector<string>&, int, const unordered_map<string,int>&)> func) const;
     int getLen();
     int getNumBins();
+    void enableAutoReclustering(bool enable = true);
+    void checkAndRecluster(int binNumber);
+    void forceReclusterAll();
 
 private:
     unordered_map<string, int> bins;
     unordered_map<int, vector<string>> reBins;
     int nextBinNumber;
     set<int> existingBinNums; // record of bin nums in use
+    bool autoReclusterEnabled;
+    int maxClusterSize;
+    int seedK;
+    vector<vector<string>> splitClusterByComposition(const vector<string>& cluster);
+    vector<vector<string>> splitClusterByConnectivity(const vector<string>& cluster);
+    double calculateGCContent(const string& kmer);
+    double calculateComplexity(const string& kmer);
+    bool areCompositionallySimilar(const string& kmer1, const string& kmer2);
+    bool areDirectlySimilar(const string& kmer1, const string& kmer2);
+    void findSmerSet(const string& kmer, unordered_set<string>& smerSet);
+    void dfsComponent(const string& kmer, 
+                      const unordered_map<string, vector<string>>& adjacency,
+                      unordered_set<string>& visited, 
+                      vector<string>& component);
+    void reassignCluster(int oldBinNum, const vector<vector<string>>& subclusters);
+    vector<string> getCurrentClusterKmers(int binNumber);
 };
 
 #endif /* DynamicBinsClass_hpp */

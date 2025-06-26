@@ -134,7 +134,7 @@ void verifyRelation(const unordered_map<string,vector<string>>& smap, const set<
         string otherK;
         chooseShortestK(kPair, shortestK, otherK);
         // we calculate the required number of Smers that they must NOT appear in together in the vector of Smers of the shorter kmer in order to determine that they are NOT related
-        int reqDisimilarity = alpha * seedK; // length diff between 2 k's cant be longer then alpha + 1. ??
+        int reqDisimilarity = alpha * seedK - 1; // length diff between 2 k's cant be longer then alpha + 1. ??
         // we then generate a vector of all the Smers that make up the shorter k
         vector<string> smerVect;
         findSmersVect(shortestK, smerVect, seedK);
@@ -258,7 +258,17 @@ void selectRepsWeight(unordered_map<int, string>& provisionalRepList, const unor
     logFile << "begining selecting reps using weight" << endl;
     for (const auto& [binNum, kVect] : reverseBins){
         cout << "size of bin: " << kVect.size() << endl;
-        string rep = findRepUsingWeight(kVect, kmap, seedK);
+        string rep;
+        // if(kVect.size() > 1000){
+        //     rep = largeClusterPartition(kmap, kVect, seedK);
+        //     for (const auto& kmer : kVect){
+        //         logFile << kmer << endl;
+        //     }// db
+        // }
+        // else{ 
+        rep = findRepUsingWeight(kVect, kmap, seedK); 
+        // }
+        
         cout << "found rep for bin" << binNum << endl;
         provisionalRepList[binNum] = rep;
     }
@@ -456,4 +466,28 @@ void validateBins(const unordered_map<int, string>& provisionalRepList, const Dy
     if (valid){
         logFile << "bins are valid" << endl;
     }
+}
+
+inline string largeClusterPartition(const unordered_map<string,data_t>& kmap, const vector<string>& kVect, int seedK){
+    vector<string> copyKVect = kVect;
+    sort(copyKVect.begin(), copyKVect.end(), [](const string &a, const string &b) {
+            return (a.length() == b.length()) ? pickKey(a) < pickKey(b) : a.length() < b.length();
+    });
+    vector<string> sampledReps;
+    sampledReps.reserve(10);
+    // i could also calculate the std dev for the size
+    int windowStart = 0;
+    for (int i = 0; i <= copyKVect.size(); i++)
+    {
+        if (i == copyKVect.size() || (i > windowStart && copyKVect[i].size() != copyKVect[windowStart].size())) 
+        {
+            vector<string> currentGroup(copyKVect.begin() + windowStart, copyKVect.begin() + i);
+            string currSizeRep = findRepUsingWeight(currentGroup, kmap, seedK);
+            sampledReps.emplace_back(currSizeRep);
+            windowStart = i;
+        }
+        // compare distance between kmers of same size and put the best in a local cluster kmap then run one more time to see which ones 
+    }
+    string finalRep = findRepUsingWeight(sampledReps, kmap, seedK);
+    return finalRep;
 }

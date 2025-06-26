@@ -25,6 +25,10 @@ void findKmersInFile(MultiFormatFileReader& fileReader,
     int progressCounter = 0;
     int numReadsWithRepeats = 0;
     int faultyLine = 0;
+    ofstream dump;
+    string dumpName = "/Users/sarahkatz/relman_lab/L1_V5/step_1_repeat_dump";
+    dump.open(dumpName);
+    dump << "repeat" << '\t' << "line_num" <<  '\t' << "pos" << endl;
     // loop over every read
     while (fileReader.getNextLine(line)) {
         // statistics and progress managment:
@@ -50,14 +54,20 @@ void findKmersInFile(MultiFormatFileReader& fileReader,
         findSeedPattern(line, singleLineMapSeedKToIdx, seedK);
 
         // we map the entire line to segments of equal size that each recive a repetition score defined mathmatically 
-        vector<double> smoothScores;
+        vector<double> inLineRepetitionScores;
         unordered_map<int, string> posToKmersInLine;
-        generateRepeatition(line, segmentSize, seedK, minK, maxK, minLegitimateSpacer, horizon, smoothingWindow, strict, singleLineMapSeedKToIdx, smoothScores, posToKmersInLine);
+        generateRepeatition(line, segmentSize, seedK, minK, maxK, minLegitimateSpacer, horizon, smoothingWindow, strict, singleLineMapSeedKToIdx, inLineRepetitionScores, posToKmersInLine);
+        vector<double> smoothScores;
+        // smoothRepScore(inLineRepetitionScores, smoothingWindow, smoothScores);
+        for (auto& [pos, repeat]: posToKmersInLine){
+            dump << repeat << '\t' << progressCounter <<  '\t' << pos << endl;
+        }
 
+        // if (excludeLine(smoothScores, 30) == true) { continue; } // debugg
         // then we mask the segments with a repition score of over 0.6 and their neighboring 2 segments on each side
         vector<bool> maskedSegments;
-        int exclusionWindow = 2;
-        createExclusionMask(smoothScores, exclusionWindow, maskedSegments);
+        int exclusionWindow = 3; // not needed i think throwing out the line should do !!
+        createExclusionMask(smoothScores, exclusionWindow, maskedSegments); //  a change!!!
 
         // then we populate a map of unique repeats -> set of their positions in this line based only on repeats found in the unmasked areas
         unordered_map<string,set<int>> uniqueKmersInLine;
@@ -86,6 +96,7 @@ void findKmersInFile(MultiFormatFileReader& fileReader,
             globalKmerMap[cannonizedKmer] += positions.size();
         }
     }
+    dump.close();
     // check for 0 division (process terminated before it started)
     if (progressCounter == 0){
         logFile << "no lines were processed" << endl;
@@ -279,14 +290,12 @@ void generateRepeatition(const string& line,
                          int smoothingWindow,
                          bool strict,
                          const unordered_map<string,vector<int>>& singleLineMapSeedKToIdx, 
-                         vector<double>& smoothedScores,
+                         vector<double>& inLineRepetitionScores,
                          unordered_map<int,string>& posToKmerInLine)
 {
-    vector<double> inLineRepetitionScores;
 
     int currSegment = 0;
     double currRepitionScore = 0;
-
     for (int i = 0; i <= (line.length() - seedK) ; i++){
         if (i % segmentSize == 0 && i != 0){
             inLineRepetitionScores.emplace_back(currRepitionScore / segmentSize);
@@ -305,7 +314,6 @@ void generateRepeatition(const string& line,
         inLineRepetitionScores.emplace_back(finalScore);
     }
 
-    smoothRepScore(inLineRepetitionScores, smoothingWindow, smoothedScores);
 }
 
 void smoothRepScore(const vector<double>& inLineRepetitionScores, 
@@ -337,7 +345,7 @@ void createExclusionMask(const vector<double>& smoothedScores,
     // Find and exclude segments adjacent to high repetition areas (> 0.6)
     int i = 0;
     while (i < numSegments) {
-        if (smoothedScores[i] < 0.6)
+        if (smoothedScores[i] < 0.55)
         { 
             i++;
             continue; 
@@ -349,4 +357,22 @@ void createExclusionMask(const vector<double>& smoothedScores,
         }
         i += exclusionWindow;
     }
+}
+
+bool excludeLine(const vector<double>& smoothedScores,
+                int exclusionMinWindows) {
+    int numSegments = smoothedScores.size();
+    // Find and exclude segments adjacent to high repetition areas (> 0.6)
+    int overLimCount = 0;
+    for (int i = 0; i < numSegments; i++)
+    {
+        if (smoothedScores[i] > 0.6)
+        { 
+            overLimCount++;
+        }
+        if (overLimCount >= exclusionMinWindows){
+            return true;
+        }
+    }
+    return false;
 }

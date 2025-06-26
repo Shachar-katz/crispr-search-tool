@@ -78,7 +78,7 @@ void generateRepeatition(const string& line,
                          int smoothingWindow,
                          bool strict,
                          const unordered_map<string,vector<int>>& singleLineMapSeedKToIdx, 
-                         vector<double>& smoothedScores,
+                         vector<double>& inLineRepetitionScores,
                          unordered_map<int,string>& posToKmerInLine);
 
 void smoothRepScore(const vector<double>& inLineRepetitionScores, 
@@ -88,6 +88,9 @@ void smoothRepScore(const vector<double>& inLineRepetitionScores,
 void createExclusionMask(const vector<double>& smoothedScores,
                          int exclusionWindow,
                          vector<bool>& excludedSegments);
+
+bool excludeLine(const vector<double>& smoothedScores,
+                int exclusionMinWindows); // debugg
 
 
 //step two functions:
@@ -137,6 +140,8 @@ int palindromicScore(string kmer, int alpha = 0);
 
 void validateBins(const unordered_map<int, string>& provisionalRepList, const DynamicBins& bins, 
                   const unordered_map<int,vector<string>>& reverseBins, ofstream& logFile);
+
+inline string largeClusterPartition(const unordered_map<string,data_t>& kmap, const vector<string>& kVect, int seedK);
 
 // bool isKmer(string maybeKmer);
 
