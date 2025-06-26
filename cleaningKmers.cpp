@@ -51,14 +51,12 @@ int cleaningKmers(string inputCatalog,
     // preforming binning and selecting most common variation of repeat
     set<pair<string,string>> potentialRelationSet;
     DynamicBins bins(1000, seedK);
-    bins.enableAutoReclustering(false);
-    
+
     makePotentialRelationsSet(smap, potentialRelationSet, logFile);
     verifyRelation(smap, potentialRelationSet, seedK, bins, logFile, alpha);
     logFile << "size of bins before binning singles: " << bins.getLen() << endl; // debugg
     binSingles(smap, bins, logFile);
     logFile << "size of bins: " << bins.getLen() << endl; // debugg
-    bins.enableAutoReclustering(true);
     bins.forceReclusterAll();
     bins.reverseBin();
 

@@ -259,15 +259,15 @@ void selectRepsWeight(unordered_map<int, string>& provisionalRepList, const unor
     for (const auto& [binNum, kVect] : reverseBins){
         cout << "size of bin: " << kVect.size() << endl;
         string rep;
-        // if(kVect.size() > 1000){
-        //     rep = largeClusterPartition(kmap, kVect, seedK);
-        //     for (const auto& kmer : kVect){
-        //         logFile << kmer << endl;
-        //     }// db
-        // }
-        // else{ 
-        rep = findRepUsingWeight(kVect, kmap, seedK); 
-        // }
+        if(kVect.size() > 1000){
+            rep = largeClusterPartition(kmap, kVect, seedK);
+            for (const auto& kmer : kVect){
+                logFile << kmer << endl;
+            }// db
+        }
+        else{ 
+            rep = findRepUsingWeight(kVect, kmap, seedK); 
+        }
         
         cout << "found rep for bin" << binNum << endl;
         provisionalRepList[binNum] = rep;
