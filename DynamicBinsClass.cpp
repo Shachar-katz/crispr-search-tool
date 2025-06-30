@@ -101,25 +101,25 @@ void DynamicBins::checkAndRecluster(int binNumber) {
    if (clusterKmers.size() > maxClusterSize) {
        // split by GC composition
        vector<vector<string>> primarySubclusters = splitClusterByComposition(clusterKmers);
-       vector<vector<string>> secondarySubClusters;
+    //    vector<vector<string>> secondarySubClusters;
        
        // split by complexity if still too large
-       for(auto& subCluster : primarySubclusters) {
-           if (subCluster.size() > maxClusterSize) {
-               vector<vector<string>> complexityGroups = splitByComplexity(subCluster);
-               for (auto& complexityGroup : complexityGroups) {
-                   secondarySubClusters.push_back(complexityGroup);
-               }
-           } else {
-               secondarySubClusters.push_back(subCluster);
-           }
-       }
+    //    for(auto& subCluster : primarySubclusters) {
+    //        if (subCluster.size() > maxClusterSize) {
+    //            vector<vector<string>> complexityGroups = splitByComplexity(subCluster);
+    //            for (auto& complexityGroup : complexityGroups) {
+    //                secondarySubClusters.push_back(complexityGroup);
+    //            }
+    //        } else {
+    //            secondarySubClusters.push_back(subCluster);
+    //        }
+    //    }
               
-       for(auto& subCluster : secondarySubClusters){
-            cout << subCluster.size() << endl;
-       } // db
+    //    for(auto& subCluster : secondarySubClusters){
+    //         cout << subCluster.size() << endl;
+    //    } // db
        
-       reassignCluster(binNumber, secondarySubClusters);
+       reassignCluster(binNumber, primarySubclusters);
    }
 }
 
