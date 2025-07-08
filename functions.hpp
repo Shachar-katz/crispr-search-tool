@@ -194,7 +194,17 @@ inline bool isKmerMatch(const string& line,
                         const unordered_set<string>& smerSet, 
                         int seedK, 
                         int& missmatches, 
-                        int maxMismatches = 0);
+                        int maxMismatches = 0){
+    int dissimilarity = 0;
+    
+    for (int i = start; i <= (end - seedK); i++){
+        if (dissimilarity > maxMismatches) { return false; }
+        string smerInLine = line.substr(i,seedK);
+        if (smerSet.count(smerInLine) == 0) { dissimilarity++; }
+    }
+    missmatches = dissimilarity;
+    return true;
+}
 
 void constructRepeatMap(const unordered_map<string,Array>& globalArrayMap, 
                         unordered_map<string,RepeatData>& repeatMap);

@@ -11,6 +11,7 @@ private:
     vector<int> inArrayRepeatCoordinatesVect; // might not need?
     vector<string> array;
     vector <int> repeatIdxToNumMissmatches;
+    // add spacer object?
     int arrayLen = 0; // might not need?
     int numSpacers;
 public:

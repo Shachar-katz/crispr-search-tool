@@ -58,7 +58,7 @@ void findKmersInFile(MultiFormatFileReader& fileReader,
         unordered_map<int, string> posToKmersInLine;
         generateRepeatition(line, segmentSize, seedK, minK, maxK, minLegitimateSpacer, horizon, smoothingWindow, strict, singleLineMapSeedKToIdx, inLineRepetitionScores, posToKmersInLine);
         vector<double> smoothScores;
-        // smoothRepScore(inLineRepetitionScores, smoothingWindow, smoothScores);
+        smoothRepScore(inLineRepetitionScores, smoothingWindow, smoothScores); // do i need this?
         for (auto& [pos, repeat]: posToKmersInLine){
             dump << repeat << '\t' << progressCounter <<  '\t' << pos << endl;
         }
@@ -68,10 +68,9 @@ void findKmersInFile(MultiFormatFileReader& fileReader,
         vector<bool> maskedSegments;
         int exclusionWindow = 3; // not needed i think throwing out the line should do !!
         createExclusionMask(smoothScores, exclusionWindow, maskedSegments); //  a change!!!
-
         // then we populate a map of unique repeats -> set of their positions in this line based only on repeats found in the unmasked areas
         unordered_map<string,set<int>> uniqueKmersInLine;
-        for(int i = 0; i < smoothScores.size(); i++){
+        for(int i = 0; i < maskedSegments.size(); i++){
             if (maskedSegments[i] == true) { continue; }
             int segment = i * segmentSize;
             int segmentEnd = segment + segmentSize;
@@ -82,6 +81,10 @@ void findKmersInFile(MultiFormatFileReader& fileReader,
                 positions.insert(j);
             }
         }
+        // for (auto& [pos, repeat]: posToKmersInLine){
+        //     auto& positions = uniqueKmersInLine[repeat];
+        //     positions.insert(pos);
+        // }
 
         // for statistics 
         if (!uniqueKmersInLine.empty()){
@@ -104,10 +107,8 @@ void findKmersInFile(MultiFormatFileReader& fileReader,
        return;
     }
     // calculate stats:
-    double precentReadsWithRepeat = (static_cast<double>(numReadsWithRepeats) / static_cast<double>(progressCounter)) * 100;
-    stats["number_of_reads_in_file: "] = progressCounter;
-    stats["number_of_reads_in_file_with_repeat: "] = numReadsWithRepeats;
-    stats["precent_reads_in_file_with_repeat: "] = precentReadsWithRepeat;
+    stats["number_of_reads_in_file: "] += progressCounter;
+    stats["number_of_reads_in_file_with_repeat: "] += numReadsWithRepeats;
 }
 
 bool skipThisLine(const string& read, double iligitimateRatio){
@@ -184,12 +185,9 @@ int expandSeedToKmer(const string& line,
     string bestK = "";
     int bestKPos = -1;
 
-    // cout << "expanded for s = " << smer << " at location i = " << startIdx;
-
     // then we iterate over all the other indecies comparing the smer appearance there to our "Potential kmer"
     for(auto it = lowerIt; it != upperIt; it++){
         if (*it == startIdx){ continue; }
-        // cout << " Against " << *it << endl;
 
         // we set the indecies of the start and end at our potential kmer and our comparision
         int startIdxCopy = startIdx;
@@ -263,7 +261,6 @@ int expandSeedToKmer(const string& line,
         // we make it the best kmer
         if(kmerLen >= minK && kmerLen > bestK.length()){
             string kmer = line.substr(startIdxCopy, kmerLen);
-            // cout << "bestK for s = " << smer << " at location i = " << startIdxCopy << " resulted in k= " << kmer << endl; //db
             bestK = kmer;
             bestKPos = startIdxCopy;
         }   
@@ -337,15 +334,15 @@ void smoothRepScore(const vector<double>& inLineRepetitionScores,
     }
 }
 
-void createExclusionMask(const vector<double>& smoothedScores,
+void createExclusionMask(const vector<double>& inLineRepetitionScores,
                          int exclusionWindow,
                          vector<bool>& excludedSegments) {
-    int numSegments = smoothedScores.size();
+    int numSegments = inLineRepetitionScores.size();
     excludedSegments.resize(numSegments, false);
     // Find and exclude segments adjacent to high repetition areas (> 0.6)
     int i = 0;
     while (i < numSegments) {
-        if (smoothedScores[i] < 0.55)
+        if (inLineRepetitionScores[i] < 0.55)
         { 
             i++;
             continue; 

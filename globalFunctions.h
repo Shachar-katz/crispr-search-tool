@@ -15,3 +15,4 @@ void writeUnorderedMapToFile(const unordered_map<string, T>& map, ofstream& outF
 
     }
 }
+vector<string> readFileList(const string& listFile);

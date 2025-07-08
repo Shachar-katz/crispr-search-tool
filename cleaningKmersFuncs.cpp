@@ -468,6 +468,47 @@ void validateBins(const unordered_map<int, string>& provisionalRepList, const Dy
     }
 }
 
+void makeRepSmap(const unordered_map<int, string>& provisionalRepList, unordered_map<string,vector<pair<string,int>>>& smap, int seedK){
+    for (const auto& [binNum, kmer] : provisionalRepList){
+        pair<string,int> rep = {kmer, binNum};
+        for (int j = 0; j <= (kmer.size() - seedK) ; j++){
+            string smer = kmer.substr(j,seedK);
+            if (smer.size() != seedK){ break; }
+            smap[smer].emplace_back(rep);
+        }
+    }
+}
+void reSort(const unordered_map<int, string>& provisionalRepList, 
+            const unordered_map<string, int>& bins, 
+            unordered_map<string,Kmap_t> smap, 
+            ofstream& dumpBinsMissmatch, 
+            int seedK,
+            int maxMismatches){
+    dumpBinsMissmatch << "kmer" << '\t' << "expected_bin" << '\t' << "observed_bin" << endl;
+    bool valid = true; // ? 
+    unordered_map<string,vector<pair<string,int>>> repSmap;
+    makeRepSmap(provisionalRepList, repSmap, seedK);
+    for (const auto& [kmer, binNum] : bins){
+        // have an smpa of all reps and iterate over smers checking which ones it would collaps into
+        // validate if kmer would go to its rep, another rep, or none
+        // if rep, leave, if another rep add to other bin, if none- create own bin
+        unordered_set<string> smerSetOfRep;
+        string rep = provisionalRepList.at(binNum);
+        findSmerSet(rep, smerSetOfRep, seedK);
+        int missmatches;
+        bool isInCorrectBin = isKmerMatch(kmer, 0 , kmer.length(), smerSetOfRep, seedK, missmatches, maxMismatches);
+        if (!isInCorrectBin){
+            // check if fits another rep?
+            // maybe make smap of all reps before?
+            // 
+        }
+        else{
+            // put
+        }
+
+    }
+}
+
 inline string largeClusterPartition(const unordered_map<string,data_t>& kmap, const vector<string>& kVect, int seedK){
     vector<string> copyKVect = kVect;
     sort(copyKVect.begin(), copyKVect.end(), [](const string &a, const string &b) {

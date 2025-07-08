@@ -112,23 +112,6 @@ void arrayIdentifior(MultiFormatFileReader& fileReader,
     stats["precent_reads_in_file_with_array: "] += precentReadsWithRepeat;
 }
 
-inline bool isKmerMatch(const string& line,  
-                        int start,
-                        int end, 
-                        const unordered_set<string>& smerSet, 
-                        int seedK, 
-                        int& missmatches, 
-                        int maxMismatches){
-    int dissimilarity = 0;
-    
-    for (int i = start; i <= (end - seedK); i++){
-        if (dissimilarity > maxMismatches) { return false; }
-        string smerInLine = line.substr(i,seedK);
-        if (smerSet.count(smerInLine) == 0) { dissimilarity++; }
-    }
-    missmatches = dissimilarity;
-    return true;
-}
 
 // this function checks if the known smer occurance means a known kmer occurance 
 string expandSeedToKmer(const string& line, 

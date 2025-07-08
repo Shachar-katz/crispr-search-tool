@@ -17,8 +17,7 @@
 
 using namespace std;
 
-int identifyingRepeatPatterns(string inputFile,
-                              string inputFileType,
+int identifyingRepeatPatterns(string inputFileType,
                               string outputFile,
                               int minK,
                               int minLegitimateSpacer,
@@ -31,7 +30,10 @@ int identifyingRepeatPatterns(string inputFile,
                               int smoothingWindow,
                               int numRepeatUnits,
                               double seedPercentage = 0.5,
-                              string inputFileR2 = "");
+                              string inputFile = "",
+                              string inputFileR2 = "",
+                              const vector<string>& inputFileList = vector<string>(),
+                              const vector<string>& inputFileListR2 = vector<string>());
 
 int cleaningKmers(string inputCatalog,
                   string outputFile,
