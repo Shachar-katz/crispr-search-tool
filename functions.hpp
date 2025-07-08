@@ -24,6 +24,7 @@
 #include "classData.hpp"
 #include "fileReadClass.hpp"
 #include "arrayClass.h"
+#include "spacerClass.h"
 
 using namespace std;
 
@@ -209,5 +210,7 @@ inline bool isKmerMatch(const string& line,
 void constructRepeatMap(const unordered_map<string,Array>& globalArrayMap, 
                         unordered_map<string,RepeatData>& repeatMap);
 
+void spacerScraping(const unordered_map<string,Array>& globalArrayMap, 
+                    unordered_map<string,Spacer>& globalSpacerMap);
 
 #endif /* functions_hpp */

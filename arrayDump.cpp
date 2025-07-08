@@ -75,6 +75,9 @@ int arrayDump(string inputRead,
     
     // writing output file 
     
+    unordered_map<string,Spacer> globalSpacerMap;
+    spacerScraping(globalArrayMap,globalSpacerMap);
+    
     ofstream outFS1;
     string tableFile = outputFile + "_table";
     outFS1.open(tableFile);
@@ -125,20 +128,36 @@ int arrayDump(string inputRead,
     logFile << "written" << endl;
     outFS3.close();
 
+    ofstream outFS4;
+    string spacerTable = outputFile + "_spacer_table";
+    outFS4.open(spacerTable);
+    if (!outFS4.is_open()){
+         logFile << "Error: Could not open spacer table output 2 file." << endl;
+         cerr << "Error: Could not open spacer table output 2 file." << endl;
+         return -1;
+    }
+
+     // here@
+    logFile << "opened output file named: " << tableFile << endl;
+    outFS4 << "spacer" << '\t' << "spacer_id" << '\t' << "abundance" << endl;
+    writeUnorderedMapToFile(globalSpacerMap, outFS4);
+    logFile << "written" << endl;
+    outFS4.close();
+     // to here @
     // writing statistics file
 
-    ofstream outFS4;
+    ofstream outFS5;
     string statsOutput = outputFile + "_stats_step_4";
-    outFS4.open(statsOutput);
-    if (!outFS4.is_open()){
+    outFS5.open(statsOutput);
+    if (!outFS5.is_open()){
          logFile << "Error: Could not open stats output file." << endl;
          cerr << "Error: Could not open stats output file." << endl;
          return -1;
     }
     
     logFile << "opened output file named: " << statsOutput << endl;
-    writeUnorderedMapToFile(stats, outFS4);
+    writeUnorderedMapToFile(stats, outFS5);
     logFile << "written" << endl;
-    outFS4.close();
+    outFS5.close();
     return 0;
 }

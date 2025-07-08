@@ -43,7 +43,7 @@ public:
     string getRepeatId() const { return repeatId; }
     int getNumSpacers() const { return numSpacers; }
     int getArrayLen() const { return arrayLen; }
-    vector<string> getArrayVect() { return this->array; }
+    vector<string> getArrayVect() const { return this->array; }
     string getArrayStr() 
     {
         string array;

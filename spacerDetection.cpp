@@ -2,17 +2,7 @@
 // #include "fileReadClass.hpp"
 // #include "functions.hpp"
 
-// int spacerDetection(string inputRead, 
-//                     string inputReadFileType, 
-//                     string inputCatalog, 
-//                     string outputFile, 
-//                     int minLegitimateSpacer,
-//                     int maxLegitimateSpacer,
-//                     int minK,
-//                     int interval,
-//                     int maxMismatches,
-//                     double seedPercentage,
-//                     string inputFileR2)
+// int spacerScraping()
 // {
 //     // generating a seedK
 //     int seedK = minK * seedPercentage;
