@@ -79,6 +79,19 @@ int cleaningKmers(string inputCatalog,
         cerr << "error occured validating bins for this data set" << endl;
         return -1;
     }
+    // db
+    ofstream dumpBinsMissmatch;
+    string dumpBinsMissmatchName = outputFile + "_error_dump_bins";
+    dumpBinsMissmatch.open(dumpBinsMissmatchName);
+    if (!dumpBinsMissmatch.is_open()){
+         cerr << "Error: Could not open log output file." << endl;
+         return -1;
+    }
+
+    unordered_map<string,int> binsMap;
+    reSort(provisionalReps, binsMap, dumpBinsMissmatch, seedK, alpha);
+    dumpBinsMissmatch.close();
+    // db
     unordered_map<int,string> finalReps = reCannonization(provisionalReps,bins,logFile);
     logFile << "size of choosen reps after cannonization: " << finalReps.size() << endl; // debugg
 

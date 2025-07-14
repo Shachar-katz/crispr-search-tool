@@ -144,6 +144,12 @@ void validateBins(const unordered_map<int, string>& provisionalRepList, const Dy
 
 inline string largeClusterPartition(const unordered_map<string,data_t>& kmap, const vector<string>& kVect, int seedK);
 
+void reSort(const unordered_map<int, string>& provisionalRepList, 
+            const unordered_map<string, int>& bins, 
+            ofstream& dumpBinsMissmatch, 
+            int seedK,
+            int maxMismatches);
+
 // bool isKmer(string maybeKmer);
 
 // step three functions:

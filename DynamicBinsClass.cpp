@@ -153,7 +153,7 @@ vector<vector<string>> DynamicBins::splitClusterByComposition(const vector<strin
         for (char c : kmer) {
             if (c == 'G' || c == 'C') gcCount++;
         }
-        int gcPercent = (gcCount * 100 / kmer.length()) / 10 * 10; // Round to nearest 20%
+        int gcPercent = (gcCount * 100 / kmer.length()) / 20 * 20; // Round to nearest 20%
         gcGroups[gcPercent].push_back(kmer);
     }
     
