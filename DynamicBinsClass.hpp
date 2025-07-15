@@ -17,6 +17,7 @@
 #include <set>
 #include <iostream>
 #include <algorithm>
+#include <cmath>
 #include "classData.hpp"
 #include "globalFunctions.h"
 
