@@ -14,6 +14,7 @@
 #include <vector>
 #include <fstream>
 #include <iostream>
+#include <unordered_map>
 using namespace std;
 
 // class data to contain various data 
