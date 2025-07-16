@@ -17,7 +17,9 @@ void findKmersInFile(MultiFormatFileReader& fileReader,
                      bool preStrict, 
                      ofstream& logFile,
                      int interval,
-                     int maxK)
+                     int maxK,
+                     const string& currentIdentifier,
+                     unordered_map<string,set<string>>& kmerToIdentifiers)
     {
     // line variable temporerally holds the reads
     string line;
@@ -97,6 +99,7 @@ void findKmersInFile(MultiFormatFileReader& fileReader,
         for (const auto& [uniqueKmer, positions] : uniqueKmersInLine) {
             string cannonizedKmer = pickKey(uniqueKmer);
             globalKmerMap[cannonizedKmer] += positions.size();
+            kmerToIdentifiers[cannonizedKmer].insert(currentIdentifier); // for tracking which were found where
         }
     }
     dump.close();
