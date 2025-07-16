@@ -15,4 +15,10 @@ void writeUnorderedMapToFile(const unordered_map<string, T>& map, ofstream& outF
 
     }
 }
-vector<string> readFileList(const string& listFile);
+struct File {
+    string identifier;
+    string filePath;
+};
+
+// New: function to read identifier table
+vector<File> readIdentifierTable(const string& tableFile);
