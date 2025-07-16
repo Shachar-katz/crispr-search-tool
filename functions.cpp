@@ -50,25 +50,33 @@ string pickKey(string seq) {
     return (reverse > seq) ? reverse : seq;
 }
 
-vector<string> readFileList(const string& listFile) {
-    vector<string> files;
-    ifstream inFile(listFile);
+vector<File> readIdentifierTable(const string& tableFile) {
+    vector<File> fileIdentifiers;
+    ifstream inFile(tableFile);
     string line;
     
     if (!inFile.is_open()) {
-        cerr << "Error: Could not open file list: " << listFile << endl;
-        return files;
+        cerr << "Error: Could not open identifier table: " << tableFile << endl;
+        return fileIdentifiers;
     }
     
     while (getline(inFile, line)) {
         // Remove whitespace and skip empty lines
         line.erase(0, line.find_first_not_of(" \t\r\n"));
         line.erase(line.find_last_not_of(" \t\r\n") + 1);
-        if (!line.empty()) {
-            files.push_back(line);
+        if (line.empty()) continue;
+        
+        // Parse identifier and file path separated by whitespace
+        istringstream iss(line);
+        string identifier, filePath;
+        
+        if (iss >> identifier >> filePath) {
+            if (!identifier.empty() && !filePath.empty()) {
+                fileIdentifiers.push_back({identifier, filePath});
+            }
         }
     }
     
     inFile.close();
-    return files;
+    return fileIdentifiers;
 }

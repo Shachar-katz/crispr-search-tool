@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include "classData.hpp"
 #include "fileReadClass.hpp"
 
