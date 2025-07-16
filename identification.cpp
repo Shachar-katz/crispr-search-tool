@@ -22,8 +22,7 @@ int identifyingRepeatPatterns(string inputFileType,
                               double seedPercentage,
                               string inputFile,
                               string inputFileR2,
-                              const vector<string>& inputFileList,
-                              const vector<string>& inputFileListR2)
+                              const vector<File>& inputFileIdentifiers)
 {
     // open log file
     ofstream logFile;
@@ -35,6 +34,7 @@ int identifyingRepeatPatterns(string inputFileType,
     }
 
     unordered_map<string,int> globalKmerMap;
+    unordered_map<string, set<string>> kmerToIdentifiers;
     unordered_map<string,double> stats;
 
      // Initialize stats
@@ -47,47 +47,41 @@ int identifyingRepeatPatterns(string inputFileType,
     int horizon = (maxK + maxLegitimateSpacer) * numRepeatUnits + maxK;
 
     // create file list vector 
-    vector<string> filesToProcess;
-    
-    if (!inputFileList.empty()) {
-        if (inputFileType == "fastq_dual") {
-            // For dual fastq, combine R1 and R2 lists
-            for (int i = 0; i < inputFileList.size(); i++) {
-                filesToProcess.push_back(inputFileList[i]);
-                filesToProcess.push_back(inputFileListR2[i]);
-            }
-        } else {
-            filesToProcess = inputFileList;
-        }
-        logFile << "Processing " << filesToProcess.size() << " files from file list for combined catalog" << endl;
+    // Determine which files to process
+    vector<File> filesToProcess;
+
+    if (!inputFileIdentifiers.empty()) {
+        // Use provided identifier table
+        filesToProcess = inputFileIdentifiers;
+        logFile << "Processing " << filesToProcess.size() << " files from identifier table" << endl;
     } else {
-        // Single file mode - add files to vector
+        // Legacy mode: create File objects from individual file parameters
         if (inputFileType == "fastq_dual") {
-            filesToProcess.push_back(inputFile);
-            filesToProcess.push_back(inputFileR2);
+            filesToProcess.push_back({"file_1", inputFile});
+            filesToProcess.push_back({"file_2", inputFileR2});
         } else {
-            filesToProcess.push_back(inputFile);
+            filesToProcess.push_back({"file_1", inputFile});
         }
-        logFile << "Processing single file: " << inputFile << endl;
+        logFile << "Processing single file(s): " << inputFile << endl;
     }
 
      // find kmers in the files
      for (int fileIdx = 0; fileIdx < filesToProcess.size(); fileIdx++) {
-        string currentFile = filesToProcess[fileIdx];
+        string currentIdentifier = filesToProcess[fileIdx].identifier;
+        string currentFile = filesToProcess[fileIdx].filePath;
         
         if (filesToProcess.size() > 1) {
             logFile << "Processing file " << (fileIdx + 1) << "/" << filesToProcess.size() 
-                    << ": " << currentFile << endl;
+                    << ": " << currentFile << " (ID: " << currentIdentifier << ")" << endl;
             cout << "Processing file " << (fileIdx + 1) << "/" << filesToProcess.size() 
-                 << ": " << currentFile << endl;
+                << ": " << currentFile << " (ID: " << currentIdentifier << ")" << endl;
         }
-
         try {
             MultiFormatFileReader fileReader(currentFile, inputFileType);
             logFile << "finding Kmers in file: " << currentFile << endl;
             findKmersInFile(fileReader, globalKmerMap, seedK, minK, minLegitimateSpacer, 
                           horizon, segmentSize, smoothingWindow, stats, strict, preStrict, 
-                          logFile, interval, maxK);
+                          logFile, interval, maxK,  currentIdentifier, kmerToIdentifiers);
             logFile << "Number of unique Kmers found so far: " << globalKmerMap.size() << endl;
         } catch (const exception& e) {
             logFile << "Error processing file " << currentFile << ": " << e.what() << endl;
@@ -112,10 +106,33 @@ int identifyingRepeatPatterns(string inputFileType,
     }
 
     logFile << "opened output file named: " << outputFile << endl;
-    outFS1 << left << "repeat" << '\t' << "abundance" << endl;
+    outFS1 << left << "crispr_repeat" << '\t' << "abundance" << endl;
     writeUnorderedMapToFile(globalKmerMap, outFS1);
     logFile << "written" << endl;
     outFS1.close();
+
+    if (!inputFileIdentifiers.empty()) {
+        ofstream outFS_identifiers;
+        string identifierOutputFile = outputFile + "_identifiers";
+        outFS_identifiers.open(identifierOutputFile);
+        if (!outFS_identifiers.is_open()){
+            logFile << "Error: Could not open identifier output file." << endl;
+            cerr << "Error: Could not open identifier output file." << endl;
+            return -1;
+        }
+
+        logFile << "opened identifier output file named: " << identifierOutputFile << endl;
+        outFS_identifiers << "crispr_repeat" << '\t' << "identifier" << endl;
+
+        for (const auto& [repeat, identifiers] : kmerToIdentifiers) {
+            for (const auto& identifier : identifiers) {
+                outFS_identifiers << repeat << '\t' << identifier << endl;
+            }
+        }
+
+        logFile << "written identifier mappings" << endl;
+        outFS_identifiers.close();
+    }
 
     // writing statistics file
 

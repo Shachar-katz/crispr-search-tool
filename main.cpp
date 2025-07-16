@@ -28,9 +28,7 @@ void init_params(const char* name, int argc, const char **argv, Parameters& args
     args.add_parser("seedPercentage", new ParserDouble("precentage of min k that makes up the length of the seed", 0.5)); // for 1 & 2
     args.add_parser("inputFileType", new ParserString("Input file type")); // for 1 & 3
     args.add_parser("inputFile", new ParserFilename("Input file name (for single fastq)")); // for 1 & 3
-    args.add_parser("inputFileList", new ParserFilename("Input file containing list of files (for combo step)")); // for 5
-    args.add_parser("inputFileListR1", new ParserFilename("Input file containing list of R1 files (for fastq_dual combo)")); // for 5
-    args.add_parser("inputFileListR2", new ParserFilename("Input file containing list of R2 files (for fastq_dual combo)")); // for 5    
+    args.add_parser("inputIdentifierTable", new ParserFilename("Input file containing identifier-filename table (identifier<tab>filename format)")); // for 5    
     args.add_parser("inputFileR1", new ParserFilename("Input file R1 (for fastq_dual)")); // for 1 & 3
     args.add_parser("inputFileR2", new ParserFilename("Input file R2 (for fastq_dual)")); // for 1 & 3
     args.add_parser("minK", new ParserInteger("Minimum k", 20)); // for 1 & 3
@@ -101,7 +99,9 @@ bool step_1_executor(Parameters& args){
     return true;
 }
 
-bool step_1_executor_combo(Parameters& args, const vector<string>& inputFiles, const string& outputFile, const vector<string>& inputFilesR2 = vector<string>()) {
+bool step_1_executor_combo(Parameters& args, 
+                           const vector<File>& inputFiles, 
+                           const string& outputFile) {
     string inputFileType = args.get_string("inputFileType");
     double seedPercentage = args.get_double("seedPercentage");
     int minK = args.get_int("minK");
@@ -125,13 +125,6 @@ bool step_1_executor_combo(Parameters& args, const vector<string>& inputFiles, c
         return false;
     }
     
-    if (inputFileType == "fastq_dual") {
-        if (inputFilesR2.empty() || inputFiles.size() != inputFilesR2.size()) {
-            cerr << "Error: For fastq_dual, both R1 and R2 file lists must be provided and have same size" << endl;
-            return false;
-        }
-    }
-    
     cout << "Running step 1 identification on " << inputFiles.size() << " files" << endl;
     
     // Call the modified function with the file lists
@@ -139,7 +132,7 @@ bool step_1_executor_combo(Parameters& args, const vector<string>& inputFiles, c
                                        minLegitimateSpacer, maxLegitimateSpacer, strict, 
                                        preStrict, interval, maxK, segmentSize, 
                                        smoothingWindow, numRepetativeUnits, seedPercentage, 
-                                       "", "", inputFiles, inputFilesR2);
+                                       "", "", inputFiles);
     
     if (run != 0) {
         cerr << "ERROR: could not complete identifying repeat pattern run for combo step" << endl;
@@ -292,34 +285,20 @@ bool array_dump_executor(Parameters& args, string fileR1 = "", string fileR2 = "
 }
 
 bool combo_executor(Parameters& args){
-    // Get file lists
-    vector<string> inputFilesR1;
-    vector<string> inputFilesR2;
+    // Get file table
+    vector<File> files;
     string inputFileType = args.get_string("inputFileType");
-    
-    if (inputFileType == "fastq_dual") {
-        if (!args.is_defined("inputFileListR1") || !args.is_defined("inputFileListR2")) {
-            cerr << "Missing mandatory input file lists for fastq_dual combo step" << endl;
-            return false;
-        }
-        inputFilesR1 = readFileList(args.get_string("inputFileListR1"));
-        inputFilesR2 = readFileList(args.get_string("inputFileListR2"));
-        
-        if (inputFilesR1.size() != inputFilesR2.size()) {
-            cerr << "Error: R1 and R2 file lists must have the same number of files" << endl;
-            return false;
-        }
-    } else {
-        if (!args.is_defined("inputFileList")) {
-            cerr << "Missing mandatory input file list for combo step" << endl;
-            return false;
-        }
-        inputFilesR1 = readFileList(args.get_string("inputFileList"));
-        // inputFilesR2 remains empty for non-dual fastq
+
+    if (!args.is_defined("inputIdentifierTable")) {
+        cerr << "Missing mandatory input identifier table for combo step" << endl;
+        return false;
     }
-    
-    if (inputFilesR1.empty()) {
-        cerr << "Error: No input files found in file list" << endl;
+
+    string identifierTable = args.get_string("inputIdentifierTable");
+    files = readIdentifierTable(identifierTable);
+
+    if (files.empty()) {
+        cerr << "Error: Could not read identifier table or table is empty" << endl;
         return false;
     }
     
@@ -329,7 +308,7 @@ bool combo_executor(Parameters& args){
     cout << "Identifying repeat patterns across all files" << endl;
     string combinedCatalogFile = baseOutputFile + "_combined_catalog";
     
-    if (!step_1_executor_combo(args, inputFilesR1, combinedCatalogFile, inputFilesR2)) {
+    if (!step_1_executor_combo(args, files, combinedCatalogFile)) {
         cerr << "ERROR: Step 1 (identification) failed" << endl;
         return false;
     }
@@ -350,35 +329,27 @@ bool combo_executor(Parameters& args){
     // STEPS 3 & 4: Process each file individually
     cout << "Processing individual files" << endl;
     
-    for (int i = 0; i < inputFilesR1.size(); i++) {
-        string fileR1 = inputFilesR1[i];
-        string fileR2 = (inputFileType == "fastq_dual") ? inputFilesR2[i] : "";
+    for (int i = 0; i < files.size(); i++) {
+        string filePath = files[i].filePath;
+        string fileId = files[i].identifier;
         
-        // Extract base filename for output naming
-        string baseFileName = fileR1.substr(fileR1.find_last_of("/\\") + 1);
-        if (baseFileName.find('.') != string::npos) {
-            baseFileName = baseFileName.substr(0, baseFileName.find_last_of('.'));
-        }
-        
-        cout << "Processing file " << (i + 1) << "/" << inputFilesR1.size() << ": " << baseFileName << endl;
-        
+        cout << "Processing file " << (i + 1) << "/" << files.size() << ": " << fileId << endl;        
         // STEP 3: Find known repeats
-        string step3OutputFile = baseOutputFile + "_" + baseFileName + "_known_repeats";
-        
-        if (!step_3_executor(args, fileR1, fileR2, cleanedCatalogFile, step3OutputFile)) {
-            cerr << "ERROR: Step 3 failed for file: " << baseFileName << endl;
+        string step3OutputFile = baseOutputFile + "_" + fileId + "_repeat_data"; // do i need base output???    
+        if (!step_3_executor(args, filePath, "", cleanedCatalogFile, step3OutputFile)) {
+            cerr << "ERROR: Step 3 failed for file: " << fileId << endl;
             continue; // Continue with other files
         }
         
         // STEP 4: Array dump
-        string step4OutputFile = baseOutputFile + "_" + baseFileName + "_arrays";
+        string step4OutputFile = baseOutputFile + "_" + fileId + "_array_data"; // do i need base output???    
         
-        if (!array_dump_executor(args, fileR1, fileR2, cleanedCatalogFile, step4OutputFile)) {
-            cerr << "ERROR: Step 4 failed for file: " << baseFileName << endl;
+        if (!array_dump_executor(args, filePath, "", cleanedCatalogFile, step4OutputFile)) {
+            cerr << "ERROR: Step 4 failed for file: " << fileId << endl;
             continue; // Continue with other files
         }
         
-        cout << "Completed processing: " << baseFileName << endl;
+        cout << "Completed processing: " << fileId << endl;
     }
     
     cout << "=== COMBO STEP COMPLETED ===" << endl;

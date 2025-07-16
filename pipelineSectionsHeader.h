@@ -32,8 +32,7 @@ int identifyingRepeatPatterns(string inputFileType,
                               double seedPercentage = 0.5,
                               string inputFile = "",
                               string inputFileR2 = "",
-                              const vector<string>& inputFileList = vector<string>(),
-                              const vector<string>& inputFileListR2 = vector<string>());
+                              const vector<File>& inputFileIdentifiers = vector<File>());
 
 int cleaningKmers(string inputCatalog,
                   string outputFile,
