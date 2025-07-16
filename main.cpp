@@ -28,6 +28,7 @@ void init_params(const char* name, int argc, const char **argv, Parameters& args
     args.add_parser("seedPercentage", new ParserDouble("precentage of min k that makes up the length of the seed", 0.5)); // for 1 & 2
     args.add_parser("inputFileType", new ParserString("Input file type")); // for 1 & 3
     args.add_parser("inputFile", new ParserFilename("Input file name (for single fastq)")); // for 1 & 3
+    args.add_parser("baseDir", new ParserFilename("Base directory path (for files in table)")); // for 5
     args.add_parser("inputIdentifierTable", new ParserFilename("Input file containing identifier-filename table (identifier<tab>filename format)")); // for 5    
     args.add_parser("inputFileR1", new ParserFilename("Input file R1 (for fastq_dual)")); // for 1 & 3
     args.add_parser("inputFileR2", new ParserFilename("Input file R2 (for fastq_dual)")); // for 1 & 3
@@ -294,8 +295,9 @@ bool combo_executor(Parameters& args){
         return false;
     }
 
+    string baseDirectory = args.get_string("baseDir");
     string identifierTable = args.get_string("inputIdentifierTable");
-    files = readIdentifierTable(identifierTable);
+    files = readIdentifierTable(baseDirectory, identifierTable);
 
     if (files.empty()) {
         cerr << "Error: Could not read identifier table or table is empty" << endl;

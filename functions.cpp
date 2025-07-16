@@ -50,7 +50,7 @@ string pickKey(string seq) {
     return (reverse > seq) ? reverse : seq;
 }
 
-vector<File> readIdentifierTable(const string& tableFile) {
+vector<File> readIdentifierTable(const string& baseDirectory, const string& tableFile) {
     vector<File> fileIdentifiers;
     ifstream inFile(tableFile);
     string line;
@@ -68,13 +68,13 @@ vector<File> readIdentifierTable(const string& tableFile) {
         
         // Parse identifier and file path separated by whitespace
         istringstream iss(line);
-        string identifier, filePath;
+        string identifier, fileName;
         
-        if (iss >> identifier >> filePath) {
-            if (!identifier.empty() && !filePath.empty()) {
+        if (iss >> identifier >> fileName) {
+            if (!identifier.empty() && !fileName.empty()) {
                 File fileData;
                 fileData.identifier = identifier;
-                fileData.filePath = filePath;
+                fileData.filePath = baseDirectory + fileName;
                 fileIdentifiers.push_back(fileData);
             }
         }

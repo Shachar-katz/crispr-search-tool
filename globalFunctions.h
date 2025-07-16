@@ -22,4 +22,4 @@ struct File {
 };
 
 // New: function to read identifier table
-vector<File> readIdentifierTable(const string& tableFile);
+vector<File> readIdentifierTable(const string& baseDirectory, const string& tableFile);
