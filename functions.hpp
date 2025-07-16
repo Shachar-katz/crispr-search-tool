@@ -46,7 +46,9 @@ void findKmersInFile(MultiFormatFileReader& fileReader,
                      bool preStrict, 
                      ofstream& logFile,
                      int interval,
-                     int maxK);
+                     int maxK,
+                     const string& currentIdentifier,
+                     unordered_map<string,set<string>>& KmerToIdentifiers);
 
 bool skipThisLine(const string& read, double iligitimateRatio);
 

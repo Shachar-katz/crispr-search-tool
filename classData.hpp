@@ -28,7 +28,6 @@ public:
     int palindromicScore = 0;
     int kLen = 0;
     string binNum = "";
-    set<string> foundInfiles;
     // vector<string> subKmers;
 };
 ostream& operator<<(ostream& out, const data_t& obj);
