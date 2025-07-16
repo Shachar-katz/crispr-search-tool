@@ -15,6 +15,7 @@
 #include <fstream>
 #include <iostream>
 #include <unordered_map>
+#include <set> 
 using namespace std;
 
 // class data to contain various data 
@@ -27,6 +28,7 @@ public:
     int palindromicScore = 0;
     int kLen = 0;
     string binNum = "";
+    set<string> foundInfiles;
     // vector<string> subKmers;
 };
 ostream& operator<<(ostream& out, const data_t& obj);
