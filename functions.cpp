@@ -72,7 +72,10 @@ vector<File> readIdentifierTable(const string& tableFile) {
         
         if (iss >> identifier >> filePath) {
             if (!identifier.empty() && !filePath.empty()) {
-                fileIdentifiers.push_back({identifier, filePath});
+                File fileData;
+                fileData.identifier = identifier;
+                fileData.filePath = filePath;
+                fileIdentifiers.push_back(fileData);
             }
         }
     }
