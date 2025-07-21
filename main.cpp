@@ -429,8 +429,8 @@ int main(int argc, const char * argv[]) {
                     return 1;
                 }
             } else {
-                if (!args.is_defined("inputFileList")) {
-                    cerr << "Missing inputFileList for combo step." << endl;
+                if (!args.is_defined("inputIdentifierTable") || !args.is_defined("baseDir")) {
+                    cerr << "Missing inputIdentifierTable or baseDir (input files information) for combo step." << endl;
                     return 1;
                 }
             }
