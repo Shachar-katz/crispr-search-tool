@@ -86,7 +86,7 @@ int identifyingRepeatPatterns(string inputFileType,
         } catch (const exception& e) {
             logFile << "Error processing file " << currentFile << ": " << e.what() << endl;
             cerr << "Error processing file " << currentFile << ": " << e.what() << endl;
-            continue;
+            return 1;
         }
     }
      int numReadsWithRepeats = stats["number_of_reads_in_file_with_repeat: "];
