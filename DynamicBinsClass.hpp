@@ -40,6 +40,7 @@ public:
     // void iterReBins(const unordered_map<string,int>& Kmap, function<void(const vector<string>&, int, const unordered_map<string,int>&)> func) const;
     int getLen();
     int getNumBins();
+    int getNextBinNum() const;
     void checkAndRecluster(int binNumber);
     void forceReclusterAll();
 

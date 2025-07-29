@@ -59,6 +59,10 @@ set<int> DynamicBins:: getAssignedBinNumbers() const {
         return existingBinNums;
 }
 
+int DynamicBins::getNextBinNum() const{
+    return nextBinNumber;
+}
+
     // Prints the mapping from keys to bin numbers for debugging
 void DynamicBins::print() const {
         for (const auto &pair : bins)

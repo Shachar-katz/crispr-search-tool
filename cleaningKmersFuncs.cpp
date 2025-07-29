@@ -478,11 +478,12 @@ void makeRepSmap(const unordered_map<int, string>& provisionalRepList, unordered
         }
     }
 }
-void reSort(const unordered_map<int, string>& provisionalRepList, 
+void reSort(unordered_map<int, string>& provisionalRepList, 
             const unordered_map<string, int>& bins, 
             ofstream& dumpBinsMissmatch, 
             int seedK,
-            int maxMismatches){
+            int maxMismatches,
+            int& nxtBinNum){
     dumpBinsMissmatch << "kmer" << '\t' << "expected_bin" /*<< '\t' << "observed_bin"*/ << endl;
     bool valid = true; // ? 
     unordered_map<string,vector<pair<string,int>>> repSmap;
@@ -501,7 +502,8 @@ void reSort(const unordered_map<int, string>& provisionalRepList,
             // maybe make smap of all reps before?
             // 
             dumpBinsMissmatch << kmer << '\t' << binNum << endl;
-
+            provisionalRepList[nxtBinNum] = kmer;
+            nxtBinNum++;
         }
         // else{
         //     // put
