@@ -88,9 +88,9 @@ int cleaningKmers(string inputCatalog,
          return -1;
     }
 
-    unordered_map<string,int> binsMap;
+    unordered_map<string,int> binsMap = bins.getBins();
     int nxtBinNum = bins.getNextBinNum();
-    reSort(provisionalReps, binsMap, dumpBinsMissmatch, seedK, seedK, nxtBinNum);
+    reSort(provisionalReps, binsMap, dumpBinsMissmatch, seedK, (seedK * alpha), nxtBinNum);
     dumpBinsMissmatch.close();
     // db
     unordered_map<int,string> finalReps = reCannonization(provisionalReps,bins,logFile);

@@ -376,13 +376,15 @@ void creatingOutputMap(unordered_map<string,data_t>& outputMap, unordered_map<st
         data.palindromicScore = kmap.at(repKmer).palindromicScore;
         data.kLen = kmap.at(repKmer).kLen;
         // filling up subKmers output
-        auto& subKmersVect = reverseBins.at(binNum); 
-        for (string subKmer : subKmersVect){
-            auto& dataBins = binsOutputMap[subKmer];
-            dataBins.binNum = "K_" + to_string(newBinNum);
-            dataBins.numLines = kmap.at(subKmer).numLines; 
-            dataBins.palindromicScore = kmap.at(subKmer).palindromicScore;
-            dataBins.kLen = kmap.at(subKmer).kLen;
+        if (reverseBins.count(binNum) != 0){
+            auto& subKmersVect = reverseBins.at(binNum); 
+            for (string subKmer : subKmersVect){
+                auto& dataBins = binsOutputMap[subKmer];
+                dataBins.binNum = "K_" + to_string(newBinNum);
+                dataBins.numLines = kmap.at(subKmer).numLines; 
+                dataBins.palindromicScore = kmap.at(subKmer).palindromicScore;
+                dataBins.kLen = kmap.at(subKmer).kLen;
+            }
         }
         // updating bin nums
         newBinNum++;
@@ -485,9 +487,6 @@ void reSort(unordered_map<int, string>& provisionalRepList,
             int maxMismatches,
             int& nxtBinNum){
     dumpBinsMissmatch << "kmer" << '\t' << "expected_bin" /*<< '\t' << "observed_bin"*/ << endl;
-    bool valid = true; // ? 
-    unordered_map<string,vector<pair<string,int>>> repSmap;
-    makeRepSmap(provisionalRepList, repSmap, seedK);
     for (const auto& [kmer, binNum] : bins){
         // have an smpa of all reps and iterate over smers checking which ones it would collaps into
         // validate if kmer would go to its rep, another rep, or none

@@ -37,6 +37,7 @@ public:
     void reverseBin();
     void normlizeReverseBin();
     unordered_map<int,vector<string>> getReBins();
+    unordered_map<string, int> getBins();
     // void iterReBins(const unordered_map<string,int>& Kmap, function<void(const vector<string>&, int, const unordered_map<string,int>&)> func) const;
     int getLen();
     int getNumBins();

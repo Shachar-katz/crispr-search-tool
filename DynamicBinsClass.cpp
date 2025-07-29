@@ -89,6 +89,10 @@ unordered_map<int,vector<string>> DynamicBins::getReBins(){
     return reBins;
 }
 
+unordered_map<string, int> DynamicBins::getBins(){
+    return bins;
+}
+
     // gets len of bins structure
 int DynamicBins::getLen(){
     return bins.size();
