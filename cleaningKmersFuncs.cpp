@@ -134,7 +134,7 @@ void verifyRelation(const unordered_map<string,vector<string>>& smap, const set<
         string otherK;
         chooseShortestK(kPair, shortestK, otherK);
         // we calculate the required number of Smers that they must NOT appear in together in the vector of Smers of the shorter kmer in order to determine that they are NOT related
-        int reqDisimilarity = alpha * seedK - 1; // length diff between 2 k's cant be longer then alpha + 1. ??
+        int reqDisimilarity = alpha * seedK - 2; // length diff between 2 k's cant be longer then alpha + 1. ??
         // we then generate a vector of all the Smers that make up the shorter k
         vector<string> smerVect;
         findSmersVect(shortestK, smerVect, seedK);
