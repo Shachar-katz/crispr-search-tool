@@ -39,7 +39,8 @@ void arrayIdentifior(MultiFormatFileReader& fileReader,
                      unordered_map<string,string>& kmerToId, 
                      int seedK, 
                      unordered_map<string,double>& stats, 
-                     ofstream& logFile, 
+                     ofstream& logFile,
+                     ofstream& readDump,
                      int minLegitimateSpacer, 
                      int maxLegitimateSpacer, 
                      int minK, 
@@ -93,6 +94,7 @@ void arrayIdentifior(MultiFormatFileReader& fileReader,
         }
         // upload line to global array map
         if (arrayHandler.noArrays()) { continue; }
+        readDump << "> R_" << progressCounter << endl << line << endl;
         vector<Array> lineArrayVect = arrayHandler.getLineArrayVect();
         for (auto& Array : lineArrayVect){
             string arrId = "A_" + to_string(arrayId);

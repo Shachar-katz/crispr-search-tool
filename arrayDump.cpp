@@ -26,6 +26,14 @@ int arrayDump(string inputRead,
          cerr << "Error: Could not open log output file." << endl;
          return -1;
     }
+    // open read dump file
+    ofstream readDump;
+    string readDumpName = outputFile + "_read_dump";
+    readDump.open(readDumpName);
+    if (!readDump.is_open()){
+         cerr << "Error: Could not open read dump file." << endl;
+         return -1;
+    }
 
     // initilize stats
     unordered_map<string,double> stats;
@@ -64,13 +72,13 @@ int arrayDump(string inputRead,
     logFile << "reads file opened" << endl;
 
     // run the array identifior function
-    arrayIdentifior(fileReaderR1, globalArrayMap, smap, kmerToId, seedK, stats, logFile, minLegitimateSpacer, maxLegitimateSpacer, minK, interval, maxMismatches);
+    arrayIdentifior(fileReaderR1, globalArrayMap, smap, kmerToId, seedK, stats, logFile, readDump, minLegitimateSpacer, maxLegitimateSpacer, minK, interval, maxMismatches);
     logFile << globalArrayMap.size() << "Arrays found" << endl;
 
     if (inputReadFileType == "fastq_dual"){
         MultiFormatFileReader fileReaderR2(inputFileR2, inputReadFileType);
         logFile << "reads file R2 opened" << endl;
-        arrayIdentifior(fileReaderR2, globalArrayMap, smap, kmerToId, seedK, stats, logFile, minLegitimateSpacer, maxLegitimateSpacer, minK, interval, maxMismatches);
+        arrayIdentifior(fileReaderR2, globalArrayMap, smap, kmerToId, seedK, stats, logFile, readDump, minLegitimateSpacer, maxLegitimateSpacer, minK, interval, maxMismatches);
         logFile << globalArrayMap.size() << "Arrays found" << endl;
     }
     
@@ -160,5 +168,7 @@ int arrayDump(string inputRead,
     writeUnorderedMapToFile(stats, outFS5);
     logFile << "written" << endl;
     outFS5.close();
+    logFile.close();
+    readDump.close();
     return 0;
 }

@@ -11,7 +11,6 @@ private:
     string repeat;
     string repeatId;
     vector<int> inLineCoordinatesVect;
-    vector<int> inArrayRepeatCoordinatesVect; // might not need?
     vector<string> array;
     vector <int> repeatIdxToNumMissmatches;
     // add spacer object?
