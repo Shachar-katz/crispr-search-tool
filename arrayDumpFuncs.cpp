@@ -141,7 +141,6 @@ string expandSeedToKmer(const string& line,
             if (endIdxOfKmerInLine > line.size()) { continue; }
             // kmerInLine = line.substr(startIdexOfKmerInLine, k);
             // if (kmer != kmerInLine){ continue; } // early rejection if kmer not a match
-            maxMismatches *= smer.length();
             if (!isKmerMatch(line, startIdxOfKmerInLine, endIdxOfKmerInLine, smerSet, smer.size(), numMissmatches, maxMismatches)) { break; }
 
             activeLine = true;

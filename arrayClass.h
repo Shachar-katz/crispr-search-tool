@@ -2,7 +2,9 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "inlines.h"
 using namespace std;
+
 
 class Array{
 private:
@@ -96,14 +98,18 @@ public:
             tempArray.openArray(repeat, startIdxInLine, repeatId, numMissmatches);
             activeArray = true;
         }
-        else if(tempArray.getRepeat() == repeat){
+        // else if(tempArray.getRepeat() == repeat){
+        else if(areRepeatsTheSame(tempArray.getRepeat(), repeat, 10, 10)){
             bool wasExpanded = this->expandArray(startIdxInLine, numMissmatches);
             if (!wasExpanded){
+                cout << "array " << tempArray.getRepeatId() << " was left opened" << endl; // debugg
                 tempArray.openArray(repeat, startIdxInLine, repeatId, numMissmatches);
                 activeArray = true;
             }
         }
-        else if(tempArray.getRepeat() != repeat){
+        // else if(tempArray.getRepeat() != repeat){
+        else{
+            cout << "array " << tempArray.getRepeatId() << " was closed and reopened at location " << startIdxInLine << endl; // debugg
             this->uploadArray(); // should I use return value for anything?
             tempArray.openArray(repeat, startIdxInLine, repeatId, numMissmatches);
             activeArray = true;

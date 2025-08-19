@@ -191,31 +191,6 @@ string expandSeedToKmer(const string& line,
                         int maxMismatches, 
                         int& numMissmatches);
 
-inline void findSmerSet(string kmer, unordered_set<string>& smerSet, int seedK){
-    for (int j = 0; j <= (kmer.size() - seedK); j++){
-        string smerForSearch = kmer.substr(j,seedK);
-        smerSet.insert(smerForSearch);
-    }
-}
-
-inline bool isKmerMatch(const string& line,  
-                        int start,
-                        int end, 
-                        const unordered_set<string>& smerSet, 
-                        int seedK, 
-                        int& missmatches, 
-                        int maxMismatches = 0){
-    int dissimilarity = 0;
-    
-    for (int i = start; i <= (end - seedK); i++){
-        if (dissimilarity > maxMismatches) { return false; }
-        string smerInLine = line.substr(i,seedK);
-        if (smerSet.count(smerInLine) == 0) { dissimilarity++; }
-    }
-    missmatches = dissimilarity;
-    return true;
-}
-
 void constructRepeatMap(const unordered_map<string,Array>& globalArrayMap, 
                         unordered_map<string,RepeatData>& repeatMap);
 
