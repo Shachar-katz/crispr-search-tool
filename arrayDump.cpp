@@ -28,7 +28,7 @@ int arrayDump(string inputRead,
     }
     // open read dump file
     ofstream readDump;
-    string readDumpName = outputFile + "_read_dump";
+    string readDumpName = outputFile + "_read_dump.fa";
     readDump.open(readDumpName);
     if (!readDump.is_open()){
          cerr << "Error: Could not open read dump file." << endl;
