@@ -35,6 +35,7 @@ int buildKmap(ifstream& inCatalog, unordered_map<string,string>& kmerToId, int m
 // this function goes line by line and searches for arrays by known repeat identification
 void arrayIdentifior(MultiFormatFileReader& fileReader, 
                      unordered_map<string,Array>& globalArrayMap, 
+                     unordered_map<string,ArrayPositionData>& arrayPositionMap, 
                      unordered_map<string,Kmap_t>& smap,
                      unordered_map<string,string>& kmerToId, 
                      int seedK, 
@@ -99,6 +100,14 @@ void arrayIdentifior(MultiFormatFileReader& fileReader,
         for (auto& Array : lineArrayVect){
             string arrId = "A_" + to_string(arrayId);
             globalArrayMap[arrId] = Array;
+
+            string readId = "R_" + to_string(progressCounter);
+            ArrayPositionData currData;
+            currData.readID = readId;
+            currData.startPos = Array.getStartPos();
+            currData.endPos = Array.getEndPos();
+            arrayPositionMap[arrId] = currData;
+            
             arrayId++;
         }
     }

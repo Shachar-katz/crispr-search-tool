@@ -13,3 +13,10 @@ ostream& operator<<(ostream& out, const RepeatData& obj){
     '\t' << obj.numMissmatches <<
     '\t' << obj.repeatLen;
 }
+
+ostream& operator<<(ostream& out, const ArrayPositionData& obj){
+    return out << 
+    obj.readID <<
+    '\t' << obj.startPos <<
+    '\t' << obj.endPos;
+}

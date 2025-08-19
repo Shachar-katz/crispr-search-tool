@@ -170,7 +170,8 @@ bool valideHeader(string header);
 int buildKmap(ifstream& inCatalog, unordered_map<string,string>& kmerToId, int minPalindromic = 0);
 
 void arrayIdentifior(MultiFormatFileReader& fileReader, 
-                     unordered_map<string,Array>& globalArrayVect, 
+                     unordered_map<string,Array>& globalArrayVect,
+                     unordered_map<string,ArrayPositionData>& arrayPositionMap,
                      unordered_map<string,Kmap_t>& smap,
                      unordered_map<string,string>& kmerToId, 
                      int seedK, 

@@ -45,6 +45,8 @@ public:
     string getRepeatId() const { return repeatId; }
     int getNumSpacers() const { return numSpacers; }
     int getArrayLen() const { return arrayLen; }
+    int getStartPos() const { return inLineCoordinatesVect[0]; }
+    int getEndPos() const { return (inLineCoordinatesVect[0] + arrayLen); }
     vector<string> getArrayVect() const { return this->array; }
     string getArrayStr() 
     {
@@ -154,3 +156,12 @@ public:
 };
 
 ostream& operator<<(ostream& out, const RepeatData& obj);
+
+class ArrayPositionData{
+public:
+    string readID;
+    int startPos;
+    int endPos;
+};
+
+ostream& operator<<(ostream& out, const ArrayPositionData& obj);

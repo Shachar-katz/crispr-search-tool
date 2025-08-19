@@ -68,17 +68,18 @@ int arrayDump(string inputRead,
 
     // setting up data structure for the arrays and the file reader    
     unordered_map<string,Array> globalArrayMap;
+    unordered_map<string,ArrayPositionData> arrayPositionMap;
     MultiFormatFileReader fileReaderR1(inputRead, inputReadFileType);
     logFile << "reads file opened" << endl;
 
     // run the array identifior function
-    arrayIdentifior(fileReaderR1, globalArrayMap, smap, kmerToId, seedK, stats, logFile, readDump, minLegitimateSpacer, maxLegitimateSpacer, minK, interval, maxMismatches);
+    arrayIdentifior(fileReaderR1, globalArrayMap, arrayPositionMap, smap, kmerToId, seedK, stats, logFile, readDump, minLegitimateSpacer, maxLegitimateSpacer, minK, interval, maxMismatches);
     logFile << globalArrayMap.size() << "Arrays found" << endl;
 
     if (inputReadFileType == "fastq_dual"){
         MultiFormatFileReader fileReaderR2(inputFileR2, inputReadFileType);
         logFile << "reads file R2 opened" << endl;
-        arrayIdentifior(fileReaderR2, globalArrayMap, smap, kmerToId, seedK, stats, logFile, readDump, minLegitimateSpacer, maxLegitimateSpacer, minK, interval, maxMismatches);
+        arrayIdentifior(fileReaderR2, globalArrayMap, arrayPositionMap, smap, kmerToId, seedK, stats, logFile, readDump, minLegitimateSpacer, maxLegitimateSpacer, minK, interval, maxMismatches);
         logFile << globalArrayMap.size() << "Arrays found" << endl;
     }
     
@@ -165,9 +166,21 @@ int arrayDump(string inputRead,
     }
     
     logFile << "opened output file named: " << statsOutput << endl;
-    writeUnorderedMapToFile(stats, outFS5);
+    
+    ofstream outFS6;
+    string arrPosOutput = outputFile + "_array_positions_step_4";
+    outFS6.open(arrPosOutput);
+    if (!outFS6.is_open()){
+         logFile << "Error: Could not open array positions output file." << endl;
+         cerr << "Error: Could not open array positions output file." << endl;
+         return -1;
+    }
+    
+    logFile << "opened output file named: " << arrPosOutput << endl;
+    outFS6 << "array_id" << '\t' << "read_id" << '\t' << "start_pos" << '\t' << "end_pos" << endl;
+    writeUnorderedMapToFile(arrayPositionMap, outFS6);
     logFile << "written" << endl;
-    outFS5.close();
+    outFS6.close();
     logFile.close();
     readDump.close();
     return 0;
