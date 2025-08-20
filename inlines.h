@@ -35,12 +35,22 @@ inline bool areRepeatsTheSame(const string& repeatA,
                               int seedK, 
                               int maxMismatches = 0){
     int dissimilarity = 0;
-    unordered_set<string> smerSetB;
-    findSmerSet(repeatB, smerSetB, seedK);
-    for (int i = 0; i <= (repeatA.length() - seedK); i++){
+    string shortest;
+    string longer;
+    if (repeatA.length() < repeatB.length()) {
+        shortest = repeatA; 
+        longer = repeatB;
+    }
+    else { 
+        shortest = repeatB;
+        longer = repeatA;
+    }
+    unordered_set<string> smerSetLonger;
+    findSmerSet(longer, smerSetLonger, seedK);
+    for (int i = 0; i <= (shortest.length() - seedK); i++){
         if (dissimilarity > maxMismatches) { return false; }
-        string smerInA = repeatA.substr(i,seedK);
-        if (smerSetB.count(smerInA) == 0) { dissimilarity++; }
+        string smerOfShortest = shortest.substr(i,seedK);
+        if (smerSetLonger.count(smerOfShortest) == 0) { dissimilarity++; }
     }
     return true;
 }

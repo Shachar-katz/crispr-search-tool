@@ -100,7 +100,7 @@ public:
             activeArray = true;
         }
         // else if(tempArray.getRepeat() == repeat){
-        else if(areRepeatsTheSame(tempArray.getRepeat(), repeat, 10, 10)){
+        else if(areRepeatsTheSame(tempArray.getRepeat(), repeat, 10, 13)){
             bool wasExpanded = this->expandArray(startIdxInLine, numMissmatches);
             if (!wasExpanded){
                 tempArray.openArray(repeat, startIdxInLine, repeatId, numMissmatches);
