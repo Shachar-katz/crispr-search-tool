@@ -67,7 +67,9 @@ void arrayIdentifior(MultiFormatFileReader& fileReader,
             if (smap.find(smer) != smap.end()){ 
                 int tempStartIdx;
                 int numMissmatches;
-                string repeat = expandSeedToKmer(line, smer, i, smap, activeLine, tempStartIdx, maxMismatches, numMissmatches);
+                int spacerLen = 0;
+                if (activeLine) { spacerLen = arrayHandler.getSpacerLen(); }
+                string repeat = expandSeedToKmer(line, smer, i, spacerLen, smap, activeLine, tempStartIdx, maxMismatches, numMissmatches);
                 i++; // for now to keep everything stable !! (expand seed to Kmer also skips k nucleotides)
                 if (repeat == "") { continue; }
                 // if a known Kmer was found:
@@ -128,6 +130,7 @@ void arrayIdentifior(MultiFormatFileReader& fileReader,
 string expandSeedToKmer(const string& line, 
                         const string& smer, 
                         int& idxInLine, 
+                        const int& spacerLen,
                         unordered_map<string,Kmap_t>& smap, 
                         bool& activeLine, 
                         int& tempStartIdx, 
@@ -135,8 +138,24 @@ string expandSeedToKmer(const string& line,
                         int& numMissmatches){
     // we acess the Kmers that the smer of interest appears in
     auto& kmap = smap[smer];
+    // Create a vector of kmers and sort by size (largest first)
+    vector<string> sortedKmers;
+    sortedKmers.reserve(kmap.size()); // Reserve space for efficiency
+    
+    for (const auto& [kmer, idxs] : kmap) {
+        sortedKmers.push_back(kmer);
+    }
+    
+    // Sort by size (largest first), with tie-breaking by canonical form for consistency
+    sort(sortedKmers.begin(), sortedKmers.end(), [](const string& a, const string& b) {
+        if (a.size() != b.size()) {
+            return a.size() > b.size(); // Sort by size, largest first
+        }
+        return pickKey(a) < pickKey(b); // Tie-breaker using canonical form
+    });
     // we iterate over all the Kmers that this smer is associated to
-    for (const auto& [kmer, idxs] : kmap){
+    for (const string& kmer : sortedKmers) {
+        const auto& idxs = kmap[kmer];
         // we record the recorded kmer's length
         int k = kmer.size();
         unordered_set<string> smerSet;
@@ -155,7 +174,7 @@ string expandSeedToKmer(const string& line,
             if (!isKmerMatch(line, startIdxOfKmerInLine, endIdxOfKmerInLine, smerSet, smer.size(), numMissmatches, maxMismatches)) { break; }
 
             activeLine = true;
-            idxInLine += (kmer.length() - startIdxInKmer); // update index
+            idxInLine += (kmer.length() - startIdxInKmer + (spacerLen)); // update index
             tempStartIdx = startIdxOfKmerInLine; // update start idx for array
             return kmer; //@here - should i just have it return all of this and log the missmatches and not change the array handler and just have it cut the sections from the line the same way?
         }

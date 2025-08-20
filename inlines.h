@@ -33,7 +33,7 @@ inline bool isKmerMatch(const string& line,
 inline bool areRepeatsTheSame(const string& repeatA,
                               const string& repeatB,
                               int seedK, 
-                              int maxMismatches = 0){
+                              int maxMismatches){
     int dissimilarity = 0;
     string shortest;
     string longer;

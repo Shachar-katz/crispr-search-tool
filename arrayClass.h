@@ -15,6 +15,7 @@ private:
     vector <int> repeatIdxToNumMissmatches;
     // add spacer object?
     int arrayLen = 0; // might not need?
+    int spacerLen = 0;
     int numSpacers;
 public:
     Array(){}
@@ -28,6 +29,9 @@ public:
         this->repeat = repeat;
         this->repeatId = repeatId;
         addRepeat(startIdxInLine, numMissmatches);
+        if (inLineCoordinatesVect.size() == 2){ // set spacer length
+            this->spacerLen = inLineCoordinatesVect[1] - inLineCoordinatesVect[0]; 
+        }
     }
     void addRepeat(int startIdxInLine, int numMissmatches)
     {   
@@ -45,6 +49,7 @@ public:
     string getRepeatId() const { return repeatId; }
     int getNumSpacers() const { return numSpacers; }
     int getArrayLen() const { return arrayLen; }
+    int getSpacerLen() const { return spacerLen; }
     int getStartPos() const { return inLineCoordinatesVect[0]; }
     int getEndPos() const { return (inLineCoordinatesVect[0] + arrayLen); }
     vector<string> getArrayVect() const { return this->array; }
@@ -100,7 +105,7 @@ public:
             activeArray = true;
         }
         // else if(tempArray.getRepeat() == repeat){
-        else if(areRepeatsTheSame(tempArray.getRepeat(), repeat, 10, 13)){
+        else if(areRepeatsTheSame(tempArray.getRepeat(), repeat, 10, 15)){
             bool wasExpanded = this->expandArray(startIdxInLine, numMissmatches);
             if (!wasExpanded){
                 tempArray.openArray(repeat, startIdxInLine, repeatId, numMissmatches);
@@ -134,6 +139,7 @@ public:
         return validArray;
     }
     bool isActive() { return activeArray; }
+    int getSpacerLen() const { return tempArray.getSpacerLen(); }
     vector<Array> getLineArrayVect(){ return lineArrayVect; }
     bool noArrays() {
         if (lineArrayVect.empty()){
