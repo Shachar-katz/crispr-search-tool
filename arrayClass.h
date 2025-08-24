@@ -17,6 +17,7 @@ private:
     int arrayLen = 0; // might not need?
     int spacerLen = 0;
     int numSpacers;
+    bool invalid = false;
 public:
     Array(){}
     Array(string repeat)
@@ -40,11 +41,12 @@ public:
         inLineCoordinatesVect.push_back(endIdxInLine);
         repeatIdxToNumMissmatches.push_back(numMissmatches);
     }
-    bool stillValid(int startIdxInLine, int maxValidSpacer, int minValidSpacer){
+    bool stillValid(int startIdxInLine, int maxValidSpacer, int minValidSpacer, bool perfectMatch){
         int spacerLen = startIdxInLine - inLineCoordinatesVect.back();
-        if (spacerLen <= maxValidSpacer && startIdxInLine > (inLineCoordinatesVect.back() + minValidSpacer)){ return true; }
+        if ((spacerLen <= maxValidSpacer && (startIdxInLine > (inLineCoordinatesVect.back() + minValidSpacer) || perfectMatch))){ return true; }
         return false;
     }
+    // void setInvalid(bool invalid) { hitInvalid; }
     string getRepeat() const { return repeat; }
     string getRepeatId() const { return repeatId; }
     int getNumSpacers() const { return numSpacers; }
@@ -52,6 +54,8 @@ public:
     int getSpacerLen() const { return spacerLen; }
     int getStartPos() const { return inLineCoordinatesVect[0]; }
     int getEndPos() const { return (inLineCoordinatesVect[0] + arrayLen); }
+    int getStartError() const { return inLineCoordinatesVect[inLineCoordinatesVect.size() - 3]; }
+    bool hitInvalid() const { return invalid; }
     vector<string> getArrayVect() const { return this->array; }
     string getArrayStr() 
     {
@@ -90,6 +94,7 @@ private:
     vector<Array> lineArrayVect;
     bool activeArray = false;
     Array tempArray;
+    int startErrorField;
 public:
     LineArrayHandler(const string& line, int maxAllowedSpacer, int minAllowedSpacer)
     {
@@ -106,7 +111,8 @@ public:
         }
         // else if(tempArray.getRepeat() == repeat){
         else if(areRepeatsTheSame(tempArray.getRepeat(), repeat, 10, 15)){
-            bool wasExpanded = this->expandArray(startIdxInLine, numMissmatches);
+            bool perfectMatch = areRepeatsTheSame(tempArray.getRepeat(), repeat, 10, 3) && abs(static_cast<int>(tempArray.getRepeat().length() - repeat.length())) < 4;
+            bool wasExpanded = this->expandArray(startIdxInLine, numMissmatches, perfectMatch);
             if (!wasExpanded){
                 tempArray.openArray(repeat, startIdxInLine, repeatId, numMissmatches);
                 activeArray = true;
@@ -119,12 +125,17 @@ public:
             activeArray = true;
         }
     }
-    bool expandArray(int startIdxInLine, int numMissmatches)
+    bool expandArray(int startIdxInLine, int numMissmatches, bool perfectMatch)
     {
-        if (tempArray.stillValid(startIdxInLine, maxAllowedSpacer, minAllowedSpacer)){
+        if (tempArray.stillValid(startIdxInLine, maxAllowedSpacer, minAllowedSpacer, perfectMatch)){
             tempArray.addRepeat(startIdxInLine, numMissmatches);
             return true;
         }
+        // if (!tempArray.hitInvalid()){
+        //     startErrorField = tempArray.getStartError();
+        //     tempArray.setInvalid(true);
+        //     return true;
+        // }
         bool uploaded = uploadArray();
         return false;
     }

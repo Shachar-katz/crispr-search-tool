@@ -174,7 +174,7 @@ string expandSeedToKmer(const string& line,
             if (!isKmerMatch(line, startIdxOfKmerInLine, endIdxOfKmerInLine, smerSet, smer.size(), numMissmatches, maxMismatches)) { break; }
 
             activeLine = true;
-            idxInLine += (kmer.length() - startIdxInKmer + (spacerLen)); // update index
+            idxInLine += (kmer.length() - startIdxInKmer + spacerLen); // update index
             tempStartIdx = startIdxOfKmerInLine; // update start idx for array
             return kmer; //@here - should i just have it return all of this and log the missmatches and not change the array handler and just have it cut the sections from the line the same way?
         }

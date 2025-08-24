@@ -16,7 +16,6 @@ int arrayDump(string inputRead,
 {
     // generating a seedK
     int seedK = minK * seedPercentage;
-    maxMismatches *= 1.5;
     int minPalindromic = 4; // turn into arg
     // open log file
     ofstream logFile;
