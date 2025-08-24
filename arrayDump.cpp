@@ -176,7 +176,7 @@ int arrayDump(string inputRead,
     }
     
     logFile << "opened output file named: " << arrPosOutput << endl;
-    outFS6 << "array_id" << '\t' << "read_id" << '\t' << "start_pos" << '\t' << "end_pos" << endl;
+    outFS6 << "array_id" << '\t' << "read_id" << '\t' << "start_pos" << '\t' << "end_pos" << '\t' << "read_len" << endl;
     writeUnorderedMapToFile(arrayPositionMap, outFS6);
     logFile << "written" << endl;
     outFS6.close();

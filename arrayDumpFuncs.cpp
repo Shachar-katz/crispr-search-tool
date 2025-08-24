@@ -108,6 +108,7 @@ void arrayIdentifior(MultiFormatFileReader& fileReader,
             currData.readID = readId;
             currData.startPos = Array.getStartPos();
             currData.endPos = Array.getEndPos();
+            currData.readLen = line.length();
             arrayPositionMap[arrId] = currData;
             
             arrayId++;

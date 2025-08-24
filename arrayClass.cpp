@@ -18,5 +18,6 @@ ostream& operator<<(ostream& out, const ArrayPositionData& obj){
     return out << 
     obj.readID <<
     '\t' << obj.startPos <<
-    '\t' << obj.endPos;
+    '\t' << obj.endPos <<
+    '\t' << obj.readLen;
 }

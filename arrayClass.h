@@ -179,6 +179,7 @@ public:
     string readID;
     int startPos;
     int endPos;
+    int readLen;
 };
 
 ostream& operator<<(ostream& out, const ArrayPositionData& obj);
