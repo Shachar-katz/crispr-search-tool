@@ -20,6 +20,7 @@ int arrayDump(string inputRead,
     // open log file
     ofstream logFile;
     string logFileName = outputFile + "_run_log";
+    cout << "log name: " << logFileName << endl;
     logFile.open(logFileName);
     if (!logFile.is_open()){
          cerr << "Error: Could not open log output file." << endl;

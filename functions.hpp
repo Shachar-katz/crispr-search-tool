@@ -186,13 +186,14 @@ void arrayIdentifior(MultiFormatFileReader& fileReader,
 
 string expandSeedToKmer(const string& line, 
                         const string& smer, 
-                        int& idxInLine,
+                        int& idxInLine, 
                         const int& spacerLen,
                         unordered_map<string,Kmap_t>& smap, 
                         bool& activeLine, 
                         int& tempStartIdx, 
                         int maxMismatches, 
-                        int& numMissmatches);
+                        int& numMissmatches,
+                        const string& priorityRepeat = "");
 
 void constructRepeatMap(const unordered_map<string,Array>& globalArrayMap, 
                         unordered_map<string,RepeatData>& repeatMap);

@@ -45,6 +45,11 @@ inline bool areRepeatsTheSame(const string& repeatA,
         shortest = repeatB;
         longer = repeatA;
     }
+    if (maxMismatches != 1 && (!areRepeatsTheSame(shortest.substr(0,seedK), longer.substr(0,seedK), 1, 1) ||
+        longer.length() - shortest.length() > maxMismatches)) { 
+            cout << shortest << " " << longer << endl;
+            return false; }
+    // cout << "c" <<endl;
     unordered_set<string> smerSetLonger;
     findSmerSet(longer, smerSetLonger, seedK);
     for (int i = 0; i <= (shortest.length() - seedK); i++){
@@ -54,3 +59,16 @@ inline bool areRepeatsTheSame(const string& repeatA,
     }
     return true;
 }
+
+// inline bool isASubstring(const string& newRepeat,
+//                          const string& oldRepeat,
+//                          int seedK, 
+//                          int maxMismatches){
+//     if (newRepeat.length() > oldRepeat.length()){ return false; }
+//     for (int i = 0; i <= (oldRepeat.length() - seedK); i++){
+//         if (dissimilarity > maxMismatches) { return false; }
+//         string smerOfShortest = shortest.substr(i,seedK);
+//         if (smerSetLonger.count(smerOfShortest) == 0) { dissimilarity++; }
+//     }
+
+// }

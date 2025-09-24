@@ -68,8 +68,11 @@ void arrayIdentifior(MultiFormatFileReader& fileReader,
                 int tempStartIdx;
                 int numMissmatches;
                 int spacerLen = 0;
-                if (activeLine) { spacerLen = arrayHandler.getSpacerLen(); }
-                string repeat = expandSeedToKmer(line, smer, i, spacerLen, smap, activeLine, tempStartIdx, maxMismatches, numMissmatches);
+                string priorityRepeat = "";
+                if (activeLine) { 
+                    spacerLen = arrayHandler.getSpacerLen(); 
+                    priorityRepeat = arrayHandler.getCurrRepeat();}
+                string repeat = expandSeedToKmer(line, smer, i, spacerLen, smap, activeLine, tempStartIdx, maxMismatches, numMissmatches, priorityRepeat);
                 i++; // for now to keep everything stable !! (expand seed to Kmer also skips k nucleotides)
                 if (repeat == "") { continue; }
                 // if a known Kmer was found:
@@ -136,13 +139,15 @@ string expandSeedToKmer(const string& line,
                         bool& activeLine, 
                         int& tempStartIdx, 
                         int maxMismatches, 
-                        int& numMissmatches){
+                        int& numMissmatches,
+                        const string& priorityRepeat){
     // we acess the Kmers that the smer of interest appears in
     auto& kmap = smap[smer];
     // Create a vector of kmers and sort by size (largest first)
     vector<string> sortedKmers;
     sortedKmers.reserve(kmap.size()); // Reserve space for efficiency
     
+
     for (const auto& [kmer, idxs] : kmap) {
         sortedKmers.push_back(kmer);
     }
@@ -154,6 +159,9 @@ string expandSeedToKmer(const string& line,
         }
         return pickKey(a) < pickKey(b); // Tie-breaker using canonical form
     });
+    if (priorityRepeat != ""){
+        sortedKmers.insert(sortedKmers.begin(),priorityRepeat);
+    }
     // we iterate over all the Kmers that this smer is associated to
     for (const string& kmer : sortedKmers) {
         const auto& idxs = kmap[kmer];

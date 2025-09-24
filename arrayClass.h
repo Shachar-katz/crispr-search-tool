@@ -152,6 +152,7 @@ public:
     bool isActive() { return activeArray; }
     int getSpacerLen() const { return tempArray.getSpacerLen(); }
     vector<Array> getLineArrayVect(){ return lineArrayVect; }
+    string getCurrRepeat() const { return tempArray.getRepeat(); }
     bool noArrays() {
         if (lineArrayVect.empty()){
             return true;
