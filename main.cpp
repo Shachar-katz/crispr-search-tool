@@ -33,9 +33,9 @@ void init_params(const char* name, int argc, const char **argv, Parameters& args
     args.add_parser("inputFileR1", new ParserFilename("Input file R1 (for fastq_dual)")); // for 1 & 3
     args.add_parser("inputFileR2", new ParserFilename("Input file R2 (for fastq_dual)")); // for 1 & 3
     args.add_parser("minK", new ParserInteger("Minimum k", 20)); // for 1 & 3
-    args.add_parser("minLegitimateSpacer", new ParserInteger("min Legitimate spacer length", 20)); // for 1 & 3
-    args.add_parser("maxMismatchesForKmers", new ParserInteger("max mismatches when identifying a known kmer", 4)); // for array dump
-    args.add_parser("maxLegitimateSpacer", new ParserInteger("max Legitimate spacer length", 200)); // for 1
+    args.add_parser("minLegitimateSpacer", new ParserInteger("min Legitimate spacer length", 15)); // for 1 & 3
+    args.add_parser("maxMismatchesForKmers", new ParserInteger("max mismatches when identifying a known kmer", 6)); // for array dump
+    args.add_parser("maxLegitimateSpacer", new ParserInteger("max Legitimate spacer length", 100)); // for 1
     args.add_parser("inputFileCatalog", new ParserFilename("Input file catalog")); // for 3 and 2
     args.add_parser("secondInputFileCatalog", new ParserFilename("Additional input file catalog for dual fastq")); // for 2
     args.add_parser("alpha", new ParserInteger("Alpha (number of mutations permitted for grouping kmers)")); // for 2

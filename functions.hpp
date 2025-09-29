@@ -184,16 +184,25 @@ void arrayIdentifior(MultiFormatFileReader& fileReader,
                      int interval,
                      int maxMismatches);
 
+// string expandSeedToKmer(const string& line, 
+//                         const string& smer, 
+//                         int& idxInLine, 
+//                         const int& spacerLen,
+//                         unordered_map<string,Kmap_t>& smap, 
+//                         bool& activeLine, 
+//                         int& tempStartIdx, 
+//                         int maxMismatches, 
+//                         int& numMissmatches,
+//                         const string& priorityRepeat = "");
+
 string expandSeedToKmer(const string& line, 
                         const string& smer, 
                         int& idxInLine, 
-                        const int& spacerLen,
                         unordered_map<string,Kmap_t>& smap, 
                         bool& activeLine, 
                         int& tempStartIdx, 
                         int maxMismatches, 
-                        int& numMissmatches,
-                        const string& priorityRepeat = "");
+                        int& numMissmatches);
 
 void constructRepeatMap(const unordered_map<string,Array>& globalArrayMap, 
                         unordered_map<string,RepeatData>& repeatMap);

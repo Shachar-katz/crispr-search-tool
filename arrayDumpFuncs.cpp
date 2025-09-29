@@ -33,6 +33,102 @@ int buildKmap(ifstream& inCatalog, unordered_map<string,string>& kmerToId, int m
 
 
 // this function goes line by line and searches for arrays by known repeat identification
+// void arrayIdentifior(MultiFormatFileReader& fileReader, 
+//                      unordered_map<string,Array>& globalArrayMap, 
+//                      unordered_map<string,ArrayPositionData>& arrayPositionMap, 
+//                      unordered_map<string,Kmap_t>& smap,
+//                      unordered_map<string,string>& kmerToId, 
+//                      int seedK, 
+//                      unordered_map<string,double>& stats, 
+//                      ofstream& logFile,
+//                      ofstream& readDump,
+//                      int minLegitimateSpacer, 
+//                      int maxLegitimateSpacer, 
+//                      int minK, 
+//                      int interval,
+//                      int maxMismatches)
+// {
+//     // stats
+//     int progressCounter = 0;
+//     int numReadsWithArrays = 0; // ?? potentially add numReads with array from a particular repeat
+//     int arrayId = 1;
+//     string line;
+//     while (fileReader.getNextLine(line)) {
+//         bool activeLine = false; // stats
+//         // if the line is too short we skip it
+//         if (line.length() <= (2 * minK + minLegitimateSpacer + 2)){ continue; }
+//         // in line array handler object
+//         LineArrayHandler arrayHandler(line, maxLegitimateSpacer, minLegitimateSpacer);        
+//         // iterate over the line in jumps of s, and generate an smer at each index point 
+//         int i = 0;
+//         while (i <= (line.size() - seedK)){
+//             string smer = line.substr(i,seedK);
+//             // if this smer appears in our smap we try expanding it to a kmer and checking if its a known kmer
+//             if (smap.find(smer) != smap.end()){ 
+//                 int tempStartIdx;
+//                 int numMissmatches;
+//                 int spacerLen = 0;
+//                 string priorityRepeat = "";
+//                 if (activeLine) { 
+//                     spacerLen = arrayHandler.getSpacerLen(); 
+//                     priorityRepeat = arrayHandler.getCurrRepeat();}
+//                 string repeat = expandSeedToKmer(line, smer, i, spacerLen, smap, activeLine, tempStartIdx, maxMismatches, numMissmatches, priorityRepeat);
+//                 i++; // for now to keep everything stable !! (expand seed to Kmer also skips k nucleotides)
+//                 if (repeat == "") { continue; }
+//                 // if a known Kmer was found:
+//                 // a) search for its ID
+//                 // b) feed it to the array handler to either:
+//                     // i) expand an existing array 
+//                     // ii) create a new array
+//                     // iii) close the existing array and reopen a new array
+//                 string id = kmerToId.at(repeat);
+//                 arrayHandler.manageState(repeat, tempStartIdx, id, numMissmatches);
+//             }
+//             else{
+//                 i += seedK;
+//             }
+//         }
+//         // if at the end of the line an array is left open close it
+//         if (arrayHandler.isActive()) { arrayHandler.uploadArray(); }
+//         // stats
+//         if (activeLine == true){ numReadsWithArrays++; }
+//         // progress bar
+//         progressCounter++;
+//         if (progressCounter % interval == 0){
+//             cout << "Procession line: " << progressCounter << endl;
+//             logFile << "Procession line: " << progressCounter << endl;
+//         }
+//         // upload line to global array map
+//         if (arrayHandler.noArrays()) { continue; }
+//         readDump << "> R_" << progressCounter << endl << line << endl;
+//         vector<Array> lineArrayVect = arrayHandler.getLineArrayVect();
+//         for (auto& Array : lineArrayVect){
+//             string arrId = "A_" + to_string(arrayId);
+//             globalArrayMap[arrId] = Array;
+
+//             string readId = "R_" + to_string(progressCounter);
+//             ArrayPositionData currData;
+//             currData.readID = readId;
+//             currData.startPos = Array.getStartPos();
+//             currData.endPos = Array.getEndPos();
+//             currData.readLen = line.length();
+//             arrayPositionMap[arrId] = currData;
+            
+//             arrayId++;
+//         }
+//     }
+//     // check for 0 division (process terminated before it started)
+//     if (progressCounter == 0){
+//         cerr << "no lines were processed" << endl;
+//         return;
+//     }
+//     // calculate stats
+//     double precentReadsWithRepeat = (static_cast<double>(numReadsWithArrays) / static_cast<double>(progressCounter)) * 100;
+//     stats["number_of_reads_in_file: "] += progressCounter;
+//     stats["number_of_reads_in_file_with_array: "] += numReadsWithArrays;
+//     stats["precent_reads_in_file_with_array: "] += precentReadsWithRepeat;
+// }
+
 void arrayIdentifior(MultiFormatFileReader& fileReader, 
                      unordered_map<string,Array>& globalArrayMap, 
                      unordered_map<string,ArrayPositionData>& arrayPositionMap, 
@@ -50,78 +146,99 @@ void arrayIdentifior(MultiFormatFileReader& fileReader,
 {
     // stats
     int progressCounter = 0;
-    int numReadsWithArrays = 0; // ?? potentially add numReads with array from a particular repeat
+    int numReadsWithArrays = 0;
     int arrayId = 1;
     string line;
+    
     while (fileReader.getNextLine(line)) {
         bool activeLine = false; // stats
-        // in line array handler object
-        LineArrayHandler arrayHandler(line, maxLegitimateSpacer, minLegitimateSpacer);        
+        
         // if the line is too short we skip it
-        if (line.length() <= (2 * minK + minLegitimateSpacer + 2)){ continue; }
-        // iterate over the line in jumps of s, and generate an smer at each index point 
+        if (line.length() <= (2 * minK + minLegitimateSpacer + 2)){ 
+            continue; 
+        }
+        
+        // Create one array handler per line
+        LineArrayHandler arrayHandler(line, maxLegitimateSpacer, minLegitimateSpacer, seedK, maxMismatches);
+        
+        // iterate over the line
         int i = 0;
         while (i <= (line.size() - seedK)){
-            string smer = line.substr(i,seedK);
-            // if this smer appears in our smap we try expanding it to a kmer and checking if its a known kmer
+            string smer = line.substr(i, seedK);
+            
+            // if this smer appears in our smap we try expanding it to a kmer
             if (smap.find(smer) != smap.end()){ 
                 int tempStartIdx;
                 int numMissmatches;
-                int spacerLen = 0;
-                string priorityRepeat = "";
-                if (activeLine) { 
-                    spacerLen = arrayHandler.getSpacerLen(); 
-                    priorityRepeat = arrayHandler.getCurrRepeat();}
-                string repeat = expandSeedToKmer(line, smer, i, spacerLen, smap, activeLine, tempStartIdx, maxMismatches, numMissmatches, priorityRepeat);
-                i++; // for now to keep everything stable !! (expand seed to Kmer also skips k nucleotides)
-                if (repeat == "") { continue; }
-                // if a known Kmer was found:
-                // a) search for its ID
-                // b) feed it to the array handler to either:
-                    // i) expand an existing array 
-                    // ii) create a new array
-                    // iii) close the existing array and reopen a new array
+                string repeat = expandSeedToKmer(line, smer, i, smap, activeLine, tempStartIdx, maxMismatches, numMissmatches);
+                i++; // Move forward by 1 initially
+                
+                if (repeat == "") { 
+                    continue; 
+                }
+                
+                // Repeat found - set active line flag
+                activeLine = true;
+                
+                // Get repeat ID
                 string id = kmerToId.at(repeat);
-                arrayHandler.manageState(repeat, tempStartIdx, id, numMissmatches);
+                
+                // Hand off to array handler to build array from this first repeat
+                int arrayEndIdx = arrayHandler.buildArrayFromFirstRepeat(repeat, tempStartIdx, id, numMissmatches);
+                
+                // Jump past the array (or past single repeat if no array formed)
+                i = arrayEndIdx + 1;
             }
             else{
-                i += seedK;
+                i += seedK; // Skip ahead when smer not in catalog
             }
         }
-        // if at the end of the line an array is left open close it
-        if (arrayHandler.isActive()) { arrayHandler.uploadArray(); }
+        
         // stats
-        if (activeLine == true){ numReadsWithArrays++; }
+        if (activeLine == true){ 
+            numReadsWithArrays++; 
+        }
+        
         // progress bar
         progressCounter++;
         if (progressCounter % interval == 0){
             cout << "Procession line: " << progressCounter << endl;
             logFile << "Procession line: " << progressCounter << endl;
         }
-        // upload line to global array map
-        if (arrayHandler.noArrays()) { continue; }
+        
+        // Extract all valid arrays from this line
+        vector<Array> lineArrayVect = arrayHandler.extractValidArrays();
+        
+        if (lineArrayVect.empty()) { 
+            continue; 
+        }
+        
+        // Dump read to file
         readDump << "> R_" << progressCounter << endl << line << endl;
-        vector<Array> lineArrayVect = arrayHandler.getLineArrayVect();
-        for (auto& Array : lineArrayVect){
+        
+        // Upload arrays to global map
+        for (auto& array : lineArrayVect){
             string arrId = "A_" + to_string(arrayId);
-            globalArrayMap[arrId] = Array;
+            globalArrayMap[arrId] = array;
 
             string readId = "R_" + to_string(progressCounter);
             ArrayPositionData currData;
             currData.readID = readId;
-            currData.startPos = Array.getStartPos();
-            currData.endPos = Array.getEndPos();
+            currData.startPos = array.getStartPos();
+            currData.endPos = array.getEndPos();
             currData.readLen = line.length();
             arrayPositionMap[arrId] = currData;
             
             arrayId++;
         }
     }
+    
     // check for 0 division (process terminated before it started)
     if (progressCounter == 0){
         cerr << "no lines were processed" << endl;
         return;
     }
+    
     // calculate stats
     double precentReadsWithRepeat = (static_cast<double>(numReadsWithArrays) / static_cast<double>(progressCounter)) * 100;
     stats["number_of_reads_in_file: "] += progressCounter;
@@ -131,63 +248,133 @@ void arrayIdentifior(MultiFormatFileReader& fileReader,
 
 
 // this function checks if the known smer occurance means a known kmer occurance 
+// string expandSeedToKmer(const string& line, 
+//                         const string& smer, 
+//                         int& idxInLine, 
+//                         const int& spacerLen,
+//                         unordered_map<string,Kmap_t>& smap, 
+//                         bool& activeLine, 
+//                         int& tempStartIdx, 
+//                         int maxMismatches, 
+//                         int& numMissmatches,
+//                         const string& priorityRepeat){
+//     // we acess the Kmers that the smer of interest appears in
+//     auto& kmap = smap[smer];
+//     // Create a vector of kmers and sort by size (largest first)
+//     vector<string> sortedKmers;
+//     sortedKmers.reserve(kmap.size()); // Reserve space for efficiency
+    
+
+//     for (const auto& [kmer, idxs] : kmap) {
+//         sortedKmers.push_back(kmer);
+//     }
+    
+//     // Sort by size (largest first), with tie-breaking by canonical form for consistency
+//     sort(sortedKmers.begin(), sortedKmers.end(), [](const string& a, const string& b) {
+//         if (a.size() != b.size()) {
+//             return a.size() > b.size(); // Sort by size, largest first
+//         }
+//         return pickKey(a) < pickKey(b); // Tie-breaker using canonical form
+//     });
+//     if (priorityRepeat != ""){
+//         sortedKmers.insert(sortedKmers.begin(),priorityRepeat);
+//     }
+//     // we iterate over all the Kmers that this smer is associated to
+//     for (const string& kmer : sortedKmers) {
+//         const auto& idxs = kmap[kmer];
+//         // we record the recorded kmer's length
+//         int k = kmer.size();
+//         unordered_set<string> smerSet;
+//         findSmerSet(kmer, smerSet, smer.size());
+//         // iterate over all the indecies that the smer of interest appears at in this particular recorded kmer 
+//         for (int i = 0; i < idxs.size(); i++){
+//             // an index where this smer appears in the kmer
+//             int startIdxInKmer = idxs[i];
+//             int startIdxOfKmerInLine = idxInLine - startIdxInKmer;
+//             int endIdxOfKmerInLine = startIdxOfKmerInLine + k;
+//             // a check to prevent out of bounds repeat
+//             if (idxInLine < startIdxInKmer){ continue; }
+//             if (endIdxOfKmerInLine > line.size()) { continue; }
+//             // kmerInLine = line.substr(startIdexOfKmerInLine, k);
+//             // if (kmer != kmerInLine){ continue; } // early rejection if kmer not a match
+//             if (!isKmerMatch(line, startIdxOfKmerInLine, endIdxOfKmerInLine, smerSet, smer.size(), numMissmatches, maxMismatches)) { break; }
+
+//             activeLine = true;
+//             idxInLine += (kmer.length() - startIdxInKmer + spacerLen); // update index
+//             tempStartIdx = startIdxOfKmerInLine; // update start idx for array
+//             return kmer; //@here - should i just have it return all of this and log the missmatches and not change the array handler and just have it cut the sections from the line the same way?
+//         }
+//     }
+//     return "";
+// }
+
 string expandSeedToKmer(const string& line, 
                         const string& smer, 
                         int& idxInLine, 
-                        const int& spacerLen,
                         unordered_map<string,Kmap_t>& smap, 
                         bool& activeLine, 
                         int& tempStartIdx, 
                         int maxMismatches, 
-                        int& numMissmatches,
-                        const string& priorityRepeat){
-    // we acess the Kmers that the smer of interest appears in
+                        int& numMissmatches)
+{
+    // Access the Kmers that the smer of interest appears in
     auto& kmap = smap[smer];
+    
     // Create a vector of kmers and sort by size (largest first)
     vector<string> sortedKmers;
-    sortedKmers.reserve(kmap.size()); // Reserve space for efficiency
+    sortedKmers.reserve(kmap.size());
     
-
     for (const auto& [kmer, idxs] : kmap) {
         sortedKmers.push_back(kmer);
     }
     
-    // Sort by size (largest first), with tie-breaking by canonical form for consistency
+    // Sort by size (largest first), with tie-breaking by canonical form
     sort(sortedKmers.begin(), sortedKmers.end(), [](const string& a, const string& b) {
         if (a.size() != b.size()) {
-            return a.size() > b.size(); // Sort by size, largest first
+            return a.size() > b.size(); // Largest first
         }
-        return pickKey(a) < pickKey(b); // Tie-breaker using canonical form
+        return pickKey(a) < pickKey(b); // Tie-breaker
     });
-    if (priorityRepeat != ""){
-        sortedKmers.insert(sortedKmers.begin(),priorityRepeat);
-    }
-    // we iterate over all the Kmers that this smer is associated to
+    
+    // Iterate over all the Kmers that this smer is associated to
     for (const string& kmer : sortedKmers) {
         const auto& idxs = kmap[kmer];
-        // we record the recorded kmer's length
+        
+        // Record the kmer's length
         int k = kmer.size();
+        
+        // Build smer set for matching
         unordered_set<string> smerSet;
         findSmerSet(kmer, smerSet, smer.size());
-        // iterate over all the indecies that the smer of interest appears at in this particular recorded kmer 
+        
+        // Iterate over all the indices that the smer appears in this kmer
         for (int i = 0; i < idxs.size(); i++){
-            // an index where this smer appears in the kmer
+            // An index where this smer appears in the kmer
             int startIdxInKmer = idxs[i];
             int startIdxOfKmerInLine = idxInLine - startIdxInKmer;
             int endIdxOfKmerInLine = startIdxOfKmerInLine + k;
-            // a check to prevent out of bounds repeat
-            if (idxInLine < startIdxInKmer){ continue; }
-            if (endIdxOfKmerInLine > line.size()) { continue; }
-            // kmerInLine = line.substr(startIdexOfKmerInLine, k);
-            // if (kmer != kmerInLine){ continue; } // early rejection if kmer not a match
-            if (!isKmerMatch(line, startIdxOfKmerInLine, endIdxOfKmerInLine, smerSet, smer.size(), numMissmatches, maxMismatches)) { break; }
-
+            
+            // Bounds check to prevent out of bounds repeat
+            if (idxInLine < startIdxInKmer){ 
+                continue; 
+            }
+            if (endIdxOfKmerInLine > (int)line.size()) { 
+                continue; 
+            }
+            
+            // Check if this matches with allowed mismatches
+            if (!isKmerMatch(line, startIdxOfKmerInLine, endIdxOfKmerInLine, 
+                           smerSet, smer.size(), numMissmatches, maxMismatches)) { 
+                break; 
+            }
+            
+            // Match found
             activeLine = true;
-            idxInLine += (kmer.length() - startIdxInKmer + spacerLen); // update index
-            tempStartIdx = startIdxOfKmerInLine; // update start idx for array
-            return kmer; //@here - should i just have it return all of this and log the missmatches and not change the array handler and just have it cut the sections from the line the same way?
+            tempStartIdx = startIdxOfKmerInLine;
+            return kmer;
         }
     }
+    
     return "";
 }
 
